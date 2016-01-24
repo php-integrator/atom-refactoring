@@ -39,7 +39,6 @@ class GetterSetterProvider extends AbstractProvider
 
         # TODO: The base menu should always be the same, add to base class.
         # TODO: The menu ordering is not ideal.
-        # TODO: Add docblocks everywhere.
 
         @menuItemDisposable = atom.menu.add([
             {
@@ -77,6 +76,12 @@ class GetterSetterProvider extends AbstractProvider
         # TODO: Test package deactivation, something is still going wrong with the selectionView being null after
         # reactivation.
 
+    ###*
+     * Executes the generation.
+     *
+     * @param {boolean} enableGetterGeneration
+     * @param {boolean} enableSetterGeneration
+    ###
     executeCommand: (enableGetterGeneration, enableSetterGeneration) ->
         activeTextEditor = atom.workspace.getActiveTextEditor()
 
@@ -138,8 +143,17 @@ class GetterSetterProvider extends AbstractProvider
             # TODO: We should actually be adding an 'unresolved' type. The 'type' is already partially resolved due
             #       to the base package's NameResolver (node visitor).
 
+    ###*
+     * Called when the selection of properties is cancelled.
+    ###
     onCancel: (metadata) ->
 
+    ###*
+     * Called when the selection of properties is confirmed.
+     *
+     * @param {array}       selectedItems
+     * @param {Object|null} metadata
+    ###
     onConfirm: (selectedItems, metadata) ->
         # TODO: Only generate type hints for class properties (optionally add a checkbox to the selection view
         # to specify whether the user wants type hints for basic types as well if he using PHP 7).
@@ -166,6 +180,13 @@ class GetterSetterProvider extends AbstractProvider
         # just because functionality that should be working fails).
         #metadata.editor.autoIndentSelectedRows()
 
+    ###*
+     * Generates a getter for the specified selected item.
+     *
+     * @param {Object} item
+     *
+     * @return {string}
+    ###
     generateGetterForItem: (item) ->
         returnTypeDeclaration = ''
 
@@ -184,6 +205,13 @@ class GetterSetterProvider extends AbstractProvider
             }
         """
 
+    ###*
+     * Generates a setter for the specified selected item.
+     *
+     * @param {Object} item
+     *
+     * @return {string}
+    ###
     generateSetterForItem: (item) ->
         typePrefix = ''
 
