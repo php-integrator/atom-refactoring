@@ -104,6 +104,13 @@ class GetterSetterProvider extends AbstractProvider
                     data.className = ''
                     enabledItems.push(data)
 
+            # Sort alphabetically and put the disabled items at the end.
+            sorter = (a, b) ->
+                return a.name.localeCompare(b.name)
+
+            enabledItems.sort(sorter)
+            disabledItems.sort(sorter)
+
             @selectionView.setItems(enabledItems.concat(disabledItems))
 
             # TODO: We should actually be adding an 'unresolved' type. The 'type' is already partially resolved due
