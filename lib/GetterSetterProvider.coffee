@@ -20,6 +20,8 @@ class GetterSetterProvider extends AbstractProvider
         super(service)
 
         @selectionView = new SelectionView(@onConfirm.bind(this), @onCancel.bind(this))
+        @selectionView.setLoading('Loading class information...')
+        @selectionView.setEmptyMessage('No properties found.')
 
         atom.commands.add 'atom-workspace', "php-integrator-refactoring:generate-getter": =>
             @executeCommand(true, false)
@@ -115,7 +117,6 @@ class GetterSetterProvider extends AbstractProvider
 
             # TODO: We should actually be adding an 'unresolved' type. The 'type' is already partially resolved due
             #       to the base package's NameResolver (node visitor).
-            # TODO: Support multiple items with check marks, like git-plus' "Stage Files" view.
 
     ###*
      * @inheritdoc
@@ -128,59 +129,68 @@ class GetterSetterProvider extends AbstractProvider
     onCancel: () ->
 
 
-    onConfirm: (item) ->
-        getter = ''
-
+    onConfirm: (selectedItems) ->
+        # TODO: Test package deactivation, test that panels aren't registered multiple times.
         # TODO: Very silly, but Atom won't automatically maintain indentation, so we'll have to fetch the cursor's
         # column and insert that many spaces to every line...
 
         # TODO: Only generate type hints for class properties (optionally add a checkbox to the selection view
         # to specify whether the user wants type hints for basic types as well if he using PHP 7).
 
-        if item.needsGetter
-            returnTypeDeclaration = ''
+        itemOutputs = []
 
-            if item.enablePhp7Features
-                returnTypeDeclaration = ': ' + item.type
+        for item in selectedItems
+            if item.needsGetter
+                itemOutputs.push(@generateGetterForItem(item))
 
-            getter = """
-                /**
-                 * Retrieves the currently set #{item.name}.
-                 *
-                 * @return #{item.type}
-                 */
-                public function #{item.getterName}()#{returnTypeDeclaration}
-                {
-                    return $this->#{item.name};
-                }
-            """
+            if item.needsSetter
+                itemOutputs.push(@generateSetterForItem(item))
 
-        setter = ''
+        output = itemOutputs.join("\n\n").trim()
 
-        if item.needsSetter
-            typePrefix = ''
+        if output.length > 0
+            item.editor.insertText(output)
 
-            if item.enableTypeHintGeneration
-                typePrefix = item.type + ' '
+    generateGetterForItem: (item) ->
+        returnTypeDeclaration = ''
 
-            returnTypeDeclaration = ''
+        if item.enablePhp7Features
+            returnTypeDeclaration = ': ' + item.type
 
-            if item.enablePhp7Features
-                returnTypeDeclaration = ': self'
+        return """
+            /**
+             * Retrieves the currently set #{item.name}.
+             *
+             * @return #{item.type}
+             */
+            public function #{item.getterName}()#{returnTypeDeclaration}
+            {
+                return $this->#{item.name};
+            }
+        """
 
-            setter = """
-                /**
-                 * Sets the #{item.name} to use.
-                 *
-                 * @param #{item.type} $value
-                 *
-                 * @return $this
-                 */
-                public function #{item.setterName}(#{typePrefix}$value)#{returnTypeDeclaration}
-                {
-                    $this->#{item.name} = $value;
-                    return $this;
-                }
-            """
+    generateSetterForItem: (item) ->
+        typePrefix = ''
 
-        item.editor.insertText((getter + "\n\n" + setter).trim())
+        if item.enableTypeHintGeneration
+            typePrefix = item.type + ' '
+
+        returnTypeDeclaration = ''
+
+        if item.enablePhp7Features
+            returnTypeDeclaration = ': self'
+
+        return """
+            /**
+             * Sets the #{item.name} to use.
+             *
+             * @param #{item.type} $value
+             *
+             * @return $this
+             */
+            public function #{item.setterName}(#{typePrefix}$value)#{returnTypeDeclaration}
+            {
+                $this->#{item.name} = $value;
+                return $this;
+            }
+        """
