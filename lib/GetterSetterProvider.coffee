@@ -1,6 +1,6 @@
 AbstractProvider = require './AbstractProvider'
 
-SelectionView = require './GetterSetterProvider/SelectionView'
+MultiSelectionView = require './Utility/MultiSelectionView'
 
 module.exports =
 
@@ -19,7 +19,7 @@ class GetterSetterProvider extends AbstractProvider
     activate: (service) ->
         super(service)
 
-        @selectionView = new SelectionView(@onConfirm.bind(this), @onCancel.bind(this))
+        @selectionView = new MultiSelectionView(@onConfirm.bind(this), @onCancel.bind(this))
         @selectionView.setLoading('Loading class information...')
         @selectionView.setEmptyMessage('No properties found.')
 
@@ -62,6 +62,7 @@ class GetterSetterProvider extends AbstractProvider
 
         return if not activeTextEditor
 
+        @selectionView.setMetadata({editor: activeTextEditor, enablePhp7Features: false})
         @selectionView.storeFocusedElement()
         @selectionView.present()
 
@@ -93,7 +94,6 @@ class GetterSetterProvider extends AbstractProvider
                     setterName               : setterName
                     enablePhp7Features       : enablePhp7Features
                     enableTypeHintGeneration : enablePhp7Features or isClassType # NOTE: Not relevant for getters.
-                    editor                   : activeTextEditor
                 }
 
                 if (enableGetterGeneration and enableSetterGeneration and getterExists and setterExists) or
@@ -126,10 +126,10 @@ class GetterSetterProvider extends AbstractProvider
 
         # TODO: Remove commands and menu items again?
 
-    onCancel: () ->
+    onCancel: (metadata) ->
 
 
-    onConfirm: (selectedItems) ->
+    onConfirm: (selectedItems, metadata) ->
         # TODO: Test package deactivation, test that panels aren't registered multiple times.
         # TODO: Very silly, but Atom won't automatically maintain indentation, so we'll have to fetch the cursor's
         # column and insert that many spaces to every line...
@@ -149,7 +149,7 @@ class GetterSetterProvider extends AbstractProvider
         output = itemOutputs.join("\n\n").trim()
 
         if output.length > 0
-            item.editor.insertText(output)
+            metadata.editor.insertText(output)
 
     generateGetterForItem: (item) ->
         returnTypeDeclaration = ''

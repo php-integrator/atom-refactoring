@@ -3,33 +3,64 @@
 module.exports =
 
 ##*
-# The view that allows the user to select the properties to generate for.
+# An extension on SelectListView from atom-space-pen-views that allows multiple selections.
 ##
-class SelectionView extends SelectListView
-    onDidConfirm: null
-    onDidCancel: null
-    emptyMessage: null
-    selectedItems: null
+class MultiSelectionView extends SelectListView
+    ###*
+     * The callback to invoke when the user confirms his selections.
+    ###
+    onDidConfirm  : null
 
-    constructor: (@onDidConfirm, @onDidCancel = null, @emptyMessage) ->
+    ###*
+     * The callback to invoke when the user cancels the view.
+    ###
+    onDidCancel   : null
+
+    ###*
+     * Metadata to pass to the callbacks.
+    ###
+    metadata      : null
+
+    ###*
+     * The message to display when there are no results.
+    ###
+    emptyMessage  : null
+
+    ###*
+     * Items that are currently selected.
+    ###
+    selectedItems : null
+
+    ###*
+     * Constructor.
+     *
+     * @param {Callback} onDidConfirm
+     * @param {Callback} onDidCancel
+    ###
+    constructor: (@onDidConfirm, @onDidCancel = null) ->
         super()
 
         @selectedItems = []
 
+    ###*
+     * @inheritdoc
+    ###
     initialize: ->
         super()
 
         @addClass('from-top')
         @panel ?= atom.workspace.addModalPanel(item: this, visible: false)
 
-        @createButtons()
+        @createButtonBar()
 
         # Ensure that button clicks are actually handled.
         @on 'mousedown', ({target}) =>
             return false if $(target).hasClass('btn')
 
-
-    createButtons: () ->
+    ###*
+     * Creates the button bar at the bottom of the view.
+    ###
+    createButtonBar: () ->
         cancelButtonText = @getCancelButtonText()
         confirmButtonText = @getConfirmButtonText()
 
@@ -48,10 +79,11 @@ class SelectionView extends SelectListView
             @cancel()            if $(event.target).hasClass('button--cancel')
 
         # TODO: See if we can attach a className to the list in its entiretly and use subclasses instead.
+        # TODO: Split this off into a MultiSelectionView base class.
 
-
-
-
+    ###*
+     * @inheritdoc
+    ###
     viewForItem: (item) ->
         classes = ['php-integrator-refactoring-list-item']
 
@@ -70,26 +102,66 @@ class SelectionView extends SelectListView
             </li>
         """
 
+    ###*
+     * @inheritdoc
+    ###
     getFilterKey: () ->
         return 'name'
 
+    ###*
+     * Retrieves the text to display on the cancel button.
+     *
+     * @return {string}
+    ###
     getCancelButtonText: () ->
         return 'Cancel'
 
+    ###*
+     * Retrieves the text to display on the confirmation button.
+     *
+     * @return {string}
+    ###
     getConfirmButtonText: () ->
         return 'Generate'
 
-
-
+    ###*
+     * Retrieves the message that is displayed when there are no results.
+     *
+     * @return {string}
+    ###
     getEmptyMessage: () ->
         if @emptyMessage?
             return @emptyMessage
 
         return super()
 
+    ###*
+     * Sets the message that is displayed when there are no results.
+     *
+     * @param {string} emptyMessage
+    ###
     setEmptyMessage: (emptyMessage) ->
         @emptyMessage = emptyMessage
 
+    ###*
+     * Retrieves the metadata to pass to the callbacks.
+     *
+     * @return {Object|null}
+    ###
+    getMetadata: () ->
+        return @metadata
+
+    ###*
+     * Sets the metadata to pass to the callbacks.
+     *
+     * @param {Object|null} metadata
+    ###
+    setMetadata: (metadata) ->
+        @metadata = metadata
+
+    ###*
+     * @inheritdoc
+    ###
     setItems: (items) ->
         i = 0
 
@@ -100,6 +172,9 @@ class SelectionView extends SelectListView
 
         @selectedItems = []
 
+    ###*
+     * @inheritdoc
+    ###
     confirmed: (item) ->
         item.isSelected = not item.isSelected
 
@@ -119,20 +194,29 @@ class SelectionView extends SelectListView
 
         @selectItemView(@list.find("li:nth(#{index})"))
 
+    ###*
+     * Invoked when the user confirms his selections by pressing the confirmation button.
+    ###
     confirmedByButton: () ->
         if @onDidConfirm
-           @onDidConfirm(@selectedItems)
+           @onDidConfirm(@selectedItems, @getMetadata())
 
         @restoreFocus()
         @panel.hide()
 
+    ###*
+     * @inheritdoc
+    ###
     cancelled: () ->
         if @onDidCancel
-            @onDidCancel()
+            @onDidCancel(@getMetadata())
 
         @restoreFocus()
         @panel.hide()
 
+    ###*
+     * Presents the view to the user.
+    ###
     present: () ->
         @panel.show()
         @focusFilterEditor()
