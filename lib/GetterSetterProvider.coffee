@@ -66,7 +66,8 @@ class GetterSetterProvider extends AbstractProvider
         currentClassName = @service.determineFullClassName(activeTextEditor)
 
         @service.getClassInfo(currentClassName, true).then (classInfo) =>
-            items = []
+            enabledItems = []
+            disabledItems = []
 
             for name, property of classInfo.properties
                 isClassType = false
@@ -75,21 +76,38 @@ class GetterSetterProvider extends AbstractProvider
                 # TODO: Fill in enableTypeHintGeneration based on if it's a class type or not. If enablePhp7Features
                 # is true, this can always be true.
 
-                items.push({
+                getterName = 'get' + name.substr(0, 1).toUpperCase() + name.substr(1)
+                setterName = 'set' + name.substr(0, 1).toUpperCase() + name.substr(1)
+
+                getterExists = if getterName of classInfo.methods then true else false
+                setterExists = if setterName of classInfo.methods then true else false
+
+                data = {
                     name                     : name
                     type                     : if property.return.type then property.return.resolvedType else 'mixed'
                     needsGetter              : enableGetterGeneration
                     needsSetter              : enableSetterGeneration
+                    getterName               : getterName
+                    setterName               : setterName
                     enablePhp7Features       : enablePhp7Features
                     enableTypeHintGeneration : enablePhp7Features or isClassType # NOTE: Not relevant for getters.
                     editor                   : activeTextEditor
-                })
+                }
 
-            @selectionView.setItems(items)
+                if (enableGetterGeneration and enableSetterGeneration and getterExists and setterExists) or
+                   (enableGetterGeneration and getterExists) or
+                   (enableSetterGeneration and setterExists)
+                    data.className = 'php-integrator-refactoring-strike'
+                    disabledItems.push(data)
+
+                else
+                    data.className = ''
+                    enabledItems.push(data)
+
+            @selectionView.setItems(enabledItems.concat(disabledItems))
 
             # TODO: We should actually be adding an 'unresolved' type. The 'type' is already partially resolved due
             #       to the base package's NameResolver (node visitor).
-            # TODO: Class properties that already have a getter/setter should be crossed out (strikethrough).
             # TODO: Support multiple items with check marks, like git-plus' "Stage Files" view.
 
     ###*
@@ -118,15 +136,13 @@ class GetterSetterProvider extends AbstractProvider
             if item.enablePhp7Features
                 returnTypeDeclaration = ': ' + item.type
 
-            getterName = 'get' + item.name.substr(0, 1).toUpperCase() + item.name.substr(1)
-
             getter = """
                 /**
                  * Retrieves the currently set #{item.name}.
                  *
                  * @return #{item.type}
                  */
-                public function #{getterName}()#{returnTypeDeclaration}
+                public function #{item.getterName}()#{returnTypeDeclaration}
                 {
                     return $this->#{item.name};
                 }
@@ -145,8 +161,6 @@ class GetterSetterProvider extends AbstractProvider
             if item.enablePhp7Features
                 returnTypeDeclaration = ': self'
 
-            setterName = 'set' + item.name.substr(0, 1).toUpperCase() + item.name.substr(1)
-
             setter = """
                 /**
                  * Sets the #{item.name} to use.
@@ -155,7 +169,7 @@ class GetterSetterProvider extends AbstractProvider
                  *
                  * @return $this
                  */
-                public function #{setterName}(#{typePrefix}$value)#{returnTypeDeclaration}
+                public function #{item.setterName}(#{typePrefix}$value)#{returnTypeDeclaration}
                 {
                     $this->#{item.name} = $value;
                     return $this;

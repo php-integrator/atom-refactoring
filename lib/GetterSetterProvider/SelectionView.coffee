@@ -21,7 +21,9 @@ class SelectionView extends SelectListView
         # @panel.destroy()
 
     viewForItem: (item) ->
-        "<li>#{item.name}</li>"
+        className = if item.className then item.className else ''
+
+        "<li class=\"#{className}\">#{item.name}</li>"
 
     getFilterKey: () ->
         return 'name'

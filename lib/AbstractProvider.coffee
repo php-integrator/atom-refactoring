@@ -13,7 +13,6 @@ class AbstractProvider
      * Constructor.
     ###
     constructor: () ->
-        
 
     ###*
      * Initializes this provider.
@@ -76,7 +75,6 @@ class AbstractProvider
      * Deactives the provider.
     ###
     deactivate: () ->
-
 
     ###*
      * Registers the necessary event handlers.
