@@ -60,6 +60,13 @@ class MultiSelectionView extends SelectListView
             return false if $(target).hasClass('btn')
 
     ###*
+     * Destroys the view and cleans up.
+    ###
+    destroy: () ->
+        @panel.destroy()
+        @panel = null
+
+    ###*
      * Creates the button bar at the bottom of the view.
     ###
     createButtonBar: () ->

@@ -14,6 +14,11 @@ class GetterSetterProvider extends AbstractProvider
     selectionView: null
 
     ###*
+     * The disposable that can be used to remove the menu items again.
+    ###
+    menuItemDisposable: null
+
+    ###*
      * @inheritdoc
     ###
     activate: (service) ->
@@ -36,7 +41,7 @@ class GetterSetterProvider extends AbstractProvider
         # TODO: The menu ordering is not ideal.
         # TODO: Add docblocks everywhere.
 
-        atom.menu.add([
+        @menuItemDisposable = atom.menu.add([
             {
                 'label': 'Packages'
                 'submenu': [
@@ -56,6 +61,21 @@ class GetterSetterProvider extends AbstractProvider
                 ]
             }
         ])
+
+    ###*
+     * @inheritdoc
+    ###
+    deactivate: () ->
+        @super()
+
+        @selectionView.destroy()
+        @selectionView = null
+
+        @menuItemDisposable.dispose()
+        @menuItemDisposable = null
+
+        # TODO: Test package deactivation, something is still going wrong with the selectionView being null after
+        # reactivation.
 
     executeCommand: (enableGetterGeneration, enableSetterGeneration) ->
         activeTextEditor = atom.workspace.getActiveTextEditor()
@@ -117,15 +137,6 @@ class GetterSetterProvider extends AbstractProvider
 
             # TODO: We should actually be adding an 'unresolved' type. The 'type' is already partially resolved due
             #       to the base package's NameResolver (node visitor).
-
-    ###*
-     * @inheritdoc
-    ###
-    deactivate: () ->
-        @selectionView.destroy()
-
-        # TODO: Test package deactivation, test that panels aren't registered multiple times.
-        # TODO: Remove commands and menu items again?
 
     onCancel: (metadata) ->
 
