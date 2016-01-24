@@ -76,11 +76,15 @@ class GetterSetterProvider extends AbstractProvider
             disabledItems = []
 
             for name, property of classInfo.properties
-                isClassType = false
                 enablePhp7Features = false
+                
+                type = if property.return.resolvedType then property.return.resolvedType else 'mixed'
+                isClassType = @isClassType(type)
 
-                # TODO: Fill in enableTypeHintGeneration based on if it's a class type or not. If enablePhp7Features
-                # is true, this can always be true.
+                # TODO: We should actually be adding an 'unresolved' type. The 'type' is already partially resolved due
+                #       to the base package's NameResolver (node visitor).
+                if isClassType
+                    type = '\\' + type
 
                 getterName = 'get' + name.substr(0, 1).toUpperCase() + name.substr(1)
                 setterName = 'set' + name.substr(0, 1).toUpperCase() + name.substr(1)
@@ -90,13 +94,13 @@ class GetterSetterProvider extends AbstractProvider
 
                 data = {
                     name                     : name
-                    type                     : if property.return.type then property.return.resolvedType else 'mixed'
+                    type                     : type
                     needsGetter              : enableGetterGeneration
                     needsSetter              : enableSetterGeneration
                     getterName               : getterName
                     setterName               : setterName
                     enablePhp7Features       : enablePhp7Features
-                    enableTypeHintGeneration : enablePhp7Features or isClassType # NOTE: Not relevant for getters.
+                    enableTypeHintGeneration : enablePhp7Features or isClassType # NOTE: Not used for getters.
                 }
 
                 if (enableGetterGeneration and enableSetterGeneration and getterExists and setterExists) or
@@ -118,8 +122,13 @@ class GetterSetterProvider extends AbstractProvider
 
             @selectionView.setItems(enabledItems.concat(disabledItems))
 
-            # TODO: We should actually be adding an 'unresolved' type. The 'type' is already partially resolved due
-            #       to the base package's NameResolver (node visitor).
+    ###*
+     * Indicates if the specified type is a class type or not.
+     *
+     * @return {bool}
+    ###
+    isClassType: (type) ->
+        return if type.substr(0, 1).toUpperCase() == type.substr(0, 1) then true else false
 
     ###*
      * Called when the selection of properties is cancelled.
