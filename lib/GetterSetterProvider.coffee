@@ -133,9 +133,6 @@ class GetterSetterProvider extends AbstractProvider
      * @param {Object|null} metadata
     ###
     onConfirm: (selectedItems, metadata) ->
-        # TODO: Only generate type hints for class properties (optionally add a checkbox to the selection view
-        # to specify whether the user wants type hints for basic types as well if he using PHP 7).
-
         itemOutputs = []
 
         for item in selectedItems
