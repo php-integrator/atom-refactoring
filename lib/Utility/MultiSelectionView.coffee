@@ -48,7 +48,9 @@ class MultiSelectionView extends SelectListView
     initialize: ->
         super()
 
-        @addClass('from-top')
+        @addClass('php-integrator-refactoring-multi-selection-view')
+        @list.addClass('mark-active')
+
         @panel ?= atom.workspace.addModalPanel(item: this, visible: false)
 
         @createButtonBar()
@@ -65,12 +67,9 @@ class MultiSelectionView extends SelectListView
         confirmButtonText = @getConfirmButtonText()
 
         buttonBar = $$ ->
-            @div class: 'php-integrator-refactoring-list-buttons', =>
-                @span class: 'pull-left', =>
-                    @button class: 'btn btn-error inline-block-tight icon icon-circle-slash button--cancel', cancelButtonText
-
-                @span class: 'pull-right', =>
-                    @button class: 'btn btn-success inline-block-tight icon icon-gear button--confirm', confirmButtonText
+            @div class: 'button-bar', =>
+                @button class: 'btn btn-error inline-block-tight pull-left icon icon-circle-slash button--cancel', cancelButtonText
+                @button class: 'btn btn-success inline-block-tight pull-right icon icon-gear button--confirm', confirmButtonText
 
         buttonBar.appendTo(this)
 
@@ -78,28 +77,23 @@ class MultiSelectionView extends SelectListView
             @confirmedByButton() if $(event.target).hasClass('button--confirm')
             @cancel()            if $(event.target).hasClass('button--cancel')
 
-        # TODO: See if we can attach a className to the list in its entiretly and use subclasses instead.
-        # TODO: Split this off into a MultiSelectionView base class.
-
     ###*
      * @inheritdoc
     ###
     viewForItem: (item) ->
-        classes = ['php-integrator-refactoring-list-item']
+        classes = ['list-item']
 
         if item.className
             classes.push(item.className)
 
-        className = classes.join(' ')
+        if item.isSelected
+            classes.push('active')
 
+        className = classes.join(' ')
         displayText = item.name
-        symbolClass = if item.isSelected then 'icon icon-check' else ''
 
         return """
-            <li class="#{className}">
-                <span class="symbol #{symbolClass}"></span>
-                <span class="display-text">#{displayText}</span>
-            </li>
+            <li class="#{className}">#{displayText}</li>
         """
 
     ###*

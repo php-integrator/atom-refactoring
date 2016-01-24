@@ -99,7 +99,7 @@ class GetterSetterProvider extends AbstractProvider
                 if (enableGetterGeneration and enableSetterGeneration and getterExists and setterExists) or
                    (enableGetterGeneration and getterExists) or
                    (enableSetterGeneration and setterExists)
-                    data.className = 'php-integrator-refactoring-strike'
+                    data.className = 'php-integrator-refactoring-strikethrough'
                     disabledItems.push(data)
 
                 else
