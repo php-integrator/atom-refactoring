@@ -14,11 +14,6 @@ class GetterSetterProvider extends AbstractProvider
     selectionView: null
 
     ###*
-     * The disposable that can be used to remove the menu items again.
-    ###
-    menuItemDisposable: null
-
-    ###*
      * @inheritdoc
     ###
     activate: (service) ->
@@ -37,29 +32,15 @@ class GetterSetterProvider extends AbstractProvider
         atom.commands.add 'atom-workspace', "php-integrator-refactoring:generate-getter-setter-pair": =>
             @executeCommand(true, true)
 
-        # TODO: The base menu should always be the same, add to base class.
-        # TODO: The menu ordering is not ideal.
-
-        @menuItemDisposable = atom.menu.add([
-            {
-                'label': 'Packages'
-                'submenu': [
-                    {
-                        'label': 'PHP Integrator',
-                        'submenu': [
-                            {
-                                'label': 'Refactoring'
-                                'submenu': [
-                                    {'label': 'Generate Getter(s)', 'command': 'php-integrator-refactoring:generate-getter'},
-                                    {'label': 'Generate Setter(s)', 'command': 'php-integrator-refactoring:generate-setter'},
-                                    {'label': 'Generate Getter And Setter Pair(s)', 'command': 'php-integrator-refactoring:generate-getter-setter-pair'},
-                                ]
-                            }
-                        ]
-                    }
-                ]
-            }
-        ])
+    ###*
+     * @inheritdoc
+    ###
+    getMenuItems: () ->
+        return [
+            {'label': 'Generate Getter(s)',                 'command': 'php-integrator-refactoring:generate-getter'},
+            {'label': 'Generate Setter(s)',                 'command': 'php-integrator-refactoring:generate-setter'},
+            {'label': 'Generate Getter And Setter Pair(s)', 'command': 'php-integrator-refactoring:generate-getter-setter-pair'},
+        ]
 
     ###*
      * @inheritdoc
@@ -69,9 +50,6 @@ class GetterSetterProvider extends AbstractProvider
 
         @selectionView.destroy()
         @selectionView = null
-
-        @menuItemDisposable.dispose()
-        @menuItemDisposable = null
 
         # TODO: Test package deactivation, something is still going wrong with the selectionView being null after
         # reactivation.

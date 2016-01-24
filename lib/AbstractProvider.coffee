@@ -10,6 +10,11 @@ class AbstractProvider
     service: null
 
     ###*
+     * The disposable that can be used to remove the menu items again.
+    ###
+    menuItemDisposable: null
+
+    ###*
      * Constructor.
     ###
     constructor: () ->
@@ -36,6 +41,28 @@ class AbstractProvider
             return if packageData.name != dependentPackage
 
             @deactivate()
+
+        menuItems = @getMenuItems()
+
+        if menuItems.length > 0
+            # FIXME: The menu ordering is not ideal.
+
+            @menuItemDisposable = atom.menu.add([
+                {
+                    'label': 'Packages'
+                    'submenu': [
+                        {
+                            'label': 'PHP Integrator',
+                            'submenu': [
+                                {
+                                    'label': 'Refactoring'
+                                    'submenu': menuItems
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ])
 
     ###*
      * Does the actual initialization.
@@ -75,6 +102,16 @@ class AbstractProvider
      * Deactives the provider.
     ###
     deactivate: () ->
+        @menuItemDisposable.dispose()
+        @menuItemDisposable = null
+
+    ###*
+     * Retrieves menu items to add.
+     *
+     * @return {array}
+    ###
+    getMenuItems: () ->
+        return []
 
     ###*
      * Registers the necessary event handlers.
