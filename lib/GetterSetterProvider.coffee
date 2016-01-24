@@ -124,16 +124,12 @@ class GetterSetterProvider extends AbstractProvider
     deactivate: () ->
         @selectionView.destroy()
 
+        # TODO: Test package deactivation, test that panels aren't registered multiple times.
         # TODO: Remove commands and menu items again?
 
     onCancel: (metadata) ->
 
-
     onConfirm: (selectedItems, metadata) ->
-        # TODO: Test package deactivation, test that panels aren't registered multiple times.
-        # TODO: Very silly, but Atom won't automatically maintain indentation, so we'll have to fetch the cursor's
-        # column and insert that many spaces to every line...
-
         # TODO: Only generate type hints for class properties (optionally add a checkbox to the selection view
         # to specify whether the user wants type hints for basic types as well if he using PHP 7).
 
@@ -148,8 +144,16 @@ class GetterSetterProvider extends AbstractProvider
 
         output = itemOutputs.join("\n\n").trim()
 
-        if output.length > 0
-            metadata.editor.insertText(output)
+        metadata.editor.insertText(output, {
+            autoIndent         : true
+            autoIndentNewline  : true
+            autoDecreaseIndent : true
+        })
+
+        # FIXME: Atom doesn't seem to want to auto indent the added text. If select: true is passed during insertion
+        # and this method invoked, it works, but we don't want to alter the user's selection (or have to restore it
+        # just because functionality that should be working fails).
+        #metadata.editor.autoIndentSelectedRows()
 
     generateGetterForItem: (item) ->
         returnTypeDeclaration = ''
