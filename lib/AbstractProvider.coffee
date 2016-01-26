@@ -102,8 +102,9 @@ class AbstractProvider
      * Deactives the provider.
     ###
     deactivate: () ->
-        @menuItemDisposable.dispose()
-        @menuItemDisposable = null
+        if @menuItemDisposable
+            @menuItemDisposable.dispose()
+            @menuItemDisposable = null
 
     ###*
      * Retrieves menu items to add.
