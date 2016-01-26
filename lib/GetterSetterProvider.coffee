@@ -48,8 +48,9 @@ class GetterSetterProvider extends AbstractProvider
     deactivate: () ->
         super()
 
-        @selectionView.destroy()
-        @selectionView = null
+        if @selectionView
+            @selectionView.destroy()
+            @selectionView = null
 
         # TODO: Test package deactivation, something is still going wrong with the selectionView being null after
         # reactivation.
