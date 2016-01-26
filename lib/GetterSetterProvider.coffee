@@ -77,7 +77,7 @@ class GetterSetterProvider extends AbstractProvider
 
             for name, property of classInfo.properties
                 enablePhp7Features = false
-                
+
                 type = if property.return.resolvedType then property.return.resolvedType else 'mixed'
                 isClassType = @isClassType(type)
 
@@ -211,13 +211,13 @@ class GetterSetterProvider extends AbstractProvider
             /**
              * Sets the #{item.name} to use.
              *
-             * @param #{item.type} $value
+             * @param #{item.type} $#{item.name}
              *
              * @return $this
              */
-            public function #{item.setterName}(#{typePrefix}$value)#{returnTypeDeclaration}
+            public function #{item.setterName}(#{typePrefix}$#{item.name})#{returnTypeDeclaration}
             {
-                $this->#{item.name} = $value;
+                $this->#{item.name} = $#{item.name};
                 return $this;
             }
         """
