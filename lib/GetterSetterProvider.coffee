@@ -46,7 +46,7 @@ class GetterSetterProvider extends AbstractProvider
      * @inheritdoc
     ###
     deactivate: () ->
-        @super()
+        super()
 
         @selectionView.destroy()
         @selectionView = null
