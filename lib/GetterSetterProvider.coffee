@@ -52,9 +52,6 @@ class GetterSetterProvider extends AbstractProvider
             @selectionView.destroy()
             @selectionView = null
 
-        # TODO: Test package deactivation, something is still going wrong with the selectionView being null after
-        # reactivation.
-
     ###*
      * Executes the generation.
      *
@@ -82,8 +79,6 @@ class GetterSetterProvider extends AbstractProvider
                 type = if property.return.resolvedType then property.return.resolvedType else 'mixed'
                 isClassType = @isClassType(type)
 
-                # TODO: We should actually be adding an 'unresolved' type. The 'type' is already partially resolved due
-                #       to the base package's NameResolver (node visitor).
                 if isClassType
                     type = '\\' + type
 

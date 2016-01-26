@@ -45,8 +45,6 @@ class AbstractProvider
         menuItems = @getMenuItems()
 
         if menuItems.length > 0
-            # FIXME: The menu ordering is not ideal.
-
             @menuItemDisposable = atom.menu.add([
                 {
                     'label': 'Packages'
