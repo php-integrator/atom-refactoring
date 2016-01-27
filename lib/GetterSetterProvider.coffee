@@ -76,11 +76,8 @@ class GetterSetterProvider extends AbstractProvider
             for name, property of classInfo.properties
                 enablePhp7Features = false
 
-                type = if property.return.resolvedType then property.return.resolvedType else 'mixed'
+                type = if property.return.type then property.return.type else 'mixed'
                 isClassType = @isClassType(type)
-
-                if isClassType
-                    type = '\\' + type
 
                 getterName = 'get' + name.substr(0, 1).toUpperCase() + name.substr(1)
                 setterName = 'set' + name.substr(0, 1).toUpperCase() + name.substr(1)
