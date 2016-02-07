@@ -67,7 +67,7 @@ class GetterSetterProvider extends AbstractProvider
         @selectionView.storeFocusedElement()
         @selectionView.present()
 
-        currentClassName = @service.determineFullClassName(activeTextEditor)
+        currentClassName = @service.determineCurrentClassName(activeTextEditor, activeTextEditor.getCursorBufferPosition())
 
         @service.getClassInfo(currentClassName, true).then (classInfo) =>
             enabledItems = []
