@@ -1,6 +1,6 @@
 AbstractProvider = require './AbstractProvider'
 
-MultiSelectionView = require './Utility/MultiSelectionView'
+View = require './GetterSetterProvider/View'
 
 module.exports =
 
@@ -19,7 +19,7 @@ class GetterSetterProvider extends AbstractProvider
     activate: (service) ->
         super(service)
 
-        @selectionView = new MultiSelectionView(@onConfirm.bind(this), @onCancel.bind(this))
+        @selectionView = new View(@onConfirm.bind(this), @onCancel.bind(this))
         @selectionView.setLoading('Loading class information...')
         @selectionView.setEmptyMessage('No properties found.')
 
@@ -63,7 +63,7 @@ class GetterSetterProvider extends AbstractProvider
 
         return if not activeTextEditor
 
-        @selectionView.setMetadata({editor: activeTextEditor, enablePhp7Features: false})
+        @selectionView.setMetadata({editor: activeTextEditor})
         @selectionView.storeFocusedElement()
         @selectionView.present()
 
@@ -74,10 +74,7 @@ class GetterSetterProvider extends AbstractProvider
             disabledItems = []
 
             for name, property of classInfo.properties
-                enablePhp7Features = false
-
                 type = if property.return.type then property.return.type else 'mixed'
-                isClassType = @isClassType(type)
 
                 getterName = 'get' + name.substr(0, 1).toUpperCase() + name.substr(1)
                 setterName = 'set' + name.substr(0, 1).toUpperCase() + name.substr(1)
@@ -92,8 +89,6 @@ class GetterSetterProvider extends AbstractProvider
                     needsSetter              : enableSetterGeneration
                     getterName               : getterName
                     setterName               : setterName
-                    enablePhp7Features       : enablePhp7Features
-                    enableTypeHintGeneration : enablePhp7Features or isClassType # NOTE: Not used for getters.
                 }
 
                 if (enableGetterGeneration and enableSetterGeneration and getterExists and setterExists) or
@@ -132,17 +127,18 @@ class GetterSetterProvider extends AbstractProvider
      * Called when the selection of properties is confirmed.
      *
      * @param {array}       selectedItems
+     * @param {boolean}     enablePhp7Support
      * @param {Object|null} metadata
     ###
-    onConfirm: (selectedItems, metadata) ->
+    onConfirm: (selectedItems, enablePhp7Support, metadata) ->
         itemOutputs = []
 
         for item in selectedItems
             if item.needsGetter
-                itemOutputs.push(@generateGetterForItem(item))
+                itemOutputs.push(@generateGetterForItem(item, enablePhp7Support))
 
             if item.needsSetter
-                itemOutputs.push(@generateSetterForItem(item))
+                itemOutputs.push(@generateSetterForItem(item, enablePhp7Support))
 
         output = itemOutputs.join("\n\n").trim()
 
@@ -160,14 +156,15 @@ class GetterSetterProvider extends AbstractProvider
     ###*
      * Generates a getter for the specified selected item.
      *
-     * @param {Object} item
+     * @param {Object}  item
+     * @param {boolean} enablePhp7Support
      *
      * @return {string}
     ###
-    generateGetterForItem: (item) ->
+    generateGetterForItem: (item, enablePhp7Support) ->
         returnTypeDeclaration = ''
 
-        if item.enablePhp7Features
+        if enablePhp7Support and item.type != 'mixed'
             returnTypeDeclaration = ': ' + item.type
 
         return """
@@ -185,19 +182,20 @@ class GetterSetterProvider extends AbstractProvider
     ###*
      * Generates a setter for the specified selected item.
      *
-     * @param {Object} item
+     * @param {Object}  item
+     * @param {boolean} enablePhp7Support
      *
      * @return {string}
     ###
-    generateSetterForItem: (item) ->
+    generateSetterForItem: (item, enablePhp7Support) ->
         typePrefix = ''
 
-        if item.enableTypeHintGeneration
+        if (enablePhp7Support or @isClassType(item.type)) and item.type != 'mixed'
             typePrefix = item.type + ' '
 
         returnTypeDeclaration = ''
 
-        if item.enablePhp7Features
+        if enablePhp7Support
             returnTypeDeclaration = ': self'
 
         return """

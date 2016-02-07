@@ -53,11 +53,7 @@ class MultiSelectionView extends SelectListView
 
         @panel ?= atom.workspace.addModalPanel(item: this, visible: false)
 
-        @createButtonBar()
-
-        # Ensure that button clicks are actually handled.
-        @on 'mousedown', ({target}) =>
-            return false if $(target).hasClass('btn')
+        @createWidgets()
 
     ###*
      * Destroys the view and cleans up.
@@ -67,9 +63,9 @@ class MultiSelectionView extends SelectListView
         @panel = null
 
     ###*
-     * Creates the button bar at the bottom of the view.
+     * Creates additional for the view.
     ###
-    createButtonBar: () ->
+    createWidgets: () ->
         cancelButtonText = @getCancelButtonText()
         confirmButtonText = @getConfirmButtonText()
 
@@ -83,6 +79,10 @@ class MultiSelectionView extends SelectListView
         @on 'click', 'button', (event) =>
             @confirmedByButton() if $(event.target).hasClass('button--confirm')
             @cancel()            if $(event.target).hasClass('button--cancel')
+
+        # Ensure that button clicks are actually handled.
+        @on 'mousedown', ({target}) =>
+            return false if $(target).hasClass('btn')
 
     ###*
      * @inheritdoc
@@ -199,11 +199,16 @@ class MultiSelectionView extends SelectListView
      * Invoked when the user confirms his selections by pressing the confirmation button.
     ###
     confirmedByButton: () ->
-        if @onDidConfirm
-           @onDidConfirm(@selectedItems, @getMetadata())
-
+        @invokeOnDidConfirm()
         @restoreFocus()
         @panel.hide()
+
+    ###*
+     * Invokes the on did confirm handler with the correct arguments (if it is set).
+    ###
+    invokeOnDidConfirm: () ->
+        if @onDidConfirm
+           @onDidConfirm(@selectedItems, @getMetadata())
 
     ###*
      * @inheritdoc
