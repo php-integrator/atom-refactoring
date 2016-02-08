@@ -20,6 +20,8 @@ class View extends MultiSelectionView
         checkboxBar = $$ ->
             @div class: 'checkbox-bar settings-view', =>
                 @div class: 'controls', =>
+                    @div class: 'block text-line', =>
+                        @label class: 'icon icon-info', 'Tip: The order in which items are selected determines the order of the output.'
                     @div class: 'checkbox', =>
                         @label class: 'checkbox-label', =>
                             @input type: 'checkbox', class: 'checkbox-input checkbox--enable-php7'
