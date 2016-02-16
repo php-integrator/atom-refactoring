@@ -80,6 +80,11 @@ class MultiSelectionView extends SelectListView
             @confirmedByButton() if $(event.target).hasClass('button--confirm')
             @cancel()            if $(event.target).hasClass('button--cancel')
 
+        @on 'keydown', (event) =>
+            # Shift + Return
+            if event.keyCode == 13 and event.shiftKey == true
+                @confirmedByButton()
+
         # Ensure that button clicks are actually handled.
         @on 'mousedown', ({target}) =>
             return false if $(target).hasClass('btn')
