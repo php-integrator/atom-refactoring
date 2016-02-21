@@ -20,9 +20,11 @@ module.exports =
     ###
     activateProviders: (service) ->
         GetterSetterProvider = require './GetterSetterProvider'
+        ExtractMethodProvider = require './ExtractMethodProvider'
 
         @providers = []
         @providers.push new GetterSetterProvider()
+        @providers.push new ExtractMethodProvider()
 
         for provider in @providers
             provider.activate(service)
