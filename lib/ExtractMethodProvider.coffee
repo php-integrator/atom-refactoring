@@ -124,3 +124,11 @@ class ExtractMethodProvider extends AbstractProvider
             replaceRange,
             "#{previousText}\n\n#{newMethodBody}\n"
         )
+
+    ###*
+     * @inheritdoc
+    ###
+    getMenuItems: () ->
+        return [
+            {'label': 'Extract method', 'command': 'php-integrator-refactoring:extract-method'},
+        ]
