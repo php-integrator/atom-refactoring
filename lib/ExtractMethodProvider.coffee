@@ -26,9 +26,8 @@ class ExtractMethodProvider extends AbstractProvider
         super(service)
 
         @extractMethodView = new View(@onConfirm.bind(this))
-        @builder = new Builder()
+        @builder = new Builder(service)
 
-        @builder.setService(service)
         @extractMethodView.setBuilder(@builder)
 
         atom.commands.add 'atom-text-editor', "php-integrator-refactoring:extract-method": =>
