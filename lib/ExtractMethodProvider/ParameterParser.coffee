@@ -19,6 +19,13 @@ class ParameterParser
     parser: null
 
     ###*
+     * List of all the variable declarations that have been process
+     *
+     * @type {Array}
+    ###
+    variableDeclarations: []
+
+    ###*
      * Constructor
      *
      * @param {Parser} parser
@@ -54,18 +61,43 @@ class ParameterParser
                 }
 
         regexFilters = [
-            /as\s(\$[a-zA-Z0-9_]+)(?:\s=>\s(\$[a-zA-Z0-9_]+))?/g, # Foreach loops
-            /for\s*\(\s*(\$[a-zA-Z0-9_]+)\s*=/g, # For loops
-            /catch(?:.|\s)+(\$[a-zA-Z0-9_]+)/g, #Try/catch with line breaks
-            /function(?:\s|.)*?((?:\$[a-zA-Z0-9_]+)).*?\)/g, # Closure/Anonymous Function
-            /\s*?(\$[a-zA-Z0-9]+)\s*?=(?!>|=)/g # Variable declarations
+            {
+                name: 'Foreach loops',
+                regex: /as\s(\$[a-zA-Z0-9_]+)(?:\s=>\s(\$[a-zA-Z0-9_]+))?/g
+            },
+            {
+                name: 'For loops',
+                regex: /for\s*\(\s*(\$[a-zA-Z0-9_]+)\s*=/g
+            },
+            {
+                name: 'Try catch',
+                regex: /catch(?:.|\s)+(\$[a-zA-Z0-9_]+)/g
+            },
+            {
+                name: 'Closure'
+                regex: /function(?:\s|.)*?((?:\$[a-zA-Z0-9_]+)).*?\)/g
+            },
+            {
+                name: 'Variable declarations',
+                regex: /\s*?(\$[a-zA-Z0-9]+)\s*?=(?!>|=)/g
+            }
         ]
 
         for filter in regexFilters
-            editor.scanInBufferRange filter, selectedBufferRange, (element) =>
+            editor.scanInBufferRange filter.regex, selectedBufferRange, (element) =>
                 variables = element.matchText.match /\$[a-zA-Z0-9]+/g
                 startPoint = new Point(element.range.end.row, 0)
                 scopeRange = @getRangeForCurrentScope editor, startPoint
+
+                if filter.name == 'Variable declarations'
+                    chosenParameter = null
+                    for parameter in parameters
+                        if element.range.containsRange(parameter.range)
+                            chosenParameter = parameter
+                            break
+
+                    parameter = @getTypeForParameter editor, parameter
+                    @variableDeclarations.push parameter
 
                 for variable in variables
                     parameters = parameters.filter (parameter) =>
@@ -85,23 +117,7 @@ class ParameterParser
 
         # Grab the variable types of the parameters
         parameters = parameters.map (parameter) =>
-            try
-                type = @parser.getVariableType(
-                    editor,
-                    parameter.range.start,
-                    parameter.name
-                )
-            catch error
-                console.error 'Trying to get type of ' + parameter.name +
-                    ' but the php parser threw this error: ' + error
-                type = null
-
-            if type == null
-                type = "[type]"
-
-            parameter.type = type
-
-            return parameter
+            @getTypeForParameter editor, parameter
 
 
         @parsedParameters[key] = parameters
@@ -208,3 +224,30 @@ class ParameterParser
     removeCachedParameters: (editor, selectedBufferRange) ->
         key = @buildKey(editor, selectedBufferRange)
         delete @parsedParameters[key]
+
+    ###*
+     * Gets the type for the parameter given.
+     *
+     * @param  {TextEditor} editor
+     * @param  {Object}     parameter
+     *
+     * @return {Object}
+    ###
+    getTypeForParameter: (editor, parameter) ->
+        try
+            type = @parser.getVariableType(
+                editor,
+                parameter.range.start,
+                parameter.name
+            )
+        catch error
+            console.error 'Trying to get type of ' + parameter.name +
+                ' but the php parser threw this error: ' + error
+            type = null
+
+        if type == null
+            type = "[type]"
+
+        parameter.type = type
+
+        return parameter
