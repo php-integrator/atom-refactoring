@@ -6,6 +6,11 @@ class ParameterParser
 
     parsedParameters: []
 
+    parser: null
+
+    constructor: (parser) ->
+        @parser = parser
+
     findParameters: (editor, selectedBufferRange) ->
         key = @buildKey(editor, selectedBufferRange)
 
@@ -18,7 +23,10 @@ class ParameterParser
             descriptions = editor.scopeDescriptorForBufferPosition(element.range.start)
             indexOfDescriptor = descriptions.scopes.indexOf('variable.other.php')
             if indexOfDescriptor > -1
-                parameters.push element.matchText
+                parameters.push {
+                    name: element.matchText,
+                    range: element.range
+                }
 
         regexFilters = [
             /as\s(\$[a-zA-Z0-9_]+)(?:\s=>\s(\$[a-zA-Z0-9_]+))?/g, # Foreach loops
@@ -34,25 +42,41 @@ class ParameterParser
                 startPoint = new Point(element.range.end.row, 0)
                 scopeRange = @getRangeForCurrentScope editor, startPoint
 
-                scopeText = editor.getTextInBufferRange(scopeRange)
                 for variable in variables
-                    variableRegex = new RegExp("\\#{variable}", "g")
-                    variableOccurancesInCurrentScope = (scopeText.match(variableRegex) || []).length
+                    parameters = parameters.filter (parameter) =>
+                        if parameter.name != variable
+                            return true
 
-                    while true
-                        indexOfVariable = parameters.indexOf variable
-                        parameters.splice indexOfVariable, 1
+                        if scopeRange.containsRange(parameter.range)
+                            return false
 
-                        variableOccurancesInCurrentScope--
-                        break unless variableOccurancesInCurrentScope > 0
-
+                        return true
 
         parameters = @makeUnique parameters
 
         # Removing $this from parameters as this doesn't need to be passed in
-        if parameters.indexOf('$this') > -1
-            indexOfThis = parameters.indexOf('$this')
-            parameters.splice indexOfThis, 1
+        parameters = parameters.filter (item) ->
+            return item.name != '$this'
+
+        parameters = parameters.map (parameter) =>
+            try
+                type = @parser.getVariableType(
+                    editor,
+                    parameter.range.start,
+                    parameter.name
+                )
+            catch error
+                console.error 'Trying to get type of ' + parameter.name +
+                    ' but the php parser threw this error: ' + error
+                type = null
+
+            if type == null
+                type = "[type]"
+
+            parameter.type = type
+
+            return parameter
+
 
         @parsedParameters[key] = parameters
 
@@ -114,8 +138,11 @@ class ParameterParser
         return new Range(startScopePoint, endScopePoint)
 
     makeUnique: (array) ->
-        return array.filter (item, pos, self) ->
-            return self.indexOf(item) == pos;
+        return array.filter (filterItem, pos, self) ->
+            for i in [0 .. self.length - 1]
+                return self[i].name == filterItem.name &&
+                    pos == i
+
 
     buildKey: (editor, selectedBufferRange) ->
         return editor.getPath() + JSON.stringify(selectedBufferRange)
