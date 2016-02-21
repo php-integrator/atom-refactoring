@@ -4,13 +4,38 @@ module.exports =
 
 class ParameterParser
 
+    ###*
+     * Cached parameters that have already been parsed
+     *
+     * @type {Array}
+    ###
     parsedParameters: []
 
+    ###*
+     * Parser object from the php-integrator-base service
+     *
+     * @type {Parser}
+    ###
     parser: null
 
+    ###*
+     * Constructor
+     *
+     * @param {Parser} parser
+    ###
     constructor: (parser) ->
         @parser = parser
 
+    ###*
+     * Takes the editor and the range and loops through finding all the
+     * parameters that will be needed if this code was to be moved into
+     * its own function
+     *
+     * @param  {TextEditor} editor
+     * @param  {Range}      selectedBufferRange
+     *
+     * @return {Array}
+    ###
     findParameters: (editor, selectedBufferRange) ->
         key = @buildKey(editor, selectedBufferRange)
 
@@ -58,6 +83,7 @@ class ParameterParser
         parameters = parameters.filter (item) ->
             return item.name != '$this'
 
+        # Grab the variable types of the parameters
         parameters = parameters.map (parameter) =>
             try
                 type = @parser.getVariableType(
@@ -82,6 +108,17 @@ class ParameterParser
 
         return parameters
 
+    ###*
+     * Takes the current buffer position and returns a range of the current
+     * scope that the buffer position is in.
+     *
+     * For example this could be the code within an if statement or closure.
+     *
+     * @param  {TextEditor} editor
+     * @param  {Point}      bufferPosition
+     *
+     * @return {Range}
+    ###
     getRangeForCurrentScope: (editor, bufferPosition) ->
         startScopePoint = null
         endScopePoint = null
@@ -137,16 +174,37 @@ class ParameterParser
 
         return new Range(startScopePoint, endScopePoint)
 
+    ###*
+     * Takes an array of parameters and removes any parameters that appear more
+     * that once with the same name.
+     *
+     * @param  {Array} array
+     *
+     * @return {Array}
+    ###
     makeUnique: (array) ->
         return array.filter (filterItem, pos, self) ->
             for i in [0 .. self.length - 1]
                 return self[i].name == filterItem.name &&
                     pos == i
 
-
+    ###*
+     * Generates the key used to store the parameters in the cache.
+     *
+     * @param  {TextEditor} editor
+     * @param  {Range}      selectedBufferRange
+     *
+     * @return {string}
+    ###
     buildKey: (editor, selectedBufferRange) ->
         return editor.getPath() + JSON.stringify(selectedBufferRange)
 
+    ###*
+     * Removes cached parameters by the editor and range given.
+     *
+     * @param  {TextEditor} editor
+     * @param  {Range} selectedBufferRange
+    ###
     removeCachedParameters: (editor, selectedBufferRange) ->
         key = @buildKey(editor, selectedBufferRange)
         delete @parsedParameters[key]
