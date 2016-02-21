@@ -194,7 +194,7 @@ class ParameterParser
      * @param  {TextEditor} editor
      * @param  {Range}      selectedBufferRange
      *
-     * @return {string}
+     * @return {String}
     ###
     buildKey: (editor, selectedBufferRange) ->
         return editor.getPath() + JSON.stringify(selectedBufferRange)
