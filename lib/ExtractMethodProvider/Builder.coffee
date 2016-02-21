@@ -16,8 +16,9 @@ class Builder
 
     parameterParser: null
 
-    constructor: ->
-        @parameterParser = new ParameterParser
+    constructor: (service) ->
+        @setService service
+        @parameterParser = new ParameterParser @service.parser
 
     setMethodBody: (text) ->
         @methodBody = text
@@ -41,7 +42,11 @@ class Builder
             @editor,
             @selectedBufferRange
         )
-        newMethod = @buildLine "#{settings.visibility} function #{settings.methodName}(#{parameters.join ', '})", settings.tabs
+
+        parameterNames = parameters.map (item) ->
+            return item.name
+
+        newMethod = @buildLine "#{settings.visibility} function #{settings.methodName}(#{parameterNames.join ', '})", settings.tabs
         newMethod += @buildLine "{", settings.tabs
         for line in @methodBody.split('\n')
             newMethod += @buildLine "#{line}", settings.tabs
@@ -57,8 +62,12 @@ class Builder
         parameters = @parameterParser.findParameters(
             @editor,
             @selectedBufferRange
-        ).join(', ')
-        methodCall = "$this->#{methodName}(#{parameters});"
+        )
+
+        parameterNames = parameters.map (item) ->
+            return item.name
+
+        methodCall = "$this->#{methodName}(#{parameterNames.join ', '});"
 
         if variable != undefined
             methodCall = "$#{variable} = #{methodCall}"
@@ -73,7 +82,7 @@ class Builder
             docs += @buildLine " *", tabs
 
         for parameter in parameters
-            docs += @buildDocumentationLine "@param [type] #{parameter} [description]", tabs
+            docs += @buildDocumentationLine "@param #{parameter.type} #{parameter.name} [description]", tabs
 
         docs += @buildLine " */", tabs
 
