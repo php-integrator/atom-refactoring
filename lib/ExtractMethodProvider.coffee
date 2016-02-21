@@ -14,9 +14,16 @@ class ExtractMethodProvider extends AbstractProvider
 
     ###*
      * View that the user interacts with when extracting code.
+     *
+     * @type {View}
     ###
     extractMethodView: null
 
+    ###*
+     * Builder used to generate the new method.
+     *
+     * @type {Builder}
+    ###
     builder: null
 
     ###*
@@ -77,6 +84,13 @@ class ExtractMethodProvider extends AbstractProvider
         @extractMethodView.storeFocusedElement()
         @extractMethodView.present()
 
+    ###*
+     * Called when the user has confirmed the extraction in the modal.
+     *
+     * @param  {Object} settings
+     *
+     * @see ParameterParser.buildMethod for structure of settings
+    ###
     onConfirm: (settings) ->
         methodCall = @builder.buildMethodCall(
             settings.methodName
