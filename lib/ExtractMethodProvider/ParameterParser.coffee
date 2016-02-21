@@ -4,7 +4,13 @@ module.exports =
 
 class ParameterParser
 
+    parsedParameters: []
+
     findParameters: (editor, selectedBufferRange) ->
+        key = @buildKey(editor, selectedBufferRange)
+
+        return @parsedParameters[key] if @parsedParameters[key]
+
         parameters = []
 
         editor.scanInBufferRange /\$[a-zA-Z0-9_]+/g, selectedBufferRange, (element) =>
@@ -47,6 +53,8 @@ class ParameterParser
         if parameters.indexOf('$this') > -1
             indexOfThis = parameters.indexOf('$this')
             parameters.splice indexOfThis, 1
+
+        @parsedParameters[key] = parameters
 
         return parameters
 
@@ -105,6 +113,9 @@ class ParameterParser
 
         return new Range(startScopePoint, endScopePoint)
 
-    makeUnique: (array) =>
+    makeUnique: (array) ->
         return array.filter (item, pos, self) ->
             return self.indexOf(item) == pos;
+
+    buildKey: (editor, selectedBufferRange) ->
+        return editor.getPath() + JSON.stringify(selectedBufferRange)
