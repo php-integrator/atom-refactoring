@@ -87,3 +87,6 @@ class Builder
     buildDocumentationLine: (content, tabs = false) ->
         content = " * #{content}"
         return @buildLine(content, tabs)
+
+    cleanUp: ->
+        @parameterParser.removeCachedParameters(@editor, @selectedBufferRange)
