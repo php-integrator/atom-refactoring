@@ -105,6 +105,8 @@ class ExtractMethodProvider extends AbstractProvider
         settings.tabs = true
         newMethodBody =  @builder.buildMethod(settings)
 
+        @builder.cleanUp()
+
         activeTextEditor.setTextInBufferRange(
             replaceRange,
             "#{previousText}\n\n#{newMethodBody}\n"
