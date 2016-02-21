@@ -119,3 +119,7 @@ class ParameterParser
 
     buildKey: (editor, selectedBufferRange) ->
         return editor.getPath() + JSON.stringify(selectedBufferRange)
+
+    removeCachedParameters: (editor, selectedBufferRange) ->
+        key = @buildKey(editor, selectedBufferRange)
+        delete @parsedParameters[key]
