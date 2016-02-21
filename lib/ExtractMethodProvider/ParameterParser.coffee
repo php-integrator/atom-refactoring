@@ -201,8 +201,10 @@ class ParameterParser
     makeUnique: (array) ->
         return array.filter (filterItem, pos, self) ->
             for i in [0 .. self.length - 1]
-                return self[i].name == filterItem.name &&
-                    pos == i
+                if self[i].name != filterItem.name
+                    return true
+
+                return pos == i
 
     ###*
      * Generates the key used to store the parameters in the cache.
