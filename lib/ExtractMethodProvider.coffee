@@ -77,9 +77,9 @@ class ExtractMethodProvider extends AbstractProvider
 
         # Replacing double indents with one, so it can be shown in the preview
         # area of panel
-        reducedHighligtedText = highlightedText.replace(findMultipleTab, "#{tabText}")
+        reducedHighlightedText = highlightedText.replace(findMultipleTab, "#{tabText}")
 
-        @builder.setMethodBody(reducedHighligtedText)
+        @builder.setMethodBody(reducedHighlightedText)
         @builder.setEditor(activeTextEditor)
         @extractMethodView.storeFocusedElement()
         @extractMethodView.present()
