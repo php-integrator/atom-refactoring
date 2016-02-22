@@ -126,6 +126,13 @@ class ExtractMethodView extends View
 
         @panel ?= atom.workspace.addModalPanel(item: this, visible: false)
 
+        @on 'click', document, (event) =>
+            event.stopPropagation()
+
+
+        $(document).on 'click', (event) =>
+            @cancel() if @panel.isVisible()
+
     ###*
      * Destroys the view and cleans up.
     ###
