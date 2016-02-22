@@ -98,8 +98,9 @@ class ParameterParser
                             chosenParameter = parameter
                             break
 
-                    chosenParameter = @getTypeForParameter editor, chosenParameter
-                    variableDeclarations.push chosenParameter
+                    if chosenParameter != null
+                        chosenParameter = @getTypeForParameter editor, chosenParameter
+                        variableDeclarations.push chosenParameter
 
                 for variable in variables
                     parameters = parameters.filter (parameter) =>
