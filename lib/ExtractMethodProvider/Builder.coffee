@@ -1,3 +1,5 @@
+{Range} = require 'atom'
+
 ParameterParser = require './ParameterParser'
 
 module.exports =
@@ -46,6 +48,13 @@ class Builder
      * @type {ParameterParser}
     ###
     parameterParser: null
+
+    ###*
+     * All the variables to return
+     *
+     * @type {Array}
+    ###
+    returnVariables: null
 
     ###*
      * Constructor.
@@ -117,6 +126,9 @@ class Builder
             @selectedBufferRange
         )
 
+        if @returnVariables == null
+            @returnVariables = @workOutReturnVariables @parameterParser.getVariableDeclarations()
+
         parameterNames = parameters.map (item) ->
             return item.name
 
@@ -124,6 +136,7 @@ class Builder
         newMethod += @buildLine "{", settings.tabs
         for line in @methodBody.split('\n')
             newMethod += @buildLine "#{line}", settings.tabs
+        newMethod += @buildReturnLine @returnVariables, settings.tabs
         newMethod += @buildLine "}", settings.tabs
 
         if settings.generateDocs
@@ -212,3 +225,54 @@ class Builder
     ###
     cleanUp: ->
         @parameterParser.removeCachedParameters(@editor, @selectedBufferRange)
+
+    ###*
+     * Works out which variables need to be returned from the new method.
+     *
+     * @param  {Array} variableDeclarations
+     *
+     * @return {Array}
+    ###
+    workOutReturnVariables: (variableDeclarations) ->
+        startPoint = @selectedBufferRange.end
+        scopeRange = @parameterParser.getRangeForCurrentScope(@editor, startPoint)
+
+        lookupRange = new Range(startPoint, scopeRange.end)
+
+        textAfterExtraction = @editor.getTextInBufferRange lookupRange
+        allVariablesAfterExtraction = textAfterExtraction.match /\$[a-zA-Z0-9]+/g
+
+        variableDeclarations = variableDeclarations.filter (variable) =>
+            for variables in allVariablesAfterExtraction
+                if variables == variable.name
+                    return true
+
+            return false
+
+        return variableDeclarations
+
+    ###*
+     * Builds the return statement for the new method.
+     *
+     * @param  {Array}   variableDeclarations
+     * @param  {Boolean} tabs
+     *
+     * @return {String}
+    ###
+    buildReturnLine: (variableDeclarations, tabs) ->
+        content = @buildLine '', false
+        if variableDeclarations.length == 1
+            content += @buildLine "#{@tabText}return #{variableDeclarations[0].name};", tabs
+            return content
+
+        if variableDeclarations.length > 1
+            variables = variableDeclarations.reduce (previous, current) ->
+                if typeof previous != 'string'
+                    previous = previous.name
+
+                return previous + ', ' + current.name
+
+            content += @buildLine "#{@tabText}return [#{variables}];", tabs
+            return content
+
+        return ''
