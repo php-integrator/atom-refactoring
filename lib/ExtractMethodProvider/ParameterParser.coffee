@@ -206,10 +206,10 @@ class ParameterParser
         return array.filter (filterItem, pos, self) ->
             for i in [0 .. self.length - 1]
                 if self[i].name != filterItem.name
-                    return true
+                    continue
 
                 return pos == i
-
+            return true
     ###*
      * Generates the key used to store the parameters in the cache.
      *
