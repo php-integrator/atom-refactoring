@@ -180,6 +180,9 @@ class ParameterParser
 
             break if startScopePoint?
 
+        if startScopePoint == null
+            startScopePoint = new Point(0, 0)
+
         childScopes = 0
 
         # Walk forward until we find the end of the current scope
