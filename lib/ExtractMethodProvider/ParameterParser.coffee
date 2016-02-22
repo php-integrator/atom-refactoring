@@ -253,3 +253,11 @@ class ParameterParser
         parameter.type = type
 
         return parameter
+
+    ###*
+     * Returns all the variable declarations that have been parsed.
+     *
+     * @return {Array}
+    ###
+    getVariableDeclarations: ->
+        return @variableDeclarations
