@@ -115,6 +115,7 @@ class Builder
      *   - visibility (string) ['private', 'protected', 'public']
      *   - tabs (boolean)
      *   - generateDocs (boolean)
+     *   - arraySyntax (string) ['word', 'brackets']
      *
      * @param  {Object} settings
      *
@@ -136,7 +137,7 @@ class Builder
         newMethod += @buildLine "{", settings.tabs
         for line in @methodBody.split('\n')
             newMethod += @buildLine "#{line}", settings.tabs
-        newMethod += @buildReturnLine @returnVariables, settings.tabs
+        newMethod += @buildReturnLine @returnVariables, settings.tabs, settings.arraySyntax
         newMethod += @buildLine "}", settings.tabs
 
         if settings.generateDocs
@@ -301,3 +302,19 @@ class Builder
             return content
 
         return ''
+
+    ###*
+     * Checks if the new method will be returning any values.
+     *
+     * @return {Boolean}
+    ###
+    hasReturnValues: ->
+        return @returnVariables != null && @returnVariables.length > 0
+
+    ###*
+     * Returns if there are multiple return values.
+     *
+     * @return {Boolean}
+    ###
+    hasMultipleReturnValues: ->
+        return @returnVariables != null && @returnVariables.length > 1
