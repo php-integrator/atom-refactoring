@@ -85,9 +85,10 @@ class ExtractMethodView extends View
                                 @label class: 'control-label', =>
                                     @div class: 'setting-title', 'Preview'
                                     @pre class: 'preview-area', outlet: 'previewArea'
-            @div outlet: 'buttonGroup', class: 'block pull-right', =>
-                @button class: 'inline-block btn btn-success button--confirm', 'Extract method'
-                @button class: 'inline-block btn button--cancel', 'Cancel'
+            @div class: 'button-bar', =>
+                @button class: 'btn btn-error inline-block-tight pull-left icon icon-circle-slash button--cancel', 'Cancel'
+                @button class: 'btn btn-success inline-block-tight pull-right icon icon-gear button--confirm', 'Extract'
+
 
     ###*
      * @inheritdoc
