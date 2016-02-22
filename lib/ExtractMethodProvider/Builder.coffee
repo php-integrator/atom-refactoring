@@ -225,6 +225,8 @@ class Builder
     ###
     cleanUp: ->
         @parameterParser.removeCachedParameters(@editor, @selectedBufferRange)
+        @returnVariables = null
+        @parameterParser.cleanUp()
 
     ###*
      * Works out which variables need to be returned from the new method.
