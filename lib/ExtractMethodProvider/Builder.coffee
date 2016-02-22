@@ -199,9 +199,23 @@ class Builder
 
         if parameters.length > 0
             docs += @buildLine " *", tabs
+            longestType = 0
+            longestVariable = 0
 
-        for parameter in parameters
-            docs += @buildDocumentationLine "@param #{parameter.type} #{parameter.name} [description]", tabs
+            for parameter in parameters
+                if parameter.type.length > longestType
+                    longestType = parameter.type.length
+                if parameter.name.length > longestVariable
+                    longestVariable = parameter.name.length
+
+            for parameter in parameters
+                typePadding = longestType - parameter.type.length
+                variablePadding = longestVariable - parameter.name.length
+
+                type = parameter.type + new Array(typePadding + 1).join(' ')
+                variable = parameter.name + new Array(variablePadding + 1).join(' ')
+
+                docs += @buildDocumentationLine "@param #{type} #{variable} [description]", tabs
 
         if returnVariables != null && returnVariables.length > 0
             docs += @buildLine " *", tabs
