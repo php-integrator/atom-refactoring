@@ -47,7 +47,8 @@ class ExtractMethodView extends View
             generateDocs: false,
             methodName: '',
             visibility: 'public',
-            tabs: false
+            tabs: false,
+            arraySyntax: 'word'
         }
 
     ###*
@@ -73,6 +74,12 @@ class ExtractMethodView extends View
                                     @label =>
                                         @input outlet: 'generateDocInput', type: 'checkbox'
                                         @div class: 'setting-title', 'Generate documentation'
+                        @div class: 'return-multiple-control control-group hide', =>
+                            @div class: 'controls', =>
+                                @div class: 'checkbox', =>
+                                    @label =>
+                                        @input outlet: 'arraySyntax', type: 'checkbox'
+                                        @div class: 'setting-title', 'Use PHP 5.4+ array syntax (Square brackets)'
                         @div class: 'control-group', =>
                             @div class: 'controls', =>
                                 @label class: 'control-label', =>
@@ -108,6 +115,13 @@ class ExtractMethodView extends View
 
         $(@generateDocInput[0]).change (event) =>
             @settings.generateDocs = !@settings.generateDocs
+            @refreshPreviewArea()
+
+        $(@arraySyntax[0]).change (event) =>
+            if @settings.arraySyntax == 'word'
+                @settings.arraySyntax = 'brackets'
+            else
+                @settings.arraySyntax = 'word'
             @refreshPreviewArea()
 
         @panel ?= atom.workspace.addModalPanel(item: this, visible: false)
@@ -159,6 +173,15 @@ class ExtractMethodView extends View
     ###
     refreshPreviewArea: ->
         methodBody = @builder.buildMethod(@getSettings())
+        if @builder.hasReturnValues()
+            if @builder.hasMultipleReturnValues()
+                $('.php-integrator-refactoring-extract-method .return-multiple-control').removeClass('hide')
+
+            $('.php-integrator-refactoring-extract-method .return-control').removeClass('hide')
+        else
+            $('.php-integrator-refactoring-extract-method .return-control').addClass('hide')
+            $('.php-integrator-refactoring-extract-method .return-multiple-control').addClass('hide')
+
         $(@previewArea).text(methodBody)
 
     ###*
