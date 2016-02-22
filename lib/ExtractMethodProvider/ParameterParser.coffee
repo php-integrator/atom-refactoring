@@ -83,6 +83,8 @@ class ParameterParser
             }
         ]
 
+        variableDeclarations = []
+
         for filter in regexFilters
             editor.scanInBufferRange filter.regex, selectedBufferRange, (element) =>
                 variables = element.matchText.match /\$[a-zA-Z0-9]+/g
@@ -96,8 +98,8 @@ class ParameterParser
                             chosenParameter = parameter
                             break
 
-                    parameter = @getTypeForParameter editor, parameter
-                    @variableDeclarations.push parameter
+                    chosenParameter = @getTypeForParameter editor, chosenParameter
+                    variableDeclarations.push chosenParameter
 
                 for variable in variables
                     parameters = parameters.filter (parameter) =>
@@ -108,6 +110,8 @@ class ParameterParser
                             return false
 
                         return true
+
+        @variableDeclarations = variableDeclarations
 
         parameters = @makeUnique parameters
 
@@ -261,3 +265,9 @@ class ParameterParser
     ###
     getVariableDeclarations: ->
         return @variableDeclarations
+
+    ###*
+     * Clean up any data from previous usage
+    ###
+    cleanUp: ->
+        @variableDeclarations = []
