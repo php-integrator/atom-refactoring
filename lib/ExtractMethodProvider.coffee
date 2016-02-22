@@ -103,8 +103,6 @@ class ExtractMethodProvider extends AbstractProvider
         )
         activeTextEditor = atom.workspace.getActiveTextEditor()
 
-        activeTextEditor.insertText(methodCall)
-
         highlightedBufferPosition = activeTextEditor.getSelectedBufferRange().end
         row = 0
         loop
@@ -116,20 +114,22 @@ class ExtractMethodProvider extends AbstractProvider
             break if indexOfDescriptor == descriptions.scopes.length - 1 || row == activeTextEditor.getLineCount()
 
         replaceRange = [
-            [highlightedBufferPosition.row + row, activeTextEditor.getTabLength()],
+            [highlightedBufferPosition.row + row, activeTextEditor.getTabLength() + 1],
             [highlightedBufferPosition.row + row, Infinity]
         ]
-        previousText  = activeTextEditor.getTextInBufferRange(replaceRange)
 
         settings.tabs = true
         newMethodBody =  @builder.buildMethod(settings)
 
         @builder.cleanUp()
 
-        activeTextEditor.setTextInBufferRange(
-            replaceRange,
-            "#{previousText}\n\n#{newMethodBody}\n"
-        )
+        activeTextEditor.transact () =>
+            activeTextEditor.insertText(methodCall)
+
+            activeTextEditor.setTextInBufferRange(
+                replaceRange,
+                "\n#{newMethodBody}"
+            )
 
     ###*
      * @inheritdoc
