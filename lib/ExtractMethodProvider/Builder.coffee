@@ -256,6 +256,8 @@ class Builder
         textAfterExtraction = @editor.getTextInBufferRange lookupRange
         allVariablesAfterExtraction = textAfterExtraction.match /\$[a-zA-Z0-9]+/g
 
+        return null if allVariablesAfterExtraction == null
+
         variableDeclarations = variableDeclarations.filter (variable) =>
             for variables in allVariablesAfterExtraction
                 if variables == variable.name
@@ -275,6 +277,9 @@ class Builder
      * @return {String}
     ###
     buildReturnLine: (variableDeclarations, tabs, arrayType = 'word') ->
+        if variableDeclarations == null
+            return ''
+
         content = @buildLine '', false
         if variableDeclarations.length == 1
             content += @buildLine "#{@tabText}return #{variableDeclarations[0].name};", tabs
