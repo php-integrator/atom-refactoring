@@ -125,7 +125,7 @@ class ExtractMethodView extends View
     present: ->
         @panel.show()
         @methodNameEditor.focus()
-        @refreshPreviewArea()
+        @methodNameEditor.setText('')
 
     ###*
      * Hides the panel.
@@ -133,7 +133,6 @@ class ExtractMethodView extends View
     hide: ->
         @panel.hide()
         @restoreFocus()
-        @methodNameEditor.setText('')
 
     ###*
      * Called when the user confirms the extraction and will then call
