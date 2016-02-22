@@ -256,10 +256,11 @@ class Builder
      *
      * @param  {Array}   variableDeclarations
      * @param  {Boolean} tabs
+     * @param  {String}  arrayType ['word', 'brackets']
      *
      * @return {String}
     ###
-    buildReturnLine: (variableDeclarations, tabs) ->
+    buildReturnLine: (variableDeclarations, tabs, arrayType = 'word') ->
         content = @buildLine '', false
         if variableDeclarations.length == 1
             content += @buildLine "#{@tabText}return #{variableDeclarations[0].name};", tabs
@@ -272,7 +273,12 @@ class Builder
 
                 return previous + ', ' + current.name
 
-            content += @buildLine "#{@tabText}return [#{variables}];", tabs
+            if arrayType == 'brackets'
+                variables = "[#{variables}]"
+            else
+                variables = "array(#{variables})"
+
+            content += @buildLine "#{@tabText}return #{variables};", tabs
             return content
 
         return ''
