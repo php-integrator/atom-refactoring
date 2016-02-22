@@ -79,7 +79,7 @@ class ParameterParser
             },
             {
                 name: 'Variable declarations',
-                regex: /\s*?(\$[a-zA-Z0-9]+)\s*?=(?!>|=)/g
+                regex: /(\$[a-zA-Z0-9]+)\s*?=(?!>|=)/g
             }
         ]
 
@@ -106,11 +106,13 @@ class ParameterParser
                     parameters = parameters.filter (parameter) =>
                         if parameter.name != variable
                             return true
-
                         if scopeRange.containsRange(parameter.range)
                             # If variable declaration is after parameter then it's
                             # still needed in parameters.
                             if element.range.start.row > parameter.range.start.row
+                                return true
+                            if element.range.start.row == parameter.range.start.row &&
+                            element.range.start.column > parameter.range.start.column
                                 return true
 
                             return false
