@@ -141,7 +141,7 @@ class Builder
         newMethod += @buildLine "}", settings.tabs
 
         if settings.generateDocs
-            docs = @buildDocumentation settings.methodName, parameters, settings.tabs
+            docs = @buildDocumentation settings.methodName, parameters, @returnVariables, settings.tabs
             newMethod = docs + newMethod
 
         return newMethod
@@ -186,13 +186,14 @@ class Builder
     ###*
      * Builds the docblock for the given method and parameters.
      *
-     * @param  {String}  methodName
-     * @param  {Array}   parameters
-     * @param  {Boolean} tabs       = false
+     * @param  {String}     methodName
+     * @param  {Array}      parameters
+     * @param  {Array|null} returnVariables
+     * @param  {Boolean}    tabs            = false
      *
      * @return {String}
     ###
-    buildDocumentation: (methodName, parameters, tabs = false) =>
+    buildDocumentation: (methodName, parameters, returnVariables, tabs = false) =>
         docs = @buildLine "/**", tabs
         docs += @buildDocumentationLine "[#{methodName} description]", tabs
 
@@ -201,6 +202,14 @@ class Builder
 
         for parameter in parameters
             docs += @buildDocumentationLine "@param #{parameter.type} #{parameter.name} [description]", tabs
+
+        if returnVariables != null && returnVariables.length > 0
+            docs += @buildLine " *", tabs
+
+            if returnVariables.length == 1
+                docs += @buildDocumentationLine "@return #{returnVariables[0].type}", tabs
+            else if returnVariables.length > 1
+                docs += @buildDocumentationLine "@return array", tabs
 
         docs += @buildLine " */", tabs
 
