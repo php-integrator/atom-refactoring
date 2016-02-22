@@ -61,6 +61,19 @@ class ExtractMethodProvider extends AbstractProvider
         tabText = activeTextEditor.getTabText()
 
         selectedBufferRange = activeTextEditor.getSelectedBufferRange()
+
+        # Checking if a selection has been made
+        if selectedBufferRange.start.row == selectedBufferRange.end.row &&
+        selectedBufferRange.start.column == selectedBufferRange.end.column
+            atom.notifications.addWarning(
+                'You must select some text to extract',
+                {
+                    detail: 'PHP Integrator Refactoring'
+                    dismissable: true
+                }
+            )
+            return
+
         extendedRange = new Range(
             [selectedBufferRange.start.row, 0],
             [selectedBufferRange.end.row, Infinity]
