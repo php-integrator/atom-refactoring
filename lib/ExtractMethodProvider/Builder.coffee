@@ -167,6 +167,18 @@ class Builder
 
         if variable != undefined
             methodCall = "$#{variable} = #{methodCall}"
+        else
+            if @returnVariables != null
+                if @returnVariables.length == 1
+                    methodCall = "#{@returnVariables[0].name} = #{methodCall}"
+                else if @returnVariables.length > 1
+                    variables = @returnVariables.reduce (previous, current) ->
+                        if typeof previous != 'string'
+                            previous = previous.name
+
+                        return previous + ', ' + current.name
+
+                    methodCall = "list(#{variables}) = #{methodCall}"
 
         return methodCall
 
