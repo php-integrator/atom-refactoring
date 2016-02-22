@@ -58,6 +58,7 @@ class ExtractMethodView extends View
         @div class: 'php-integrator-refactoring-extract-method', =>
             @div outlet: 'methodNameForm', =>
                 @subview 'methodNameEditor', new TextEditorView(mini:true, placeholderText: 'Enter a method name')
+                @div class: 'text-error error-message hide error-message--method-name', 'You must enter a method name!'
                 @div class: 'settings-view', =>
                     @div class: 'section-body', =>
                         @div class: 'control-group', =>
@@ -108,6 +109,8 @@ class ExtractMethodView extends View
 
         @methodNameEditor.getModel().onDidChange () =>
             @settings.methodName = @methodNameEditor.getText()
+            $('.php-integrator-refactoring-extract-method .error-message--method-name').addClass('hide');
+
             @refreshPreviewArea()
 
         $(@accessMethodsInput[0]).change (event) =>
@@ -161,6 +164,10 @@ class ExtractMethodView extends View
      * onDidConfirm, if set.
     ###
     confirm: ->
+        if @settings.methodName == ''
+            $('.php-integrator-refactoring-extract-method .error-message--method-name').removeClass('hide');
+            return false
+
         if @onDidConfirm
             @onDidConfirm(@getSettings())
 
