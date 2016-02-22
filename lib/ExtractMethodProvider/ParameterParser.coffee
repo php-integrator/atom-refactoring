@@ -86,7 +86,7 @@ class ParameterParser
         variableDeclarations = []
 
         for filter in regexFilters
-            editor.scanInBufferRange filter.regex, selectedBufferRange, (element) =>
+            editor.backwardsScanInBufferRange filter.regex, selectedBufferRange, (element) =>
                 variables = element.matchText.match /\$[a-zA-Z0-9]+/g
                 startPoint = new Point(element.range.end.row, 0)
                 scopeRange = @getRangeForCurrentScope editor, startPoint
@@ -119,7 +119,7 @@ class ParameterParser
 
                         return true
 
-        @variableDeclarations = variableDeclarations
+        @variableDeclarations = @makeUnique variableDeclarations
 
         parameters = @makeUnique parameters
 
