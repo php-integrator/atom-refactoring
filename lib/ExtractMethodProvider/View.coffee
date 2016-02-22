@@ -172,6 +172,8 @@ class ExtractMethodView extends View
      * Updates the preview area using the current setttings.
     ###
     refreshPreviewArea: ->
+        return unless @panel.isVisible()
+
         methodBody = @builder.buildMethod(@getSettings())
         if @builder.hasReturnValues()
             if @builder.hasMultipleReturnValues()
