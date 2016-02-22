@@ -107,6 +107,11 @@ class ParameterParser
                             return true
 
                         if scopeRange.containsRange(parameter.range)
+                            # If variable declaration is after parameter then it's
+                            # still needed in parameters.
+                            if element.range.start.row > parameter.range.start.row
+                                return true
+
                             return false
 
                         return true
@@ -143,6 +148,10 @@ class ParameterParser
         startScopePoint = null
         endScopePoint = null
 
+        # Tracks any extra scopes that might exist inside the scope we are
+        # looking for.
+        childScopes = 0
+
         # First walk back until we find the start of the current scope.
         for row in [bufferPosition.row .. 0]
             line = editor.lineTextForBufferRow(row)
@@ -155,15 +164,21 @@ class ParameterParser
                 descriptions = editor.scopeDescriptorForBufferPosition(
                     [row, i]
                 )
+
+                indexOfDescriptor = descriptions.scopes.indexOf('punctuation.section.scope.end.php')
+                if indexOfDescriptor > -1
+                    childScopes++
+
                 indexOfDescriptor = descriptions.scopes.indexOf('punctuation.section.scope.begin.php')
                 if indexOfDescriptor > -1
-                    startScopePoint = new Point(row, 0)
-                    break
+                    childScopes--
+
+                    if childScopes == -1
+                        startScopePoint = new Point(row, 0)
+                        break
 
             break if startScopePoint?
 
-        # Tracks any extra scopes that might exist inside the scope we are
-        # looking for.
         childScopes = 0
 
         # Walk forward until we find the end of the current scope
