@@ -32,7 +32,7 @@ class ExtractMethodProvider extends AbstractProvider
     activate: (service) ->
         super(service)
 
-        @extractMethodView = new View(@onConfirm.bind(this))
+        @extractMethodView = new View(@onConfirm.bind(this), @onCancel.bind(this))
         @builder = new Builder(service)
 
         @extractMethodView.setBuilder(@builder)
@@ -83,6 +83,12 @@ class ExtractMethodProvider extends AbstractProvider
         @builder.setEditor(activeTextEditor)
         @extractMethodView.storeFocusedElement()
         @extractMethodView.present()
+
+    ###*
+     * Called when the user has cancel the extraction in the modal.
+    ###
+    onCancel: ->
+        @builder.cleanUp()
 
     ###*
      * Called when the user has confirmed the extraction in the modal.
