@@ -176,6 +176,8 @@ class ExtractMethodView extends View
         if @builder.hasReturnValues()
             if @builder.hasMultipleReturnValues()
                 $('.php-integrator-refactoring-extract-method .return-multiple-control').removeClass('hide')
+            else
+                $('.php-integrator-refactoring-extract-method .return-multiple-control').addClass('hide')
 
             $('.php-integrator-refactoring-extract-method .return-control').removeClass('hide')
         else
