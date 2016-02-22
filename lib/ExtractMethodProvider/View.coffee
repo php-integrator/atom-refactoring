@@ -48,7 +48,7 @@ class ExtractMethodView extends View
             methodName: '',
             visibility: 'public',
             tabs: false,
-            arraySyntax: 'word'
+            arraySyntax: 'brackets'
         }
 
     ###*
@@ -79,7 +79,7 @@ class ExtractMethodView extends View
                             @div class: 'controls', =>
                                 @div class: 'checkbox', =>
                                     @label =>
-                                        @input outlet: 'arraySyntax', type: 'checkbox'
+                                        @input outlet: 'arraySyntax', type: 'checkbox', checked: true
                                         @div class: 'setting-title', 'Use PHP 5.4+ array syntax (Square brackets)'
                         @div class: 'control-group', =>
                             @div class: 'controls', =>
