@@ -172,7 +172,12 @@ class ParameterParser
 
             continue if not line
 
-            for i in [0 .. line.length - 1]
+            startIndex = 0
+
+            if startScopePoint.row == row
+                startIndex = line.length - 1
+
+            for i in [startIndex .. line.length - 1]
                 descriptions = editor.scopeDescriptorForBufferPosition(
                     [row, i]
                 )
