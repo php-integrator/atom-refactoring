@@ -116,7 +116,9 @@ class ExtractMethodProvider extends AbstractProvider
         )
         activeTextEditor = atom.workspace.getActiveTextEditor()
 
-        highlightedBufferPosition = activeTextEditor.getSelectedBufferRange().end
+        selectedBufferRange = activeTextEditor.getSelectedBufferRange()
+
+        highlightedBufferPosition = selectedBufferRange.end
         row = 0
         loop
             row++
@@ -124,12 +126,18 @@ class ExtractMethodProvider extends AbstractProvider
                 [highlightedBufferPosition.row + row, activeTextEditor.getTabLength()]
             )
             indexOfDescriptor = descriptions.scopes.indexOf('punctuation.section.scope.end.php')
-            break if indexOfDescriptor == descriptions.scopes.length - 1 || row == activeTextEditor.getLineCount()
+            break if indexOfDescriptor > -1 || row == activeTextEditor.getLineCount()
+
+        row = highlightedBufferPosition.row + row
+
+        line = activeTextEditor.lineTextForBufferRow row
 
         replaceRange = [
-            [highlightedBufferPosition.row + row, activeTextEditor.getTabLength() + 1],
-            [highlightedBufferPosition.row + row, Infinity]
+            [row, 0],
+            [row, line.length]
         ]
+
+        previousText = activeTextEditor.getTextInBufferRange replaceRange
 
         settings.tabs = true
         newMethodBody =  @builder.buildMethod(settings)
@@ -139,9 +147,30 @@ class ExtractMethodProvider extends AbstractProvider
         activeTextEditor.transact () =>
             activeTextEditor.insertText(methodCall)
 
+            # Remove any extra new lines between functions
+            nextLine = activeTextEditor.lineTextForBufferRow row + 1
+            if nextLine == ''
+                activeTextEditor.setSelectedBufferRange(
+                    [
+                        [row + 1, 0],
+                        [row + 1, 1]
+                    ]
+                )
+                activeTextEditor.deleteLine()
+
+
+            # Re working out range as inserting method call will delete some
+            # lines and thus offsetting this
+            row -= selectedBufferRange.end.row - selectedBufferRange.start.row
+
+            replaceRange = [
+                [row, 0],
+                [row, line.length]
+            ]
+
             activeTextEditor.setTextInBufferRange(
                 replaceRange,
-                "\n#{newMethodBody}"
+                "#{previousText}\n\n#{newMethodBody}"
             )
 
     ###*
