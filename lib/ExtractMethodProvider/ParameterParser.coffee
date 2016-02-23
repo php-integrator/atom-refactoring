@@ -75,7 +75,7 @@ class ParameterParser
             },
             {
                 name: 'Closure'
-                regex: /function(?:\s|.)*?((?:\$[a-zA-Z0-9_]+)).*?\)/g
+                regex: /function(?:\s)*?\((?:\$).*?\)/g
             },
             {
                 name: 'Variable declarations',
