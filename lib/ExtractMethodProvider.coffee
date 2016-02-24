@@ -132,9 +132,11 @@ class ExtractMethodProvider extends AbstractProvider
 
         line = activeTextEditor.lineTextForBufferRow row
 
+        endOfLine = line?.length
+
         replaceRange = [
             [row, 0],
-            [row, line.length]
+            [row, endOfLine]
         ]
 
         previousText = activeTextEditor.getTextInBufferRange replaceRange
@@ -165,7 +167,7 @@ class ExtractMethodProvider extends AbstractProvider
 
             replaceRange = [
                 [row, 0],
-                [row, line.length]
+                [row, line?.length]
             ]
 
             activeTextEditor.setTextInBufferRange(
