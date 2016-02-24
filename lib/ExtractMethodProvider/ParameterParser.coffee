@@ -269,7 +269,7 @@ class ParameterParser
         try
             type = @parser.getVariableType(
                 editor,
-                parameter.range.start,
+                new Point(parameter.range.end.row + 1, parameter.range.end.column),
                 parameter.name
             )
         catch error
