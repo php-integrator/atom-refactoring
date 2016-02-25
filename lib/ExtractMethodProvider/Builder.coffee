@@ -130,10 +130,10 @@ class Builder
         if @returnVariables == null
             @returnVariables = @workOutReturnVariables @parameterParser.getVariableDeclarations()
 
-        parameterNames = parameters.map (item) ->
-            return item.name
+        formattedParameters = @buildFunctionParameters parameters, settings.typeHinting
+        console.log formattedParameters
 
-        newMethod = @buildLine "#{settings.visibility} function #{settings.methodName}(#{parameterNames.join ', '})", settings.tabs
+        newMethod = @buildLine "#{settings.visibility} function #{settings.methodName}(#{formattedParameters})", settings.tabs
         newMethod += @buildLine "{", settings.tabs
         for line in @methodBody.split('\n')
             newMethod += @buildLine "#{line}", settings.tabs
@@ -341,3 +341,41 @@ class Builder
     ###
     hasMultipleReturnValues: ->
         return @returnVariables != null && @returnVariables.length > 1
+
+    ###*
+     * Builds the parameters inside the () of the function.
+     *
+     * @param  {Array} parameters
+     * @param  {Boolean} typeHinting
+     *
+     * @return {String}
+    ###
+    buildFunctionParameters: (parameters, typeHinting) ->
+        if parameters.length == 1
+            return @convertParameterObjectIntoString parameters[0], typeHinting
+
+        formattedParameters = parameters.reduce (previous, current) =>
+            if typeof previous != 'string'
+                previous = @convertParameterObjectIntoString previous, typeHinting
+
+            current = @convertParameterObjectIntoString current, typeHinting
+
+            return previous + ', ' + current
+
+        return formattedParameters
+
+    ###*
+     * Converts a parameter object into a string to be used in a function
+     *
+     * @param  {Object} parameter
+     * @param  {Boolean} typeHinting
+     *
+     * @return {String}
+    ###
+    convertParameterObjectIntoString: (parameter, typeHinting) ->
+        parameterString = parameter.name
+
+        if typeHinting
+            parameterString = parameter.type + ' ' + parameterString
+
+        return parameterString
