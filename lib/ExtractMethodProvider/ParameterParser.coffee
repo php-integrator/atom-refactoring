@@ -71,7 +71,7 @@ class ParameterParser
             },
             {
                 name: 'Try catch',
-                regex: /catch(?:\(|\s)+(\$[a-zA-Z0-9_]+)/g
+                regex: /catch(?:\(|\s)+.*?(\$[a-zA-Z0-9_]+)/g
             },
             {
                 name: 'Closure'
