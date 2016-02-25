@@ -48,7 +48,8 @@ class ExtractMethodView extends View
             methodName: '',
             visibility: 'public',
             tabs: false,
-            arraySyntax: 'brackets'
+            arraySyntax: 'brackets',
+            typeHinting: false
         }
 
     ###*
@@ -75,6 +76,12 @@ class ExtractMethodView extends View
                                     @label =>
                                         @input outlet: 'generateDocInput', type: 'checkbox'
                                         @div class: 'setting-title', 'Generate documentation'
+                        @div class: 'control-group', =>
+                            @div class: 'controls', =>
+                                @div class: 'checkbox', =>
+                                    @label =>
+                                        @input outlet: 'generateTypeHints', type: 'checkbox'
+                                        @div class: 'setting-title', 'Generate type hints'
                         @div class: 'return-multiple-control control-group hide', =>
                             @div class: 'controls', =>
                                 @div class: 'checkbox', =>
@@ -119,6 +126,10 @@ class ExtractMethodView extends View
 
         $(@generateDocInput[0]).change (event) =>
             @settings.generateDocs = !@settings.generateDocs
+            @refreshPreviewArea()
+
+        $(@generateTypeHints[0]).change (event) =>
+            @settings.typeHinting = !@settings.typeHinting
             @refreshPreviewArea()
 
         $(@arraySyntax[0]).change (event) =>
