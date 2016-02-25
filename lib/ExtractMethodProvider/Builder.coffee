@@ -351,6 +351,9 @@ class Builder
      * @return {String}
     ###
     buildFunctionParameters: (parameters, typeHinting) ->
+        if parameters.length == 0
+            return ''
+
         if parameters.length == 1
             return @convertParameterObjectIntoString parameters[0], typeHinting
 
