@@ -147,7 +147,16 @@ class ExtractMethodProvider extends AbstractProvider
         @builder.cleanUp()
 
         activeTextEditor.transact () =>
-            activeTextEditor.insertText(methodCall)
+            extendedRange = @builder.selectedBufferRange
+            activeTextEditor.setSelectedBufferRange extendedRange
+
+            # Matching current indentation
+            selectedText = activeTextEditor.getSelectedText()
+            spacing = selectedText.match /^\s*/
+            if spacing != null
+                spacing = spacing[0]
+
+            activeTextEditor.insertText(spacing + methodCall)
 
             # Remove any extra new lines between functions
             nextLine = activeTextEditor.lineTextForBufferRow row + 1
