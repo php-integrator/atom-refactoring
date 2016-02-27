@@ -153,7 +153,7 @@ class Builder
      * @param  {String} methodName
      * @param  {String} variable   [Optional]
      *
-     * @return {[type]}            [description]
+     * @return {String}
     ###
     buildMethodCall: (methodName, variable) =>
         parameters = @parameterParser.findParameters(
