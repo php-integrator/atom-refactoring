@@ -146,7 +146,7 @@ class ExtractMethodView extends View
 
 
         $(document).on 'click', (event) =>
-            @cancel() if @panel.isVisible()
+            @cancel() if @panel?.isVisible()
 
     ###*
      * Destroys the view and cleans up.
@@ -167,7 +167,7 @@ class ExtractMethodView extends View
      * Hides the panel.
     ###
     hide: ->
-        @panel.hide()
+        @panel?.hide()
         @restoreFocus()
 
     ###*
