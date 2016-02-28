@@ -95,7 +95,7 @@ class Builder
      * @param {Range} range [description]
     ###
     setSelectedBufferRange: (range) ->
-        @selectedBufferRange = new Range([range.start.row, 0], [range.end.row, Infinity])
+        @selectedBufferRange = range
 
     ###*
      * Set the TextEditor to be used when analysing the selectedBufferRange
