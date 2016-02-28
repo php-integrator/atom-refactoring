@@ -146,7 +146,7 @@ class Builder
                 parameters,
                 @returnVariables,
                 settings.tabs,
-                settings.generateDocPlaceholders
+                settings.generateDescPlaceholders
             )
             newMethod = docs + newMethod
 
@@ -195,20 +195,20 @@ class Builder
      * @param  {String}     methodName
      * @param  {Array}      parameters
      * @param  {Array|null} returnVariables
-     * @param  {Boolean}    tabs                    = false
-     * @param  {Boolean}    generateDocPlaceholders = true
+     * @param  {Boolean}    tabs                     = false
+     * @param  {Boolean}    generateDescPlaceholders = true
      *
      * @return {String}
     ###
-    buildDocumentation: (methodName, parameters, returnVariables, tabs = false, generateDocPlaceholders = true) =>
+    buildDocumentation: (methodName, parameters, returnVariables, tabs = false, generateDescPlaceholders = true) =>
         docs = @buildLine "/**", tabs
 
-        if generateDocPlaceholders
+        if generateDescPlaceholders
             docs += @buildDocumentationLine "[#{methodName} description]", tabs
 
         if parameters.length > 0
             descriptionPlaceholder = ""
-            if generateDocPlaceholders
+            if generateDescPlaceholders
                 docs += @buildLine " *", tabs
                 descriptionPlaceholder = " [description]"
             longestType = 0
