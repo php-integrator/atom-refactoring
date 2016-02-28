@@ -26,6 +26,13 @@ class ParameterParser
     variableDeclarations: []
 
     ###*
+     * The selected range that we are scanning for parameters in.
+     *
+     * @type {Range}
+    ###
+    selectedBufferRange: null
+
+    ###*
      * Constructor
      *
      * @param {Parser} parser
@@ -44,6 +51,7 @@ class ParameterParser
      * @return {Array}
     ###
     findParameters: (editor, selectedBufferRange) ->
+        @selectedBufferRange = selectedBufferRange
         key = @buildKey(editor, selectedBufferRange)
 
         return @parsedParameters[key] if @parsedParameters[key]
@@ -269,7 +277,7 @@ class ParameterParser
         try
             type = @parser.getVariableType(
                 editor,
-                new Point(parameter.range.end.row + 1, parameter.range.end.column),
+                @selectedBufferRange.end,
                 parameter.name
             )
         catch error
