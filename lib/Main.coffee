@@ -49,3 +49,12 @@ module.exports =
         {Disposable} = require 'atom'
 
         return new Disposable => @deactivateProviders()
+
+    ###*
+     * Consumes the atom/snippet service
+     *
+     * @param {Object} snippetManager
+    ###
+    setSnippetManager: (snippetManager) ->
+        for provider in @providers
+            provider.setSnippetManager snippetManager
