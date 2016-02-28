@@ -49,7 +49,8 @@ class ExtractMethodView extends View
             visibility: 'public',
             tabs: false,
             arraySyntax: 'brackets',
-            typeHinting: false
+            typeHinting: false,
+            generateDocPlaceholders: true
         }
 
     ###*
@@ -76,6 +77,11 @@ class ExtractMethodView extends View
                                     @label =>
                                         @input outlet: 'generateDocInput', type: 'checkbox'
                                         @div class: 'setting-title', 'Generate documentation'
+                            @div class: 'controls generate-docs-control hide', =>
+                                @div class: 'checkbox', =>
+                                    @label =>
+                                        @input outlet: 'generateDocPlaceholdersInput', type: 'checkbox', checked: true
+                                        @div class: 'setting-title', 'Generate description placeholders'
                         @div class: 'control-group', =>
                             @div class: 'controls', =>
                                 @div class: 'checkbox', =>
@@ -126,6 +132,16 @@ class ExtractMethodView extends View
 
         $(@generateDocInput[0]).change (event) =>
             @settings.generateDocs = !@settings.generateDocs
+            if @settings.generateDocs == true
+                $('.php-integrator-refactoring-extract-method .generate-docs-control').removeClass('hide')
+            else
+                $('.php-integrator-refactoring-extract-method .generate-docs-control').addClass('hide')
+
+
+            @refreshPreviewArea()
+
+        $(@generateDocPlaceholdersInput[0]).change (event) =>
+            @settings.generateDocPlaceholders = !@settings.generateDocPlaceholders
             @refreshPreviewArea()
 
         $(@generateTypeHints[0]).change (event) =>
