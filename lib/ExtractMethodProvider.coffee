@@ -74,23 +74,24 @@ class ExtractMethodProvider extends AbstractProvider
             )
             return
 
-        extendedRange = new Range(
-            [selectedBufferRange.start.row, 0],
-            [selectedBufferRange.end.row, Infinity]
-        )
-        highlightedText = activeTextEditor.getTextInBufferRange(extendedRange)
+        highlightedText = activeTextEditor.getTextInBufferRange(selectedBufferRange)
 
 
         line = activeTextEditor.lineTextForBufferRow(selectedBufferRange.start.row)
         findSingleTab = new RegExp("(#{tabText})", "g")
         matches = (line.match(findSingleTab) || []).length
 
-        multipleTabTexts = Array(matches).fill("#{tabText}")
-        findMultipleTab = new RegExp("^" + multipleTabTexts.join(''), "mg")
+        # If the first line doesn't have any tabs then add one.
+        selectedBufferFirstLine = highlightedText.split("\n")[0]
+        if (selectedBufferFirstLine.match(findSingleTab) || []).length == 0
+            highlightedText = "#{tabText}" + highlightedText
 
         # Replacing double indents with one, so it can be shown in the preview
         # area of panel
+        multipleTabTexts = Array(matches).fill("#{tabText}")
+        findMultipleTab = new RegExp("^" + multipleTabTexts.join(''), "mg")
         reducedHighlightedText = highlightedText.replace(findMultipleTab, "#{tabText}")
+
 
         @builder.setMethodBody(reducedHighlightedText)
         @builder.setEditor(activeTextEditor)
@@ -147,9 +148,6 @@ class ExtractMethodProvider extends AbstractProvider
         @builder.cleanUp()
 
         activeTextEditor.transact () =>
-            extendedRange = @builder.selectedBufferRange
-            activeTextEditor.setSelectedBufferRange extendedRange
-
             # Matching current indentation
             selectedText = activeTextEditor.getSelectedText()
             spacing = selectedText.match /^\s*/
