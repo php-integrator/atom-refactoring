@@ -72,28 +72,34 @@ class ExtractMethodView extends View
                                         @option value: 'protected', 'Protected'
                                         @option value: 'private', 'Private'
                         @div class: 'control-group', =>
-                            @div class: 'controls', =>
-                                @div class: 'checkbox', =>
-                                    @label =>
-                                        @input outlet: 'generateDocInput', type: 'checkbox'
-                                        @div class: 'setting-title', 'Generate documentation'
-                            @div class: 'controls generate-docs-control hide', =>
-                                @div class: 'checkbox', =>
-                                    @label =>
-                                        @input outlet: 'generateDescPlaceholdersInput', type: 'checkbox', checked: true
-                                        @div class: 'setting-title', 'Generate description placeholders'
+                            @label class: 'control-label', =>
+                                @div class: 'setting-title', 'Documentation'
+                                @div class: 'controls', =>
+                                        @div class: 'checkbox', =>
+                                            @label =>
+                                                @input outlet: 'generateDocInput', type: 'checkbox'
+                                                @div class: 'setting-title', 'Generate documentation'
+                                @div class: 'controls generate-docs-control hide', =>
+                                    @div class: 'checkbox', =>
+                                        @label =>
+                                            @input outlet: 'generateDescPlaceholdersInput', type: 'checkbox', checked: true
+                                            @div class: 'setting-title', 'Generate description placeholders'
                         @div class: 'control-group', =>
-                            @div class: 'controls', =>
-                                @div class: 'checkbox', =>
-                                    @label =>
-                                        @input outlet: 'generateTypeHints', type: 'checkbox'
-                                        @div class: 'setting-title', 'Generate type hints'
+                            @label class: 'control-label', =>
+                                @div class: 'setting-title', 'Type hinting'
+                                @div class: 'controls', =>
+                                    @div class: 'checkbox', =>
+                                        @label =>
+                                            @input outlet: 'generateTypeHints', type: 'checkbox'
+                                            @div class: 'setting-title', 'Generate type hints'
                         @div class: 'return-multiple-control control-group hide', =>
-                            @div class: 'controls', =>
-                                @div class: 'checkbox', =>
-                                    @label =>
-                                        @input outlet: 'arraySyntax', type: 'checkbox', checked: true
-                                        @div class: 'setting-title', 'Use PHP 5.4+ array syntax (Square brackets)'
+                            @label class: 'control-label', =>
+                                @div class: 'setting-title', 'Method styling'
+                                @div class: 'controls', =>
+                                    @div class: 'checkbox', =>
+                                        @label =>
+                                            @input outlet: 'arraySyntax', type: 'checkbox', checked: true
+                                            @div class: 'setting-title', 'Use PHP 5.4+ array syntax (Square brackets)'
                         @div class: 'control-group', =>
                             @div class: 'controls', =>
                                 @label class: 'control-label', =>
