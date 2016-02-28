@@ -116,6 +116,7 @@ class Builder
      *   - tabs (boolean)
      *   - generateDocs (boolean)
      *   - arraySyntax (string) ['word', 'brackets']
+     *   - generateDocPlaceholders (boolean)
      *
      * @param  {Object} settings
      *
@@ -140,7 +141,13 @@ class Builder
         newMethod += @buildLine "}", settings.tabs
 
         if settings.generateDocs
-            docs = @buildDocumentation settings.methodName, parameters, @returnVariables, settings.tabs
+            docs = @buildDocumentation(
+                settings.methodName,
+                parameters,
+                @returnVariables,
+                settings.tabs,
+                settings.generateDocPlaceholders
+            )
             newMethod = docs + newMethod
 
         return newMethod
@@ -188,16 +195,22 @@ class Builder
      * @param  {String}     methodName
      * @param  {Array}      parameters
      * @param  {Array|null} returnVariables
-     * @param  {Boolean}    tabs            = false
+     * @param  {Boolean}    tabs                    = false
+     * @param  {Boolean}    generateDocPlaceholders = true
      *
      * @return {String}
     ###
-    buildDocumentation: (methodName, parameters, returnVariables, tabs = false) =>
+    buildDocumentation: (methodName, parameters, returnVariables, tabs = false, generateDocPlaceholders = true) =>
         docs = @buildLine "/**", tabs
-        docs += @buildDocumentationLine "[#{methodName} description]", tabs
+
+        if generateDocPlaceholders
+            docs += @buildDocumentationLine "[#{methodName} description]", tabs
 
         if parameters.length > 0
-            docs += @buildLine " *", tabs
+            descriptionPlaceholder = ""
+            if generateDocPlaceholders
+                docs += @buildLine " *", tabs
+                descriptionPlaceholder = " [description]"
             longestType = 0
             longestVariable = 0
 
@@ -214,7 +227,7 @@ class Builder
                 type = parameter.type + new Array(typePadding + 1).join(' ')
                 variable = parameter.name + new Array(variablePadding + 1).join(' ')
 
-                docs += @buildDocumentationLine "@param #{type} #{variable} [description]", tabs
+                docs += @buildDocumentationLine "@param #{type} #{variable}#{descriptionPlaceholder}", tabs
 
         if returnVariables != null && returnVariables.length > 0
             docs += @buildLine " *", tabs
