@@ -50,7 +50,7 @@ class ExtractMethodView extends View
             tabs: false,
             arraySyntax: 'brackets',
             typeHinting: false,
-            generateDocPlaceholders: true
+            generateDescPlaceholders: true
         }
 
     ###*
@@ -80,7 +80,7 @@ class ExtractMethodView extends View
                             @div class: 'controls generate-docs-control hide', =>
                                 @div class: 'checkbox', =>
                                     @label =>
-                                        @input outlet: 'generateDocPlaceholdersInput', type: 'checkbox', checked: true
+                                        @input outlet: 'generateDescPlaceholdersInput', type: 'checkbox', checked: true
                                         @div class: 'setting-title', 'Generate description placeholders'
                         @div class: 'control-group', =>
                             @div class: 'controls', =>
@@ -140,8 +140,8 @@ class ExtractMethodView extends View
 
             @refreshPreviewArea()
 
-        $(@generateDocPlaceholdersInput[0]).change (event) =>
-            @settings.generateDocPlaceholders = !@settings.generateDocPlaceholders
+        $(@generateDescPlaceholdersInput[0]).change (event) =>
+            @settings.generateDescPlaceholders = !@settings.generateDescPlaceholders
             @refreshPreviewArea()
 
         $(@generateTypeHints[0]).change (event) =>
