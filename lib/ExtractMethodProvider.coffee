@@ -144,6 +144,7 @@ class ExtractMethodProvider extends AbstractProvider
 
         settings.tabs = true
         newMethodBody =  @builder.buildMethod(settings)
+        settings.tabs = false
 
         @builder.cleanUp()
 
