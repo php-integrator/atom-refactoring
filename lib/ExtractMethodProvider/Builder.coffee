@@ -131,7 +131,6 @@ class Builder
             @returnVariables = @workOutReturnVariables @parameterParser.getVariableDeclarations()
 
         formattedParameters = @buildFunctionParameters parameters, settings.typeHinting
-        console.log formattedParameters
 
         newMethod = @buildLine "#{settings.visibility} function #{settings.methodName}(#{formattedParameters})", settings.tabs
         newMethod += @buildLine "{", settings.tabs
