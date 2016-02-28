@@ -174,22 +174,37 @@ class ExtractMethodProvider extends AbstractProvider
             # lines and thus offsetting this
             row -= selectedBufferRange.end.row - selectedBufferRange.start.row
 
-            activeTextEditor.setCursorBufferPosition [row + 1, 0]
+            if @snippetManager?
+                activeTextEditor.setCursorBufferPosition [row + 1, 0]
 
-            body = "\n#{newMethodBody}\n"
+                body = "\n#{newMethodBody}\n"
 
-            result = @getTabStopsForBody body
+                result = @getTabStopsForBody body
 
-            snippet = {
-                body: body,
-                lineCount: result.lineCount,
-                tabStops: result.tabStops
-            }
+                snippet = {
+                    body: body,
+                    lineCount: result.lineCount,
+                    tabStops: result.tabStops
+                }
 
-            @snippetManager.insertSnippet(
-                snippet,
-                activeTextEditor
-            )
+                @snippetManager.insertSnippet(
+                    snippet,
+                    activeTextEditor
+                )
+            else
+                # Re working out range as inserting method call will delete some
+                # lines and thus offsetting this
+                row -= selectedBufferRange.end.row - selectedBufferRange.start.row
+
+                replaceRange = [
+                    [row, 0],
+                    [row, line?.length]
+                ]
+
+                activeTextEditor.setTextInBufferRange(
+                    replaceRange,
+                    "#{previousText}\n\n#{newMethodBody}"
+                )
 
     ###*
      * @inheritdoc
