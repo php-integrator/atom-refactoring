@@ -15,6 +15,11 @@ class AbstractProvider
     menuItemDisposable: null
 
     ###*
+     * Service to insert snippets into the editor.
+    ###
+    snippetManager: null
+
+    ###*
      * Constructor.
     ###
     constructor: () ->
@@ -118,3 +123,10 @@ class AbstractProvider
      * @param {TextEditor} editor TextEditor to register events to.
     ###
     registerEvents: (editor) ->
+
+    ###*
+     * Sets the snippet manager
+     *
+     * @param {Object} @snippetManager
+    ###
+    setSnippetManager: (@snippetManager) ->
