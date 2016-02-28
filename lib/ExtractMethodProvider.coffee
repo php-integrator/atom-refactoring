@@ -174,14 +174,21 @@ class ExtractMethodProvider extends AbstractProvider
             # lines and thus offsetting this
             row -= selectedBufferRange.end.row - selectedBufferRange.start.row
 
-            replaceRange = [
-                [row, 0],
-                [row, line?.length]
-            ]
+            activeTextEditor.setCursorBufferPosition [row + 1, 0]
 
-            activeTextEditor.setTextInBufferRange(
-                replaceRange,
-                "#{previousText}\n\n#{newMethodBody}"
+            body = "\n#{newMethodBody}\n"
+
+            result = @getTabStopsForBody body
+
+            snippet = {
+                body: body,
+                lineCount: result.lineCount,
+                tabStops: result.tabStops
+            }
+
+            @snippetManager.insertSnippet(
+                snippet,
+                activeTextEditor
             )
 
     ###*
@@ -191,3 +198,82 @@ class ExtractMethodProvider extends AbstractProvider
         return [
             {'label': 'Extract method', 'command': 'php-integrator-refactoring:extract-method'},
         ]
+
+    ###*
+     * Gets all the tab stops and line count for the body given
+     *
+     * @param  {String} body
+     *
+     * @return {Object}
+    ###
+    getTabStopsForBody: (body) ->
+        lines = body.split "\n"
+        row = 0
+        lineCount = 0
+        tabStops = []
+        tabStopIndex = {}
+
+        for line in lines
+            regex = /(\[[\w ]*?\])(\s*\$[a-zA-Z0-9_]+)?/g
+            # Get tab stops by looping through all matches
+            while (match = regex.exec(line)) != null
+                key = match[2] # 2nd capturing group (variable name)
+                replace = match[1] # 1st capturing group ([type])
+                range = new Range(
+                    [row, match.index],
+                    [row, match.index + match[1].length]
+                )
+
+                if key != undefined
+                    key = key.trim()
+                    if tabStopIndex[key] != undefined
+                        tabStopIndex[key].push range
+                    else
+                        tabStopIndex[key] = [range]
+                else
+                    tabStops.push [range]
+
+            row++
+            lineCount++
+
+        for objectKey in Object.keys(tabStopIndex)
+            tabStops.push tabStopIndex[objectKey]
+
+        tabStops = tabStops.sort @sortTabStops
+
+        return {
+            tabStops: tabStops,
+            lineCount: lineCount
+        }
+
+    ###*
+     * Sorts the tab stops by their row and column
+     *
+     * @param  {Array} a
+     * @param  {Array} b
+     *
+     * @return {Integer}
+    ###
+    sortTabStops: (a, b) ->
+        # Grabbing first range in the array
+        a = a[0]
+        b = b[0]
+
+        # b is before a in the rows
+        if a.start.row > b.start.row
+            return 1
+
+        # a is before b in the rows
+        if a.start.row < b.start.row
+            return -1
+
+        # On same line but b is before a
+        if a.start.column > b.start.column
+            return 1
+
+        # On same line but a is before b
+        if a.start.column < b.start.column
+            return -1
+
+        # Same position
+        return 0
