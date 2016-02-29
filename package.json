@@ -13,6 +13,11 @@
       "versions": {
         "~0.7.0": "setService"
       }
+    },
+    "snippets": {
+      "versions": {
+        "0.1.0": "setSnippetManager"
+      }
     }
   },
   "dependencies": {
