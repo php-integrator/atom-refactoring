@@ -20,9 +20,11 @@ module.exports =
     ###
     activateProviders: (service) ->
         GetterSetterProvider = require './GetterSetterProvider'
+        ExtractMethodProvider = require './ExtractMethodProvider'
 
         @providers = []
         @providers.push new GetterSetterProvider()
+        @providers.push new ExtractMethodProvider()
 
         for provider in @providers
             provider.activate(service)
@@ -47,3 +49,12 @@ module.exports =
         {Disposable} = require 'atom'
 
         return new Disposable => @deactivateProviders()
+
+    ###*
+     * Consumes the atom/snippet service
+     *
+     * @param {Object} snippetManager
+    ###
+    setSnippetManager: (snippetManager) ->
+        for provider in @providers
+            provider.setSnippetManager snippetManager
