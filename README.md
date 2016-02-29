@@ -9,6 +9,7 @@ This package provides refactoring capabilities for your PHP source code using [P
 **Note that the [php-integrator-base](https://github.com/Gert-dev/php-integrator-base) package is required and needs to be set up correctly for this package to function correctly.**
 
 What is included?
+  * Method extraction.
   * Getter and setter generation.
 
 ![GPLv3 Logo](http://gplv3.fsf.org/gplv3-127x51.png)
