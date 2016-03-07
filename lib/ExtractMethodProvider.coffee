@@ -65,13 +65,9 @@ class ExtractMethodProvider extends AbstractProvider
         # Checking if a selection has been made
         if selectedBufferRange.start.row == selectedBufferRange.end.row &&
         selectedBufferRange.start.column == selectedBufferRange.end.column
-            atom.notifications.addWarning(
-                'Please select the text to extract and try again.',
-                {
-                    detail: 'php-integrator-refactoring'
-                    dismissable: true
-                }
-            )
+            atom.notifications.addInfo('php-integrator-refactoring', {
+                detail: 'Please select the text to extract and try again.'
+            })
             return
 
         highlightedText = activeTextEditor.getTextInBufferRange(selectedBufferRange)
