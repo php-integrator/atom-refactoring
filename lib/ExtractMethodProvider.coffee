@@ -66,9 +66,9 @@ class ExtractMethodProvider extends AbstractProvider
         if selectedBufferRange.start.row == selectedBufferRange.end.row &&
         selectedBufferRange.start.column == selectedBufferRange.end.column
             atom.notifications.addWarning(
-                'You must select some text to extract',
+                'Please select the text to extract and try again.',
                 {
-                    detail: 'PHP Integrator Refactoring'
+                    detail: 'php-integrator-refactoring'
                     dismissable: true
                 }
             )
