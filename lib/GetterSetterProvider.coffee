@@ -165,7 +165,10 @@ class GetterSetterProvider extends AbstractProvider
         returnTypeDeclaration = ''
 
         if enablePhp7Support and item.type != 'mixed'
-            returnTypeDeclaration = ': ' + item.type
+            allowedTypes = item.type.split('|')
+
+            if allowedTypes.length == 1
+                returnTypeDeclaration = ': ' + item.type
 
         return """
             /**
@@ -189,9 +192,22 @@ class GetterSetterProvider extends AbstractProvider
     ###
     generateSetterForItem: (item, enablePhp7Support) ->
         typePrefix = ''
+        defaultValueSuffix = ''
 
-        if (enablePhp7Support or @isClassType(item.type)) and item.type != 'mixed'
-            typePrefix = item.type + ' '
+        type = item.type
+        allowedTypes = item.type.split('|')
+
+        if allowedTypes.length > 1 and 'null' in allowedTypes
+            type = (if allowedTypes[0] != 'null' then allowedTypes[0] else allowedTypes[1])
+
+        if (enablePhp7Support or @isClassType(type)) and
+            type != 'mixed' and
+            allowedTypes.length == 1 or (allowedTypes.length == 2 and 'null' in allowedTypes)
+                # Make this setter's type hint nullable by specifying the default value.
+                if allowedTypes.length > 1
+                    defaultValueSuffix = ' = null'
+
+                typePrefix += type + ' '
 
         returnTypeDeclaration = ''
 
@@ -206,7 +222,7 @@ class GetterSetterProvider extends AbstractProvider
              *
              * @return $this
              */
-            public function #{item.setterName}(#{typePrefix}$#{item.name})#{returnTypeDeclaration}
+            public function #{item.setterName}(#{typePrefix}$#{item.name}#{defaultValueSuffix})#{returnTypeDeclaration}
             {
                 $this->#{item.name} = $#{item.name};
                 return $this;
