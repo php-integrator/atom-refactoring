@@ -202,7 +202,7 @@ class GetterSetterProvider extends AbstractProvider
 
         if (enablePhp7Support or @isClassType(type)) and
             type != 'mixed' and
-            allowedTypes.length == 1 or (allowedTypes.length == 2 and 'null' in allowedTypes)
+            (allowedTypes.length == 1 or (allowedTypes.length == 2 and 'null' in allowedTypes))
                 # Make this setter's type hint nullable by specifying the default value.
                 if allowedTypes.length > 1
                     defaultValueSuffix = ' = null'
