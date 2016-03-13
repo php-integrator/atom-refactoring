@@ -69,7 +69,7 @@ class GetterSetterProvider extends AbstractProvider
 
         currentClassName = @service.determineCurrentClassName(activeTextEditor, activeTextEditor.getCursorBufferPosition())
 
-        @service.getClassInfo(currentClassName, true).then (classInfo) =>
+        successHandler = (classInfo) =>
             enabledItems = []
             disabledItems = []
 
@@ -109,6 +109,11 @@ class GetterSetterProvider extends AbstractProvider
             disabledItems.sort(sorter)
 
             @selectionView.setItems(enabledItems.concat(disabledItems))
+
+        failureHandler = () =>
+            @selectionView.setItems([])
+
+        @service.getClassInfo(currentClassName, true).then(successHandler, failureHandler)
 
     ###*
      * Indicates if the specified type is a class type or not.
