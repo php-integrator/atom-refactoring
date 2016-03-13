@@ -172,7 +172,7 @@ class ExtractMethodProvider extends AbstractProvider
             if @snippetManager?
                 activeTextEditor.setCursorBufferPosition [row + 1, 0]
 
-                body = "\n#{newMethodBody}\n"
+                body = "\n#{newMethodBody}"
 
                 result = @getTabStopsForBody body
 
