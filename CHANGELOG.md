@@ -1,3 +1,7 @@
+## 0.4.1
+* Don't throw an error when no current class name is found.
+* Perform more operations asynchronously whilst fetching properties for generating getters and setters, improving responsiveness.
+
 ## 0.4.0 (base 0.7.0)
 * Fixed promise rejections not being handled.
 * Added support for extracting methods based on CWDN's original [php-extract-method](https://github.com/CWDN/php-extract-method) package (thanks to @CWDN).

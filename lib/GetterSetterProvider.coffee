@@ -67,53 +67,59 @@ class GetterSetterProvider extends AbstractProvider
         @selectionView.storeFocusedElement()
         @selectionView.present()
 
-        currentClassName = @service.determineCurrentClassName(activeTextEditor, activeTextEditor.getCursorBufferPosition())
+        successHandler = (currentClassName) =>
+            return if not currentClassName
 
-        successHandler = (classInfo) =>
-            enabledItems = []
-            disabledItems = []
+            nestedSuccessHandler = (classInfo) =>
+                enabledItems = []
+                disabledItems = []
 
-            for name, property of classInfo.properties
-                type = if property.return.type then property.return.type else 'mixed'
+                for name, property of classInfo.properties
+                    type = if property.return.type then property.return.type else 'mixed'
 
-                getterName = 'get' + name.substr(0, 1).toUpperCase() + name.substr(1)
-                setterName = 'set' + name.substr(0, 1).toUpperCase() + name.substr(1)
+                    getterName = 'get' + name.substr(0, 1).toUpperCase() + name.substr(1)
+                    setterName = 'set' + name.substr(0, 1).toUpperCase() + name.substr(1)
 
-                getterExists = if getterName of classInfo.methods then true else false
-                setterExists = if setterName of classInfo.methods then true else false
+                    getterExists = if getterName of classInfo.methods then true else false
+                    setterExists = if setterName of classInfo.methods then true else false
 
-                data = {
-                    name                     : name
-                    type                     : type
-                    needsGetter              : enableGetterGeneration
-                    needsSetter              : enableSetterGeneration
-                    getterName               : getterName
-                    setterName               : setterName
-                }
+                    data = {
+                        name                     : name
+                        type                     : type
+                        needsGetter              : enableGetterGeneration
+                        needsSetter              : enableSetterGeneration
+                        getterName               : getterName
+                        setterName               : setterName
+                    }
 
-                if (enableGetterGeneration and enableSetterGeneration and getterExists and setterExists) or
-                   (enableGetterGeneration and getterExists) or
-                   (enableSetterGeneration and setterExists)
-                    data.className = 'php-integrator-refactoring-strikethrough'
-                    disabledItems.push(data)
+                    if (enableGetterGeneration and enableSetterGeneration and getterExists and setterExists) or
+                       (enableGetterGeneration and getterExists) or
+                       (enableSetterGeneration and setterExists)
+                        data.className = 'php-integrator-refactoring-strikethrough'
+                        disabledItems.push(data)
 
-                else
-                    data.className = ''
-                    enabledItems.push(data)
+                    else
+                        data.className = ''
+                        enabledItems.push(data)
 
-            # Sort alphabetically and put the disabled items at the end.
-            sorter = (a, b) ->
-                return a.name.localeCompare(b.name)
+                # Sort alphabetically and put the disabled items at the end.
+                sorter = (a, b) ->
+                    return a.name.localeCompare(b.name)
 
-            enabledItems.sort(sorter)
-            disabledItems.sort(sorter)
+                enabledItems.sort(sorter)
+                disabledItems.sort(sorter)
 
-            @selectionView.setItems(enabledItems.concat(disabledItems))
+                @selectionView.setItems(enabledItems.concat(disabledItems))
+
+            nestedFailureHandler = () =>
+                @selectionView.setItems([])
+
+            @service.getClassInfo(currentClassName, true).then(nestedSuccessHandler, nestedFailureHandler)
 
         failureHandler = () =>
             @selectionView.setItems([])
 
-        @service.getClassInfo(currentClassName, true).then(successHandler, failureHandler)
+        @service.determineCurrentClassName(activeTextEditor, activeTextEditor.getCursorBufferPosition(), true).then(successHandler, failureHandler)
 
     ###*
      * Indicates if the specified type is a class type or not.
