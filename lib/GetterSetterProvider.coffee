@@ -67,8 +67,9 @@ class GetterSetterProvider extends AbstractProvider
         @selectionView.storeFocusedElement()
         @selectionView.present()
 
-
         successHandler = (currentClassName) =>
+            return if not currentClassName
+
             nestedSuccessHandler = (classInfo) =>
                 enabledItems = []
                 disabledItems = []

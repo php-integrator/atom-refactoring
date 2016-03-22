@@ -1,4 +1,5 @@
 ## 0.4.1
+* Don't throw an error when no current class name is found.
 * Perform more operations asynchronously whilst fetching properties for generating getters and setters, improving responsiveness.
 
 ## 0.4.0 (base 0.7.0)
