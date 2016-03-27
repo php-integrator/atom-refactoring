@@ -12,11 +12,11 @@ class ParameterParser
     parsedParameters: []
 
     ###*
-     * Parser object from the php-integrator-base service
+     * Service object from the php-integrator-base service
      *
-     * @type {Parser}
+     * @type {Service}
     ###
-    parser: null
+    service: null
 
     ###*
      * List of all the variable declarations that have been process
@@ -35,10 +35,10 @@ class ParameterParser
     ###*
      * Constructor
      *
-     * @param {Parser} parser
+     * @param {Service} service
     ###
-    constructor: (parser) ->
-        @parser = parser
+    constructor: (service) ->
+        @service = service
 
     ###*
      * Takes the editor and the range and loops through finding all the
@@ -275,14 +275,14 @@ class ParameterParser
     ###
     getTypeForParameter: (editor, parameter) ->
         try
-            type = @parser.getVariableType(
+            type = @service.getVariableType(
                 editor,
                 @selectedBufferRange.end,
                 parameter.name
             )
         catch error
             console.error 'Trying to get type of ' + parameter.name +
-                ' but the php parser threw this error: ' + error
+                ' but the php service threw this error: ' + error
             type = null
 
         if type == null

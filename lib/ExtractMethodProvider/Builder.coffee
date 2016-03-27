@@ -63,7 +63,7 @@ class Builder
     ###
     constructor: (service) ->
         @setService service
-        @parameterParser = new ParameterParser @service.parser
+        @parameterParser = new ParameterParser @service
 
     ###*
      * Sets the method body to use in the preview.
