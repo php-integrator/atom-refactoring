@@ -2,7 +2,7 @@
 
 AbstractProvider = require './AbstractProvider'
 
-View = require './ExtractMethodProvider/View'
+View    = require './ExtractMethodProvider/View'
 Builder = require './ExtractMethodProvider/Builder'
 
 module.exports =
@@ -11,7 +11,6 @@ module.exports =
 # Provides method extraction capabilities.
 ##
 class ExtractMethodProvider extends AbstractProvider
-
     ###*
      * View that the user interacts with when extracting code.
      *
@@ -32,8 +31,8 @@ class ExtractMethodProvider extends AbstractProvider
     activate: (service) ->
         super(service)
 
-        @extractMethodView = new View(@onConfirm.bind(this), @onCancel.bind(this))
         @builder = new Builder(service)
+        @extractMethodView = new View(@onConfirm.bind(this), @onCancel.bind(this))
 
         @extractMethodView.setBuilder(@builder)
 
@@ -60,37 +59,37 @@ class ExtractMethodProvider extends AbstractProvider
 
         tabText = activeTextEditor.getTabText()
 
-        selectedBufferRange = activeTextEditor.getSelectedBufferRange()
+        selection = activeTextEditor.getSelectedBufferRange()
 
         # Checking if a selection has been made
-        if selectedBufferRange.start.row == selectedBufferRange.end.row &&
-        selectedBufferRange.start.column == selectedBufferRange.end.column
+        if selection.start.row == selection.end.row and selection.start.column == selection.end.column
             atom.notifications.addInfo('php-integrator-refactoring', {
-                detail: 'Please select the text to extract and try again.'
+                detail: 'Please select the code to extract and try again.'
             })
+
             return
 
-        highlightedText = activeTextEditor.getTextInBufferRange(selectedBufferRange)
+        line = activeTextEditor.lineTextForBufferRow(selection.start.row)
 
-
-        line = activeTextEditor.lineTextForBufferRow(selectedBufferRange.start.row)
         findSingleTab = new RegExp("(#{tabText})", "g")
+
         matches = (line.match(findSingleTab) || []).length
 
         # If the first line doesn't have any tabs then add one.
+        highlightedText = activeTextEditor.getTextInBufferRange(selection)
         selectedBufferFirstLine = highlightedText.split("\n")[0]
+
         if (selectedBufferFirstLine.match(findSingleTab) || []).length == 0
             highlightedText = "#{tabText}" + highlightedText
 
-        # Replacing double indents with one, so it can be shown in the preview
-        # area of panel
+        # Replacing double indents with one, so it can be shown in the preview area of panel.
         multipleTabTexts = Array(matches).fill("#{tabText}")
         findMultipleTab = new RegExp("^" + multipleTabTexts.join(''), "mg")
         reducedHighlightedText = highlightedText.replace(findMultipleTab, "#{tabText}")
 
-
-        @builder.setMethodBody(reducedHighlightedText)
         @builder.setEditor(activeTextEditor)
+        @builder.setMethodBody(reducedHighlightedText)
+
         @extractMethodView.storeFocusedElement()
         @extractMethodView.present()
 
@@ -108,15 +107,16 @@ class ExtractMethodProvider extends AbstractProvider
      * @see ParameterParser.buildMethod for structure of settings
     ###
     onConfirm: (settings) ->
-        methodCall = @builder.buildMethodCall(
-            settings.methodName
-        )
+        methodCall = @builder.buildMethodCall(settings.methodName)
+
         activeTextEditor = atom.workspace.getActiveTextEditor()
 
         selectedBufferRange = activeTextEditor.getSelectedBufferRange()
 
         highlightedBufferPosition = selectedBufferRange.end
+
         row = 0
+
         loop
             row++
             descriptions = activeTextEditor.scopeDescriptorForBufferPosition(
