@@ -107,99 +107,109 @@ class ExtractMethodProvider extends AbstractProvider
      * @see ParameterParser.buildMethod for structure of settings
     ###
     onConfirm: (settings) ->
-        methodCall = @builder.buildMethodCall(settings.methodName)
+        successHandler = (methodCall) =>
+            activeTextEditor = atom.workspace.getActiveTextEditor()
 
-        activeTextEditor = atom.workspace.getActiveTextEditor()
+            selectedBufferRange = activeTextEditor.getSelectedBufferRange()
 
-        selectedBufferRange = activeTextEditor.getSelectedBufferRange()
+            highlightedBufferPosition = selectedBufferRange.end
 
-        highlightedBufferPosition = selectedBufferRange.end
+            row = 0
 
-        row = 0
-
-        loop
-            row++
-            descriptions = activeTextEditor.scopeDescriptorForBufferPosition(
-                [highlightedBufferPosition.row + row, activeTextEditor.getTabLength()]
-            )
-            indexOfDescriptor = descriptions.scopes.indexOf('punctuation.section.scope.end.php')
-            break if indexOfDescriptor > -1 || row == activeTextEditor.getLineCount()
-
-        row = highlightedBufferPosition.row + row
-
-        line = activeTextEditor.lineTextForBufferRow row
-
-        endOfLine = line?.length
-
-        replaceRange = [
-            [row, 0],
-            [row, endOfLine]
-        ]
-
-        previousText = activeTextEditor.getTextInBufferRange replaceRange
-
-        settings.tabs = true
-        newMethodBody =  @builder.buildMethod(settings)
-        settings.tabs = false
-
-        @builder.cleanUp()
-
-        activeTextEditor.transact () =>
-            # Matching current indentation
-            selectedText = activeTextEditor.getSelectedText()
-            spacing = selectedText.match /^\s*/
-            if spacing != null
-                spacing = spacing[0]
-
-            activeTextEditor.insertText(spacing + methodCall)
-
-            # Remove any extra new lines between functions
-            nextLine = activeTextEditor.lineTextForBufferRow row + 1
-            if nextLine == ''
-                activeTextEditor.setSelectedBufferRange(
-                    [
-                        [row + 1, 0],
-                        [row + 1, 1]
-                    ]
+            loop
+                row++
+                descriptions = activeTextEditor.scopeDescriptorForBufferPosition(
+                    [highlightedBufferPosition.row + row, activeTextEditor.getTabLength()]
                 )
-                activeTextEditor.deleteLine()
+                indexOfDescriptor = descriptions.scopes.indexOf('punctuation.section.scope.end.php')
+                break if indexOfDescriptor > -1 || row == activeTextEditor.getLineCount()
+
+            row = highlightedBufferPosition.row + row
+
+            line = activeTextEditor.lineTextForBufferRow row
+
+            endOfLine = line?.length
+
+            replaceRange = [
+                [row, 0],
+                [row, endOfLine]
+            ]
+
+            previousText = activeTextEditor.getTextInBufferRange replaceRange
+
+            settings.tabs = true
+
+            nestedSuccessHandler = (newMethodBody) =>
+                settings.tabs = false
+
+                @builder.cleanUp()
+
+                activeTextEditor.transact () =>
+                    # Matching current indentation
+                    selectedText = activeTextEditor.getSelectedText()
+                    spacing = selectedText.match /^\s*/
+                    if spacing != null
+                        spacing = spacing[0]
+
+                    activeTextEditor.insertText(spacing + methodCall)
+
+                    # Remove any extra new lines between functions
+                    nextLine = activeTextEditor.lineTextForBufferRow row + 1
+                    if nextLine == ''
+                        activeTextEditor.setSelectedBufferRange(
+                            [
+                                [row + 1, 0],
+                                [row + 1, 1]
+                            ]
+                        )
+                        activeTextEditor.deleteLine()
 
 
-            # Re working out range as inserting method call will delete some
-            # lines and thus offsetting this
-            row -= selectedBufferRange.end.row - selectedBufferRange.start.row
+                    # Re working out range as inserting method call will delete some
+                    # lines and thus offsetting this
+                    row -= selectedBufferRange.end.row - selectedBufferRange.start.row
 
-            if @snippetManager?
-                activeTextEditor.setCursorBufferPosition [row + 1, 0]
+                    if @snippetManager?
+                        activeTextEditor.setCursorBufferPosition [row + 1, 0]
 
-                body = "\n#{newMethodBody}"
+                        body = "\n#{newMethodBody}"
 
-                result = @getTabStopsForBody body
+                        result = @getTabStopsForBody body
 
-                snippet = {
-                    body: body,
-                    lineCount: result.lineCount,
-                    tabStops: result.tabStops
-                }
+                        snippet = {
+                            body: body,
+                            lineCount: result.lineCount,
+                            tabStops: result.tabStops
+                        }
 
-                @snippetManager.insertSnippet(
-                    snippet,
-                    activeTextEditor
-                )
-            else
-                # Re working out range as inserting method call will delete some
-                # lines and thus offsetting this
-                row -= selectedBufferRange.end.row - selectedBufferRange.start.row
+                        @snippetManager.insertSnippet(
+                            snippet,
+                            activeTextEditor
+                        )
+                    else
+                        # Re working out range as inserting method call will delete some
+                        # lines and thus offsetting this
+                        row -= selectedBufferRange.end.row - selectedBufferRange.start.row
 
-                replaceRange = [
-                    [row, 0],
-                    [row, line?.length]
-                ]
+                        replaceRange = [
+                            [row, 0],
+                            [row, line?.length]
+                        ]
 
-                activeTextEditor.setTextInBufferRange(
-                    replaceRange,
-                    "#{previousText}\n\n#{newMethodBody}"
-                )
+                        activeTextEditor.setTextInBufferRange(
+                            replaceRange,
+                            "#{previousText}\n\n#{newMethodBody}"
+                        )
+
+            nestedFailureHandler = () =>
+                settings.tabs = false
+
+            @builder.buildMethod(settings).then(nestedSuccessHandler, nestedFailureHandler)
+
+        failureHandler = () =>
+            # Do nothing.
+
+        @builder.buildMethodCall(settings.methodName).then(successHandler, failureHandler)
 
     ###*
      * @inheritdoc

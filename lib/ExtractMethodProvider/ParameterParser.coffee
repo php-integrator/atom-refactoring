@@ -3,14 +3,6 @@
 module.exports =
 
 class ParameterParser
-
-    ###*
-     * Cached parameters that have already been parsed
-     *
-     * @type {Array}
-    ###
-    parsedParameters: []
-
     ###*
      * Service object from the php-integrator-base service
      *
@@ -48,13 +40,10 @@ class ParameterParser
      * @param  {TextEditor} editor
      * @param  {Range}      selectedBufferRange
      *
-     * @return {Array}
+     * @return {Promise}
     ###
     findParameters: (editor, selectedBufferRange) ->
         @selectedBufferRange = selectedBufferRange
-        key = @buildKey(editor, selectedBufferRange)
-
-        return @parsedParameters[key] if @parsedParameters[key]
 
         parameters = []
 
@@ -136,13 +125,12 @@ class ParameterParser
             return item.name != '$this'
 
         # Grab the variable types of the parameters
-        parameters = parameters.map (parameter) =>
-            @getTypeForParameter editor, parameter
+        promises = []
 
+        parameters = parameters.forEach (parameter) =>
+            promises.push @getTypeForParameter editor, parameter
 
-        @parsedParameters[key] = parameters
-
-        return parameters
+        return Promise.all(promises)
 
     ###*
      * Takes the current buffer position and returns a range of the current
@@ -256,41 +244,26 @@ class ParameterParser
         return editor.getPath() + JSON.stringify(selectedBufferRange)
 
     ###*
-     * Removes cached parameters by the editor and range given.
-     *
-     * @param  {TextEditor} editor
-     * @param  {Range} selectedBufferRange
-    ###
-    removeCachedParameters: (editor, selectedBufferRange) ->
-        key = @buildKey(editor, selectedBufferRange)
-        delete @parsedParameters[key]
-
-    ###*
      * Gets the type for the parameter given.
      *
      * @param  {TextEditor} editor
      * @param  {Object}     parameter
      *
-     * @return {Object}
+     * @return {Promise}
     ###
     getTypeForParameter: (editor, parameter) ->
-        try
-            type = @service.getVariableType(
-                editor,
-                @selectedBufferRange.end,
-                parameter.name
-            )
-        catch error
-            console.error 'Trying to get type of ' + parameter.name +
-                ' but the php service threw this error: ' + error
-            type = null
+        successHandler = (type) =>
+            if type == null
+                type = "[type]"
 
-        if type == null
-            type = "[type]"
+            parameter.type = type
 
-        parameter.type = type
+            return parameter
 
-        return parameter
+        failureHandler = () =>
+            return null
+
+        return @service.getVariableType(editor, @selectedBufferRange.end, parameter.name).then(successHandler, failureHandler)
 
     ###*
      * Returns all the variable declarations that have been parsed.

@@ -120,37 +120,38 @@ class Builder
      *
      * @param  {Object} settings
      *
-     * @return {String}
+     * @return {Promise}
     ###
     buildMethod: (settings) =>
-        parameters = @parameterParser.findParameters(
-            @editor,
-            @selectedBufferRange
-        )
-
         if @returnVariables == null
             @returnVariables = @workOutReturnVariables @parameterParser.getVariableDeclarations()
 
-        formattedParameters = @buildFunctionParameters parameters, settings.typeHinting
+        successHandler = (parameters) =>
+            formattedParameters = @buildFunctionParameters parameters, settings.typeHinting
 
-        newMethod = @buildLine "#{settings.visibility} function #{settings.methodName}(#{formattedParameters})", settings.tabs
-        newMethod += @buildLine "{", settings.tabs
-        for line in @methodBody.split('\n')
-            newMethod += @buildLine "#{line}", settings.tabs
-        newMethod += @buildReturnLine @returnVariables, settings.tabs, settings.arraySyntax
-        newMethod += @buildLine "}", settings.tabs
+            newMethod = @buildLine "#{settings.visibility} function #{settings.methodName}(#{formattedParameters})", settings.tabs
+            newMethod += @buildLine "{", settings.tabs
+            for line in @methodBody.split('\n')
+                newMethod += @buildLine "#{line}", settings.tabs
+            newMethod += @buildReturnLine @returnVariables, settings.tabs, settings.arraySyntax
+            newMethod += @buildLine "}", settings.tabs
 
-        if settings.generateDocs
-            docs = @buildDocumentation(
-                settings.methodName,
-                parameters,
-                @returnVariables,
-                settings.tabs,
-                settings.generateDescPlaceholders
-            )
-            newMethod = docs + newMethod
+            if settings.generateDocs
+                docs = @buildDocumentation(
+                    settings.methodName,
+                    parameters,
+                    @returnVariables,
+                    settings.tabs,
+                    settings.generateDescPlaceholders
+                )
+                newMethod = docs + newMethod
 
-        return newMethod
+            return newMethod
+
+        failureHandler = () ->
+            return null
+
+        @parameterParser.findParameters(@editor, @selectedBufferRange).then(successHandler, failureHandler)
 
     ###*
      * Build the line that calls the new method and the variable the method
@@ -159,35 +160,36 @@ class Builder
      * @param  {String} methodName
      * @param  {String} variable   [Optional]
      *
-     * @return {String}
+     * @return {Promise}
     ###
     buildMethodCall: (methodName, variable) =>
-        parameters = @parameterParser.findParameters(
-            @editor,
-            @selectedBufferRange
-        )
+        successHandler = (parameters) =>
+            parameterNames = parameters.map (item) ->
+                return item.name
 
-        parameterNames = parameters.map (item) ->
-            return item.name
+            methodCall = "$this->#{methodName}(#{parameterNames.join ', '});"
 
-        methodCall = "$this->#{methodName}(#{parameterNames.join ', '});"
+            if variable != undefined
+                methodCall = "$#{variable} = #{methodCall}"
+            else
+                if @returnVariables != null
+                    if @returnVariables.length == 1
+                        methodCall = "#{@returnVariables[0].name} = #{methodCall}"
+                    else if @returnVariables.length > 1
+                        variables = @returnVariables.reduce (previous, current) ->
+                            if typeof previous != 'string'
+                                previous = previous.name
 
-        if variable != undefined
-            methodCall = "$#{variable} = #{methodCall}"
-        else
-            if @returnVariables != null
-                if @returnVariables.length == 1
-                    methodCall = "#{@returnVariables[0].name} = #{methodCall}"
-                else if @returnVariables.length > 1
-                    variables = @returnVariables.reduce (previous, current) ->
-                        if typeof previous != 'string'
-                            previous = previous.name
+                            return previous + ', ' + current.name
 
-                        return previous + ', ' + current.name
+                        methodCall = "list(#{variables}) = #{methodCall}"
 
-                    methodCall = "list(#{variables}) = #{methodCall}"
+            return methodCall
 
-        return methodCall
+        failureHandler = () ->
+            return null
+
+        @parameterParser.findParameters(@editor, @selectedBufferRange).then(successHandler, failureHandler)
 
     ###*
      * Builds the docblock for the given method and parameters.
@@ -272,7 +274,6 @@ class Builder
      * Performs any clean up needed with the builder.
     ###
     cleanUp: ->
-        @parameterParser.removeCachedParameters(@editor, @selectedBufferRange)
         @returnVariables = null
         @parameterParser.cleanUp()
 

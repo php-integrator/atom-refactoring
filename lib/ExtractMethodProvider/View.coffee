@@ -222,19 +222,24 @@ class ExtractMethodView extends View
     refreshPreviewArea: ->
         return unless @panel.isVisible()
 
-        methodBody = @builder.buildMethod(@getSettings())
-        if @builder.hasReturnValues()
-            if @builder.hasMultipleReturnValues()
-                $('.php-integrator-refactoring-extract-method .return-multiple-control').removeClass('hide')
+        successHandler = (methodBody) =>
+            if @builder.hasReturnValues()
+                if @builder.hasMultipleReturnValues()
+                    $('.php-integrator-refactoring-extract-method .return-multiple-control').removeClass('hide')
+                else
+                    $('.php-integrator-refactoring-extract-method .return-multiple-control').addClass('hide')
+
+                $('.php-integrator-refactoring-extract-method .return-control').removeClass('hide')
             else
+                $('.php-integrator-refactoring-extract-method .return-control').addClass('hide')
                 $('.php-integrator-refactoring-extract-method .return-multiple-control').addClass('hide')
 
-            $('.php-integrator-refactoring-extract-method .return-control').removeClass('hide')
-        else
-            $('.php-integrator-refactoring-extract-method .return-control').addClass('hide')
-            $('.php-integrator-refactoring-extract-method .return-multiple-control').addClass('hide')
+            $(@previewArea).text(methodBody)
 
-        $(@previewArea).text(methodBody)
+        failureHandler = () ->
+            # Do nothing.
+
+        @builder.buildMethod(@getSettings()).then(successHandler, failureHandler)
 
     ###*
      * Stores the currently focused element so it can be returned focus after

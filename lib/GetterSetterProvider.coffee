@@ -114,12 +114,12 @@ class GetterSetterProvider extends AbstractProvider
             nestedFailureHandler = () =>
                 @selectionView.setItems([])
 
-            @service.getClassInfo(currentClassName, true).then(nestedSuccessHandler, nestedFailureHandler)
+            @service.getClassInfo(currentClassName).then(nestedSuccessHandler, nestedFailureHandler)
 
         failureHandler = () =>
             @selectionView.setItems([])
 
-        @service.determineCurrentClassName(activeTextEditor, activeTextEditor.getCursorBufferPosition(), true).then(successHandler, failureHandler)
+        @service.determineCurrentClassName(activeTextEditor, activeTextEditor.getCursorBufferPosition()).then(successHandler, failureHandler)
 
     ###*
      * Indicates if the specified type is a class type or not.
