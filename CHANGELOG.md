@@ -1,4 +1,4 @@
-## 0.4.2 (base 0.8,0)
+## 0.4.2 (base 0.8.0)
 * Update to use the most recent version of the base service.
 
 ## 0.4.1
