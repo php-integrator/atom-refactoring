@@ -150,7 +150,8 @@ class Builder
                     parameters,
                     @returnVariables,
                     settings.tabs,
-                    settings.generateDescPlaceholders
+                    settings.generateDescPlaceholders,
+                    @tabText
                 )
                 newMethod = docs + newMethod
 

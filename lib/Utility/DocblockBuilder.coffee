@@ -9,19 +9,20 @@ class DocblockBuilder
      * @param  {Array|null} returnVariables
      * @param  {Boolean}    tabs                     = false
      * @param  {Boolean}    generateDescPlaceholders = true
+     * @param  {String}     tabText
      *
      * @return {String}
     ###
-    build: (methodName, parameters, returnVariables, tabs = false, generateDescPlaceholders = true) =>
-        docs = @buildLine "/**", tabs
+    build: (methodName, parameters, returnVariables, tabs = false, generateDescPlaceholders = true, tabText = '') =>
+        docs = @buildLine "/**", tabs, tabText
 
         if generateDescPlaceholders
-            docs += @buildDocumentationLine "[#{methodName} description]", tabs
+            docs += @buildDocumentationLine "[#{methodName} description]", tabs, tabText
 
         if parameters.length > 0
             descriptionPlaceholder = ""
             if generateDescPlaceholders
-                docs += @buildLine " *", tabs
+                docs += @buildLine " *", tabs, tabText
                 descriptionPlaceholder = " [description]"
             longestType = 0
             longestVariable = 0
@@ -39,17 +40,17 @@ class DocblockBuilder
                 type = parameter.type + new Array(typePadding + 1).join(' ')
                 variable = parameter.name + new Array(variablePadding + 1).join(' ')
 
-                docs += @buildDocumentationLine "@param #{type} #{variable}#{descriptionPlaceholder}", tabs
+                docs += @buildDocumentationLine "@param #{type} #{variable}#{descriptionPlaceholder}", tabs, tabText
 
         if returnVariables != null && returnVariables.length > 0
-            docs += @buildLine " *", tabs
+            docs += @buildLine " *", tabs, tabText
 
             if returnVariables.length == 1
-                docs += @buildDocumentationLine "@return #{returnVariables[0].type}", tabs
+                docs += @buildDocumentationLine "@return #{returnVariables[0].type}", tabs, tabText
             else if returnVariables.length > 1
-                docs += @buildDocumentationLine "@return array", tabs
+                docs += @buildDocumentationLine "@return array", tabs, tabText
 
-        docs += @buildLine " */", tabs
+        docs += @buildLine " */", tabs, tabText
 
         return docs
 
@@ -59,12 +60,13 @@ class DocblockBuilder
      *
      * @param  {String}  content
      * @param  {Boolean} tabs    = false
+     * @param  {String}  tabText
      *
      * @return {String}
     ###
-    buildDocumentationLine: (content, tabs = false) ->
+    buildDocumentationLine: (content, tabs = false, tabText = '') ->
         content = " * #{content}"
-        return @buildLine(content, tabs)
+        return @buildLine(content, tabs, tabText)
 
 
     ###*
@@ -73,10 +75,11 @@ class DocblockBuilder
      *
      * @param  {String}  content
      * @param  {Boolean} tabs    = false
+     * @param  {String}  tabText
      *
      * @return {String}
     ###
-    buildLine: (content, tabs = false) ->
+    buildLine: (content, tabs = false, tabText = '') ->
         if tabs
-            content = "#{@tabText}#{content}"
+            content = "#{tabText}#{content}"
         return content + "\n"
