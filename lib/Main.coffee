@@ -19,10 +19,12 @@ module.exports =
      * Activates the providers using the specified service.
     ###
     activateProviders: (service) ->
+        DocblockProvider = require './DocblockProvider'
         GetterSetterProvider = require './GetterSetterProvider'
         ExtractMethodProvider = require './ExtractMethodProvider'
 
         @providers = []
+        @providers.push new DocblockProvider()
         @providers.push new GetterSetterProvider()
         @providers.push new ExtractMethodProvider()
 

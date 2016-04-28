@@ -1,3 +1,6 @@
+## 0.5.0 (base 0.9.0)
+* Add basic support for generating docblocks (by typing `/**` and pressing `alt-enter`).
+
 ## 0.4.2 (base 0.8.0)
 * Update to use the most recent version of the base service.
 

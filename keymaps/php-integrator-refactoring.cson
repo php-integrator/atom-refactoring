@@ -9,3 +9,4 @@
 # https://atom.io/docs/latest/behind-atom-keymaps-in-depth
 'atom-text-editor':
   'alt-m': 'php-integrator-refactoring:extract-method'
+  'alt-enter': 'php-integrator-refactoring:generate-docblock'
