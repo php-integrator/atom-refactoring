@@ -2,6 +2,8 @@
 
 ParameterParser = require './ParameterParser'
 
+DocblockBuilder = require '../Utility/DocblockBuilder'
+
 module.exports =
 
 class Builder
@@ -57,6 +59,11 @@ class Builder
     returnVariables: null
 
     ###*
+     * @type {DocblockBuilder}
+    ###
+    docblockBuilder: null
+
+    ###*
      * Constructor.
      *
      * @param  {Service} service php-integrator-base service
@@ -64,6 +71,7 @@ class Builder
     constructor: (service) ->
         @setService service
         @parameterParser = new ParameterParser @service
+        @docblockBuilder = new DocblockBuilder
 
     ###*
      * Sets the method body to use in the preview.
@@ -137,7 +145,7 @@ class Builder
             newMethod += @buildLine "}", settings.tabs
 
             if settings.generateDocs
-                docs = @buildDocumentation(
+                docs = @docblockBuilder.build(
                     settings.methodName,
                     parameters,
                     @returnVariables,
@@ -192,58 +200,6 @@ class Builder
         @parameterParser.findParameters(@editor, @selectedBufferRange).then(successHandler, failureHandler)
 
     ###*
-     * Builds the docblock for the given method and parameters.
-     *
-     * @param  {String}     methodName
-     * @param  {Array}      parameters
-     * @param  {Array|null} returnVariables
-     * @param  {Boolean}    tabs                     = false
-     * @param  {Boolean}    generateDescPlaceholders = true
-     *
-     * @return {String}
-    ###
-    buildDocumentation: (methodName, parameters, returnVariables, tabs = false, generateDescPlaceholders = true) =>
-        docs = @buildLine "/**", tabs
-
-        if generateDescPlaceholders
-            docs += @buildDocumentationLine "[#{methodName} description]", tabs
-
-        if parameters.length > 0
-            descriptionPlaceholder = ""
-            if generateDescPlaceholders
-                docs += @buildLine " *", tabs
-                descriptionPlaceholder = " [description]"
-            longestType = 0
-            longestVariable = 0
-
-            for parameter in parameters
-                if parameter.type.length > longestType
-                    longestType = parameter.type.length
-                if parameter.name.length > longestVariable
-                    longestVariable = parameter.name.length
-
-            for parameter in parameters
-                typePadding = longestType - parameter.type.length
-                variablePadding = longestVariable - parameter.name.length
-
-                type = parameter.type + new Array(typePadding + 1).join(' ')
-                variable = parameter.name + new Array(variablePadding + 1).join(' ')
-
-                docs += @buildDocumentationLine "@param #{type} #{variable}#{descriptionPlaceholder}", tabs
-
-        if returnVariables != null && returnVariables.length > 0
-            docs += @buildLine " *", tabs
-
-            if returnVariables.length == 1
-                docs += @buildDocumentationLine "@return #{returnVariables[0].type}", tabs
-            else if returnVariables.length > 1
-                docs += @buildDocumentationLine "@return array", tabs
-
-        docs += @buildLine " */", tabs
-
-        return docs
-
-    ###*
      * Builds a single line of the new method. This will add a new line to the
      * end and add any tabs that are needed (if requested).
      *
@@ -256,19 +212,6 @@ class Builder
         if tabs
             content = "#{@tabText}#{content}"
         return content + "\n"
-
-    ###*
-     * Builds a documentation line. This uses buildLine function just with
-     * " * " prefixed to the content.
-     *
-     * @param  {String}  content
-     * @param  {Boolean} tabs    = false
-     *
-     * @return {String}
-    ###
-    buildDocumentationLine: (content, tabs = false) ->
-        content = " * #{content}"
-        return @buildLine(content, tabs)
 
     ###*
      * Performs any clean up needed with the builder.
