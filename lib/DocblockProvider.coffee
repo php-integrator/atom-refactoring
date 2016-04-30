@@ -86,7 +86,10 @@ class DocblockProvider extends AbstractProvider
                                 type: if parameter.type then parameter.type else 'mixed'
                             })
 
-                        returnVariables = if method.return.type? then [method.return] else []
+                        returnVariables = []
+
+                        if method.return.type and method.return.type != 'void'
+                            returnVariables = [method.return]
 
                         docblock = @docblockBuilder.build(
                             name,
