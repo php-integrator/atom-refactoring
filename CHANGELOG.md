@@ -1,5 +1,10 @@
 ## 0.5.0 (base 0.9.0)
 * Add basic support for generating docblocks (by typing `/**` and pressing `alt-enter`).
+* *Important*: The [intentions](https://github.com/steelbrain/intentions) package is now required.
+  * You can now use intentions (bound to alt-enter by default) to perform various refactoring actions in certain contexts, for example:
+    * Press alt-enter when code is selected to extract a method.
+    * Press alt-enter inside a classlike to generate getters and setters.
+    * Press alt-enter with the cursor on a method name to generate its docblock.
 
 ## 0.4.2 (base 0.8.0)
 * Update to use the most recent version of the base service.

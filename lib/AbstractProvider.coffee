@@ -10,11 +10,6 @@ class AbstractProvider
     service: null
 
     ###*
-     * The disposable that can be used to remove the menu items again.
-    ###
-    menuItemDisposable: null
-
-    ###*
      * Service to insert snippets into the editor.
     ###
     snippetManager: null
@@ -46,26 +41,6 @@ class AbstractProvider
             return if packageData.name != dependentPackage
 
             @deactivate()
-
-        menuItems = @getMenuItems()
-
-        if menuItems.length > 0
-            @menuItemDisposable = atom.menu.add([
-                {
-                    'label': 'Packages'
-                    'submenu': [
-                        {
-                            'label': 'PHP Integrator',
-                            'submenu': [
-                                {
-                                    'label': 'Refactoring'
-                                    'submenu': menuItems
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ])
 
     ###*
      * Does the actual initialization.
@@ -105,16 +80,13 @@ class AbstractProvider
      * Deactives the provider.
     ###
     deactivate: () ->
-        if @menuItemDisposable
-            @menuItemDisposable.dispose()
-            @menuItemDisposable = null
 
     ###*
-     * Retrieves menu items to add.
+     * Retrieves intention providers (by default, the intentions menu shows when the user presses alt-enter).
      *
      * @return {array}
     ###
-    getMenuItems: () ->
+    getIntentionProviders: () ->
         return []
 
     ###*

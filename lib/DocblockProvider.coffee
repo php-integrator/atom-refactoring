@@ -29,10 +29,21 @@ class DocblockProvider extends AbstractProvider
     ###*
      * @inheritdoc
     ###
-    getMenuItems: () ->
-        return [
-            {'label': 'Generate Docblock', 'command': 'php-integrator-refactoring:generate-docblock'}
-        ]
+    getIntentionProviders: () ->
+        return [{
+            grammarScopes: ['meta.function.php']
+            getIntentions: ({textEditor, bufferPosition}) =>
+                return [
+                    {
+                        priority : 100
+                        icon     : 'gear'
+                        title    : 'Generate Docblock'
+
+                        selected : () =>
+                            @generateDocblock()
+                    }
+                ]
+        }]
 
     ###*
      * @inheritdoc
@@ -53,13 +64,6 @@ class DocblockProvider extends AbstractProvider
         return if not activeTextEditor
 
         currentBufferPosition = activeTextEditor.getCursorBufferPosition()
-        textBeforeCursorBufferPosition = new Point(currentBufferPosition.row, currentBufferPosition.column - 3)
-        textBeforeCursor = activeTextEditor.getBuffer().getTextInRange([
-            textBeforeCursorBufferPosition,
-            currentBufferPosition
-        ])
-
-        return if textBeforeCursor != '/**'
 
         currentLine = currentBufferPosition.row
 
@@ -73,7 +77,7 @@ class DocblockProvider extends AbstractProvider
                 for name, method of classInfo.methods
                     zeroBasedStartLine = method.startLine - 1
 
-                    if zeroBasedStartLine == (currentLine + 1)
+                    if zeroBasedStartLine == currentLine
                         parameters = []
 
                         for parameter in method.parameters
@@ -94,14 +98,7 @@ class DocblockProvider extends AbstractProvider
                             true
                         )
 
-                        docblock = docblock.trim()
-                        docblock = docblock.substr(textBeforeCursor.length)
-
-                        activeTextEditor.insertText(docblock, {
-                            autoIndent         : true
-                            autoIndentNewline  : true
-                            autoDecreaseIndent : true
-                        })
+                        activeTextEditor.getBuffer().insert(new Point(currentLine, -1), docblock)
 
                         break
 

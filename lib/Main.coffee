@@ -8,6 +8,14 @@ module.exports =
      * Activates the package.
     ###
     activate: ->
+        DocblockProvider = require './DocblockProvider'
+        GetterSetterProvider = require './GetterSetterProvider'
+        ExtractMethodProvider = require './ExtractMethodProvider'
+
+        @providers = []
+        @providers.push new DocblockProvider()
+        @providers.push new GetterSetterProvider()
+        @providers.push new ExtractMethodProvider()
 
     ###*
      * Deactivates the package.
@@ -19,15 +27,6 @@ module.exports =
      * Activates the providers using the specified service.
     ###
     activateProviders: (service) ->
-        DocblockProvider = require './DocblockProvider'
-        GetterSetterProvider = require './GetterSetterProvider'
-        ExtractMethodProvider = require './ExtractMethodProvider'
-
-        @providers = []
-        @providers.push new DocblockProvider()
-        @providers.push new GetterSetterProvider()
-        @providers.push new ExtractMethodProvider()
-
         for provider in @providers
             provider.activate(service)
 
@@ -53,10 +52,23 @@ module.exports =
         return new Disposable => @deactivateProviders()
 
     ###*
-     * Consumes the atom/snippet service
+     * Consumes the atom/snippet service.
      *
      * @param {Object} snippetManager
     ###
     setSnippetManager: (snippetManager) ->
         for provider in @providers
             provider.setSnippetManager snippetManager
+
+    ###*
+     * Returns a list of intention providers.
+     *
+     * @return {array}
+    ###
+    provideIntentions: () ->
+        intentionProviders = []
+
+        for provider in @providers
+            intentionProviders = intentionProviders.concat(provider.getIntentionProviders())
+
+        return intentionProviders

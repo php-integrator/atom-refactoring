@@ -8,9 +8,11 @@ This package provides refactoring capabilities for your PHP source code using [P
 
 **Note that the [php-integrator-base](https://github.com/Gert-dev/php-integrator-base) package is required and needs to be set up correctly for this package to function correctly.**
 
+**Note that the [intentions](https://github.com/steelbrain/intentions) package is also required. Intentions trigger by default using the `alt-enter` key.**
+
 What is included?
   * Method extraction.
   * Getter and setter generation.
-  * Basic method docblock generation (type `/**` and press `alt-enter` above a method).
+  * Basic method docblock generation (press `alt-enter` whilst on a method).
 
 ![GPLv3 Logo](http://gplv3.fsf.org/gplv3-127x51.png)

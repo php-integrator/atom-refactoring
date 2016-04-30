@@ -20,6 +20,13 @@
       }
     }
   },
+  "providedServices": {
+    "intentions:list": {
+      "versions": {
+        "1.0.0": "provideIntentions"
+      }
+    }
+  },
   "dependencies": {
     "atom-space-pen-views": "~2.1"
   },

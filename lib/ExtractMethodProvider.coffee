@@ -50,6 +50,35 @@ class ExtractMethodProvider extends AbstractProvider
             @extractMethodView = null
 
     ###*
+     * @inheritdoc
+    ###
+    getIntentionProviders: () ->
+        return [{
+            grammarScopes: ['source.php']
+            getIntentions: ({textEditor, bufferPosition}) =>
+                activeTextEditor = atom.workspace.getActiveTextEditor()
+
+                return [] if not activeTextEditor
+
+                selection = activeTextEditor.getSelectedBufferRange()
+
+                # Checking if a selection has been made
+                if selection.start.row == selection.end.row and selection.start.column == selection.end.column
+                    return []
+
+                return [
+                    {
+                        priority : 200
+                        icon     : 'git-branch'
+                        title    : 'Extract Method'
+
+                        selected : () =>
+                            @executeCommand()
+                    }
+                ]
+        }]
+
+    ###*
      * Executes the extraction.
     ###
     executeCommand: () ->
@@ -210,14 +239,6 @@ class ExtractMethodProvider extends AbstractProvider
             # Do nothing.
 
         @builder.buildMethodCall(settings.methodName).then(successHandler, failureHandler)
-
-    ###*
-     * @inheritdoc
-    ###
-    getMenuItems: () ->
-        return [
-            {'label': 'Extract method', 'command': 'php-integrator-refactoring:extract-method'},
-        ]
 
     ###*
      * Gets all the tab stops and line count for the body given

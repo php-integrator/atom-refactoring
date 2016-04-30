@@ -35,22 +35,61 @@ class GetterSetterProvider extends AbstractProvider
     ###*
      * @inheritdoc
     ###
-    getMenuItems: () ->
-        return [
-            {'label': 'Generate Getter(s)',                 'command': 'php-integrator-refactoring:generate-getter'},
-            {'label': 'Generate Setter(s)',                 'command': 'php-integrator-refactoring:generate-setter'},
-            {'label': 'Generate Getter And Setter Pair(s)', 'command': 'php-integrator-refactoring:generate-getter-setter-pair'},
-        ]
-
-    ###*
-     * @inheritdoc
-    ###
     deactivate: () ->
         super()
 
         if @selectionView
             @selectionView.destroy()
             @selectionView = null
+
+    ###*
+     * @inheritdoc
+    ###
+    getIntentionProviders: () ->
+        return [{
+            grammarScopes: ['source.php']
+            getIntentions: ({textEditor, bufferPosition}) =>
+                successHandler = (currentClassName) =>
+                    return [] if not currentClassName
+
+                    return [
+                        {
+                            priority : 100
+                            icon     : 'gear'
+                            title    : 'Generate Getter And Setter Pair(s)'
+
+                            selected : () =>
+                                @executeCommand(true, true)
+                        }
+
+                        {
+                            priority : 100
+                            icon     : 'gear'
+                            title    : 'Generate Getter(s)'
+
+                            selected : () =>
+                                @executeCommand(true, false)
+                        },
+
+                        {
+                            priority : 100
+                            icon     : 'gear'
+                            title    : 'Generate Setter(s)'
+
+                            selected : () =>
+                                @executeCommand(false, true)
+                        }
+                    ]
+
+                failureHandler = () ->
+                    return []
+
+                activeTextEditor = atom.workspace.getActiveTextEditor()
+
+                return [] if not activeTextEditor
+
+                return @service.determineCurrentClassName(activeTextEditor, activeTextEditor.getCursorBufferPosition()).then(successHandler, failureHandler)
+        }]
 
     ###*
      * Executes the generation.
