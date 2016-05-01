@@ -14,22 +14,27 @@ class DocblockBuilder
      * @return {String}
     ###
     build: (methodName, parameters, returnVariables, tabs = false, generateDescPlaceholders = true, tabText = '') =>
+        hasAtLeastOneLine = false
         docs = @buildLine "/**", tabs, tabText
 
         if generateDescPlaceholders
             docs += @buildDocumentationLine "[#{methodName} description]", tabs, tabText
+            hasAtLeastOneLine = true
 
         if parameters.length > 0
             descriptionPlaceholder = ""
+
             if generateDescPlaceholders
                 docs += @buildLine " *", tabs, tabText
                 descriptionPlaceholder = " [description]"
+
             longestType = 0
             longestVariable = 0
 
             for parameter in parameters
                 if parameter.type.length > longestType
                     longestType = parameter.type.length
+
                 if parameter.name.length > longestVariable
                     longestVariable = parameter.name.length
 
@@ -41,14 +46,20 @@ class DocblockBuilder
                 variable = parameter.name + ' '.repeat(variablePadding + 1)
 
                 docs += @buildDocumentationLine "@param #{type} #{variable}#{descriptionPlaceholder}", tabs, tabText
+                hasAtLeastOneLine = true
 
         if returnVariables != null && returnVariables.length > 0
             docs += @buildLine " *", tabs, tabText
+            hasAtLeastOneLine = true
 
             if returnVariables.length == 1
                 docs += @buildDocumentationLine "@return #{returnVariables[0].type}", tabs, tabText
+
             else if returnVariables.length > 1
                 docs += @buildDocumentationLine "@return array", tabs, tabText
+
+        if not hasAtLeastOneLine
+            docs += @buildLine " *", tabs, tabText
 
         docs += @buildLine " */", tabs, tabText
 
