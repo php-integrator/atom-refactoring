@@ -84,6 +84,25 @@ class DocblockProvider extends AbstractProvider
                             @generatePropertyDocblock(textEditor, bufferPosition, name)
                     }
                 ]
+        }, {
+            grammarScopes: ['constant.other.php']
+            getIntentions: ({textEditor, bufferPosition}) =>
+                nameRange = textEditor.bufferRangeForScopeAtCursor('constant.other.php')
+
+                return if not nameRange?
+
+                name = textEditor.getTextInBufferRange(nameRange)
+
+                return [
+                    {
+                        priority : 100
+                        icon     : 'gear'
+                        title    : 'Generate Docblock'
+
+                        selected : () =>
+                            @generateConstantDocblock(textEditor, bufferPosition, name)
+                    }
+                ]
         }]
 
     ###*
@@ -179,14 +198,14 @@ class DocblockProvider extends AbstractProvider
 
     ###*
      * @param {TextEditor} editor
-     * @param {Object}     methodData
+     * @param {Object}     data
     ###
-    generateFunctionLikeDocblockFor: (editor, methodData) ->
-        zeroBasedStartLine = methodData.startLine - 1
+    generateFunctionLikeDocblockFor: (editor, data) ->
+        zeroBasedStartLine = data.startLine - 1
 
         parameters = []
 
-        for parameter in methodData.parameters
+        for parameter in data.parameters
             parameters.push({
                 name: '$' + parameter.name
                 type: if parameter.type then parameter.type else 'mixed'
@@ -194,14 +213,14 @@ class DocblockProvider extends AbstractProvider
 
         returnVariables = []
 
-        if methodData.return.type and methodData.return.type != 'void'
-            returnVariables = [methodData.return]
+        if data.return.type and data.return.type != 'void'
+            returnVariables = [data.return]
 
         indentationLevel = editor.indentationForBufferRow(zeroBasedStartLine)
 
         docblock = @docblockBuilder.buildForMethod(
             parameters,
-            methodData.return.type,
+            data.return.type,
             false,
             editor.getTabText().repeat(indentationLevel)
         )
@@ -242,15 +261,75 @@ class DocblockProvider extends AbstractProvider
 
     ###*
      * @param {TextEditor} editor
-     * @param {Object}     propertyData
+     * @param {Object}     data
     ###
-    generatePropertyDocblockFor: (editor, propertyData) ->
-        zeroBasedStartLine = propertyData.startLine - 1
+    generatePropertyDocblockFor: (editor, data) ->
+        zeroBasedStartLine = data.startLine - 1
 
         indentationLevel = editor.indentationForBufferRow(zeroBasedStartLine)
 
         docblock = @docblockBuilder.buildForProperty(
-            if propertyData.return.type then propertyData.return.type else 'mixed',
+            if data.return.type then data.return.type else 'mixed',
+            false,
+            editor.getTabText().repeat(indentationLevel)
+        )
+
+        editor.getBuffer().insert(new Point(zeroBasedStartLine, -1), docblock)
+
+    ###*
+     * @param {TextEditor} editor
+     * @param {Point}      triggerPosition
+     * @param {string}     constantName
+    ###
+    generateConstantDocblock: (editor, triggerPosition, constantName) ->
+        successHandler = (currentClassName) =>
+            nestedFailureHandler = () =>
+                return
+
+            if currentClassName
+                nestedSuccessHandler = (classInfo) =>
+                    return if not constantName of classInfo.constants
+
+                    methodData = classInfo.constants[constantName]
+
+                    return if not methodData
+
+                    zeroBasedStartLine = methodData.startLine - 1
+
+                    @generateConstantDocblockFor(editor, methodData)
+
+                @service.getClassInfo(currentClassName).then(nestedSuccessHandler, nestedFailureHandler)
+
+            else
+                nestedSuccessHandler = (globalConstants) =>
+                    return if not constantName of globalConstants
+
+                    functionData = globalConstants[constantName]
+
+                    return if not functionData
+
+                    zeroBasedStartLine = functionData.startLine - 1
+
+                    @generateConstantDocblockFor(editor, functionData)
+
+                @service.getGlobalConstants().then(nestedSuccessHandler, nestedFailureHandler)
+
+        failureHandler = () =>
+            return
+
+        @service.determineCurrentClassName(editor, triggerPosition).then(successHandler, failureHandler)
+
+    ###*
+     * @param {TextEditor} editor
+     * @param {Object}     data
+    ###
+    generateConstantDocblockFor: (editor, data) ->
+        zeroBasedStartLine = data.startLine - 1
+
+        indentationLevel = editor.indentationForBufferRow(zeroBasedStartLine)
+
+        docblock = @docblockBuilder.buildForProperty(
+            if data.return.type then data.return.type else 'mixed',
             false,
             editor.getTabText().repeat(indentationLevel)
         )
