@@ -40,7 +40,7 @@ class DocblockProvider extends AbstractProvider
                         title    : 'Generate Docblock'
 
                         selected : () =>
-                            @generateDocblock(textEditor, bufferPosition, functionName)
+                            @generateFunctionLikeDocblock(textEditor, bufferPosition, functionName)
                     }
                 ]
         }]
@@ -62,7 +62,7 @@ class DocblockProvider extends AbstractProvider
      * @param {Point}      triggerPosition
      * @param {string}     functionName
     ###
-    generateDocblock: (editor, triggerPosition, functionName) ->
+    generateFunctionLikeDocblock: (editor, triggerPosition, functionName) ->
         currentLine = triggerPosition.row
 
         successHandler = (currentClassName) =>
