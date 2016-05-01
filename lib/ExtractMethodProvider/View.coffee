@@ -82,7 +82,7 @@ class ExtractMethodView extends View
                                 @div class: 'controls generate-docs-control', =>
                                     @div class: 'checkbox', =>
                                         @label =>
-                                            @input outlet: 'generateDescPlaceholdersInput', type: 'checkbox', checked: false
+                                            @input outlet: 'generateDescPlaceholdersInput', type: 'checkbox'
                                             @div class: 'setting-title', 'Generate description placeholders'
                         @div class: 'control-group', =>
                             @label class: 'control-label', =>
