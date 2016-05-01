@@ -23,9 +23,6 @@ class DocblockProvider extends AbstractProvider
 
         @docblockBuilder = new DocblockBuilder()
 
-        atom.commands.add 'atom-workspace', "php-integrator-refactoring:generate-docblock": =>
-            @generateDocblock()
-
     ###*
      * @inheritdoc
     ###
