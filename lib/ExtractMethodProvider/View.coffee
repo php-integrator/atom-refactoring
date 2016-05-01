@@ -99,7 +99,7 @@ class ExtractMethodView extends View
                                     @div class: 'checkbox', =>
                                         @label =>
                                             @input outlet: 'arraySyntax', type: 'checkbox', checked: true
-                                            @div class: 'setting-title', 'Use PHP 5.4+ array syntax (Square brackets)'
+                                            @div class: 'setting-title', 'Use PHP 5.4 array syntax (square brackets)'
                         @div class: 'control-group', =>
                             @div class: 'controls', =>
                                 @label class: 'control-label', =>
