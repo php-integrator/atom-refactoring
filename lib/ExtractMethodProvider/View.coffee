@@ -44,13 +44,13 @@ class ExtractMethodView extends View
         super()
 
         @settings = {
-            generateDocs: false,
+            generateDocs: true,
             methodName: '',
             visibility: 'public',
             tabs: false,
             arraySyntax: 'brackets',
-            typeHinting: false,
-            generateDescPlaceholders: true
+            typeHinting: true,
+            generateDescPlaceholders: false
         }
 
     ###*
@@ -77,12 +77,12 @@ class ExtractMethodView extends View
                                 @div class: 'controls', =>
                                         @div class: 'checkbox', =>
                                             @label =>
-                                                @input outlet: 'generateDocInput', type: 'checkbox'
+                                                @input outlet: 'generateDocInput', type: 'checkbox', checked: true
                                                 @div class: 'setting-title', 'Generate documentation'
                                 @div class: 'controls generate-docs-control hide', =>
                                     @div class: 'checkbox', =>
                                         @label =>
-                                            @input outlet: 'generateDescPlaceholdersInput', type: 'checkbox', checked: true
+                                            @input outlet: 'generateDescPlaceholdersInput', type: 'checkbox', checked: false
                                             @div class: 'setting-title', 'Generate description placeholders'
                         @div class: 'control-group', =>
                             @label class: 'control-label', =>
@@ -90,7 +90,7 @@ class ExtractMethodView extends View
                                 @div class: 'controls', =>
                                     @div class: 'checkbox', =>
                                         @label =>
-                                            @input outlet: 'generateTypeHints', type: 'checkbox'
+                                            @input outlet: 'generateTypeHints', type: 'checkbox', checked: true
                                             @div class: 'setting-title', 'Generate type hints'
                         @div class: 'return-multiple-control control-group hide', =>
                             @label class: 'control-label', =>
