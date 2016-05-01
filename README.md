@@ -13,6 +13,6 @@ This package provides refactoring capabilities for your PHP source code using [P
 What is included?
   * Method extraction.
   * Getter and setter generation.
-  * Basic method docblock generation (press `alt-enter` whilst on a method).
+  * Basic docblock generation (press `alt-enter` whilst on a method).
 
 ![GPLv3 Logo](http://gplv3.fsf.org/gplv3-127x51.png)
