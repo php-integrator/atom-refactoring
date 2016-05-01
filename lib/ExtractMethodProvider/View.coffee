@@ -79,7 +79,7 @@ class ExtractMethodView extends View
                                             @label =>
                                                 @input outlet: 'generateDocInput', type: 'checkbox', checked: true
                                                 @div class: 'setting-title', 'Generate documentation'
-                                @div class: 'controls generate-docs-control hide', =>
+                                @div class: 'controls generate-docs-control', =>
                                     @div class: 'checkbox', =>
                                         @label =>
                                             @input outlet: 'generateDescPlaceholdersInput', type: 'checkbox', checked: false
@@ -92,7 +92,7 @@ class ExtractMethodView extends View
                                         @label =>
                                             @input outlet: 'generateTypeHints', type: 'checkbox', checked: true
                                             @div class: 'setting-title', 'Generate type hints'
-                        @div class: 'return-multiple-control control-group hide', =>
+                        @div class: 'return-multiple-control control-group', =>
                             @label class: 'control-label', =>
                                 @div class: 'setting-title', 'Method styling'
                                 @div class: 'controls', =>
