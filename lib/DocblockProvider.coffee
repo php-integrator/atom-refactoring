@@ -31,8 +31,11 @@ class DocblockProvider extends AbstractProvider
     ###
     getIntentionProviders: () ->
         return [{
-            grammarScopes: ['meta.function.php']
+            grammarScopes: ['entity.name.function.php']
             getIntentions: ({textEditor, bufferPosition}) =>
+                functionNameRange = textEditor.bufferRangeForScopeAtCursor('entity.name.function.php')
+                functionName = textEditor.getTextInBufferRange(functionNameRange)
+
                 return [
                     {
                         priority : 100
@@ -40,7 +43,7 @@ class DocblockProvider extends AbstractProvider
                         title    : 'Generate Docblock'
 
                         selected : () =>
-                            @generateDocblock()
+                            @generateDocblock(textEditor, bufferPosition, functionName)
                     }
                 ]
         }]
@@ -57,60 +60,73 @@ class DocblockProvider extends AbstractProvider
 
     ###*
      * Executes the generation.
+     *
+     * @param {TextEditor} editor
+     * @param {Point}      triggerPosition
+     * @param {string}     functionName
     ###
-    generateDocblock: () ->
-        activeTextEditor = atom.workspace.getActiveTextEditor()
-
-        return if not activeTextEditor
-
-        currentBufferPosition = activeTextEditor.getCursorBufferPosition()
-
-        currentLine = currentBufferPosition.row
+    generateDocblock: (editor, triggerPosition, functionName) ->
+        currentLine = triggerPosition.row
 
         successHandler = (currentClassName) =>
-            return if not currentClassName
-
-            nestedSuccessHandler = (classInfo) =>
-                enabledItems = []
-                disabledItems = []
-
-                for name, method of classInfo.methods
-                    zeroBasedStartLine = method.startLine - 1
-
-                    if zeroBasedStartLine == currentLine
-                        parameters = []
-
-                        for parameter in method.parameters
-                            parameters.push({
-                                name: '$' + parameter.name
-                                type: if parameter.type then parameter.type else 'mixed'
-                            })
-
-                        returnVariables = []
-
-                        if method.return.type and method.return.type != 'void'
-                            returnVariables = [method.return]
-
-                        docblock = @docblockBuilder.build(
-                            name,
-                            parameters,
-                            returnVariables,
-                            true,
-                            false,
-                            activeTextEditor.getTabText(),
-                            true
-                        )
-
-                        activeTextEditor.getBuffer().insert(new Point(currentLine, -1), docblock)
-
-                        break
-
             nestedFailureHandler = () =>
                 return
 
-            @service.getClassInfo(currentClassName).then(nestedSuccessHandler, nestedFailureHandler)
+            if currentClassName
+                nestedSuccessHandler = (classInfo) =>
+                    return if not functionName of classInfo.methods
+
+                    method = classInfo.methods[functionName]
+
+                    zeroBasedStartLine = method.startLine - 1
+
+                    if zeroBasedStartLine == currentLine
+                        @generateDocblockFor(editor, method)
+
+                @service.getClassInfo(currentClassName).then(nestedSuccessHandler, nestedFailureHandler)
+
+            else
+                nestedSuccessHandler = (globalFunctions) =>
+                    return if not functionName of globalFunctions
+
+                    method = globalFunctions[functionName]
+
+                    zeroBasedStartLine = method.startLine - 1
+
+                    if zeroBasedStartLine == currentLine
+                        @generateDocblockFor(editor, method)
+
+                @service.getGlobalFunctions().then(nestedSuccessHandler, nestedFailureHandler)
 
         failureHandler = () =>
             return
 
-        @service.determineCurrentClassName(activeTextEditor, activeTextEditor.getCursorBufferPosition()).then(successHandler, failureHandler)
+        @service.determineCurrentClassName(editor, triggerPosition).then(successHandler, failureHandler)
+
+    generateDocblockFor: (editor, method) ->
+        parameters = []
+
+        for parameter in method.parameters
+            parameters.push({
+                name: '$' + parameter.name
+                type: if parameter.type then parameter.type else 'mixed'
+            })
+
+        returnVariables = []
+
+        if method.return.type and method.return.type != 'void'
+            returnVariables = [method.return]
+
+        docblock = @docblockBuilder.build(
+            method.name,
+            parameters,
+            returnVariables,
+            true,
+            false,
+            editor.getTabText(),
+            true
+        )
+
+        zeroBasedStartLine = method.startLine - 1
+
+        editor.getBuffer().insert(new Point(zeroBasedStartLine, -1), docblock)
