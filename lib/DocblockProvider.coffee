@@ -104,6 +104,8 @@ class DocblockProvider extends AbstractProvider
         @service.determineCurrentClassName(editor, triggerPosition).then(successHandler, failureHandler)
 
     generateDocblockFor: (editor, method) ->
+        zeroBasedStartLine = method.startLine - 1
+
         parameters = []
 
         for parameter in method.parameters
@@ -117,16 +119,16 @@ class DocblockProvider extends AbstractProvider
         if method.return.type and method.return.type != 'void'
             returnVariables = [method.return]
 
+        indentationLevel = editor.indentationForBufferRow(zeroBasedStartLine)
+
         docblock = @docblockBuilder.build(
             method.name,
             parameters,
             returnVariables,
             true,
             false,
-            editor.getTabText(),
+            editor.getTabText().repeat(indentationLevel),
             true
         )
-
-        zeroBasedStartLine = method.startLine - 1
 
         editor.getBuffer().insert(new Point(zeroBasedStartLine, -1), docblock)
