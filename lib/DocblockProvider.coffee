@@ -59,6 +59,22 @@ class DocblockProvider extends AbstractProvider
                             @generateFunctionLikeDocblock(textEditor, bufferPosition, functionName)
                     }
                 ]
+        }, {
+            grammarScopes: ['variable.other.php']
+            getIntentions: ({textEditor, bufferPosition}) =>
+                propertyNameRange = textEditor.bufferRangeForScopeAtCursor('variable.other.php')
+                propertyName = textEditor.getTextInBufferRange(propertyNameRange)
+
+                return [
+                    {
+                        priority : 100
+                        icon     : 'gear'
+                        title    : 'Generate Docblock'
+
+                        selected : () =>
+                            @generatePropertyDocblock(textEditor, bufferPosition, propertyName)
+                    }
+                ]
         }]
 
     ###*
@@ -74,6 +90,44 @@ class DocblockProvider extends AbstractProvider
     ###*
      * @param {TextEditor} editor
      * @param {Point}      triggerPosition
+     * @param {string}     className
+    ###
+    generateClassLikeDocblock: (editor, triggerPosition, className) ->
+        classInfo = {
+            startLine : triggerPosition.row + 1
+        }
+
+        @generateClassLikeDocblockFor(editor, classInfo)
+
+        # successHandler = (classInfo) =>
+            # return if not classInfo
+
+            # @generateClassLikeDocblockFor(editor, classInfo)
+
+        # failureHandler = () =>
+            # return
+
+        # return @service.getClassListForFile(className).then(successHandler, failureHandler)
+
+    ###*
+     * @param {TextEditor} editor
+     * @param {Object}     classData
+    ###
+    generateClassLikeDocblockFor: (editor, classData) ->
+        zeroBasedStartLine = classData.startLine - 1
+
+        indentationLevel = editor.indentationForBufferRow(zeroBasedStartLine)
+
+        docblock = @docblockBuilder.buildByLines(
+            [],
+            editor.getTabText().repeat(indentationLevel)
+        )
+
+        editor.getBuffer().insert(new Point(zeroBasedStartLine, -1), docblock)
+
+    ###*
+     * @param {TextEditor} editor
+     * @param {Point}      triggerPosition
      * @param {string}     functionName
     ###
     generateFunctionLikeDocblock: (editor, triggerPosition, functionName) ->
@@ -85,11 +139,13 @@ class DocblockProvider extends AbstractProvider
                 nestedSuccessHandler = (classInfo) =>
                     return if not functionName of classInfo.methods
 
-                    method = classInfo.methods[functionName]
+                    methodData = classInfo.methods[functionName]
 
-                    zeroBasedStartLine = method.startLine - 1
+                    return if not methodData
 
-                    @generateFunctionLikeDocblockFor(editor, method)
+                    zeroBasedStartLine = methodData.startLine - 1
+
+                    @generateFunctionLikeDocblockFor(editor, methodData)
 
                 @service.getClassInfo(currentClassName).then(nestedSuccessHandler, nestedFailureHandler)
 
@@ -97,11 +153,13 @@ class DocblockProvider extends AbstractProvider
                 nestedSuccessHandler = (globalFunctions) =>
                     return if not functionName of globalFunctions
 
-                    method = globalFunctions[functionName]
+                    functionData = globalFunctions[functionName]
 
-                    zeroBasedStartLine = method.startLine - 1
+                    return if not functionData
 
-                    @generateFunctionLikeDocblockFor(editor, method)
+                    zeroBasedStartLine = functionData.startLine - 1
+
+                    @generateFunctionLikeDocblockFor(editor, functionData)
 
                 @service.getGlobalFunctions().then(nestedSuccessHandler, nestedFailureHandler)
 
@@ -132,59 +190,60 @@ class DocblockProvider extends AbstractProvider
 
         indentationLevel = editor.indentationForBufferRow(zeroBasedStartLine)
 
-        docblock = @docblockBuilder.build(
-            methodData.name,
+        docblock = @docblockBuilder.buildForMethod(
             parameters,
-            returnVariables,
-            true,
+            methodData.return.type,
             false,
-            editor.getTabText().repeat(indentationLevel),
-            true
+            editor.getTabText().repeat(indentationLevel)
         )
 
         editor.getBuffer().insert(new Point(zeroBasedStartLine, -1), docblock)
 
-
     ###*
      * @param {TextEditor} editor
      * @param {Point}      triggerPosition
-     * @param {string}     className
+     * @param {string}     propertyName
     ###
-    generateClassLikeDocblock: (editor, triggerPosition, className) ->
-        classInfo = {
-            name      : className
-            startLine : triggerPosition.row + 1
-        }
+    generatePropertyDocblock: (editor, triggerPosition, propertyName) ->
+        successHandler = (currentClassName) =>
+            return if not currentClassName
 
-        @generateClassLikeDocblockFor(editor, classInfo)
+            nestedSuccessHandler = (classInfo) =>
+                propertyName = propertyName.substr(1)
 
-        # successHandler = (classInfo) =>
-            # return if not classInfo
+                return if not propertyName of classInfo.properties
 
-            # @generateClassLikeDocblockFor(editor, classInfo)
+                property = classInfo.properties[propertyName]
 
-        # failureHandler = () =>
-            # return
+                return if not property
 
-        # return @service.getClassListForFile(className).then(successHandler, failureHandler)
+                zeroBasedStartLine = property.startLine - 1
+
+                @generatePropertyDocblockFor(editor, property)
+
+            nestedFailureHandler = () =>
+                return
+
+            @service.getClassInfo(currentClassName).then(nestedSuccessHandler, nestedFailureHandler)
+
+        failureHandler = () =>
+            return
+
+        @service.determineCurrentClassName(editor, triggerPosition).then(successHandler, failureHandler)
 
     ###*
      * @param {TextEditor} editor
-     * @param {Object}     classData
+     * @param {Object}     propertyData
     ###
-    generateClassLikeDocblockFor: (editor, classData) ->
-        zeroBasedStartLine = classData.startLine - 1
+    generatePropertyDocblockFor: (editor, propertyData) ->
+        zeroBasedStartLine = propertyData.startLine - 1
 
         indentationLevel = editor.indentationForBufferRow(zeroBasedStartLine)
 
-        docblock = @docblockBuilder.build(
-            classData.name,
-            [],
-            [],
-            true,
+        docblock = @docblockBuilder.buildForProperty(
+            if propertyData.return.type then propertyData.return.type else 'mixed',
             false,
-            editor.getTabText().repeat(indentationLevel),
-            true
+            editor.getTabText().repeat(indentationLevel)
         )
 
         editor.getBuffer().insert(new Point(zeroBasedStartLine, -1), docblock)

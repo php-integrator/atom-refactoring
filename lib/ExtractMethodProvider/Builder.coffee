@@ -145,13 +145,20 @@ class Builder
             newMethod += @buildLine "}", settings.tabs
 
             if settings.generateDocs
-                docs = @docblockBuilder.build(
-                    settings.methodName,
+                returnType = 'void'
+
+                if @returnVariables != null && @returnVariables.length > 0
+                    if @returnVariables.length == 1
+                        returnType = @returnVariables[0].type
+
+                    else if @returnVariables.length > 1
+                        returnType = 'array'
+
+                docs = @docblockBuilder.buildForMethod(
                     parameters,
-                    @returnVariables,
-                    settings.tabs,
+                    returnType,
                     settings.generateDescPlaceholders,
-                    @tabText
+                    if settings.tabs then @tabText else ''
                 )
                 newMethod = docs + newMethod
 

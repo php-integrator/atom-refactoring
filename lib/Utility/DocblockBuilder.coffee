@@ -2,98 +2,109 @@ module.exports =
 
 class DocblockBuilder
     ###*
-     * Builds the docblock for the given method and parameters.
-     *
-     * @param  {String}     methodName
-     * @param  {Array}      parameters
-     * @param  {Array|null} returnVariables
-     * @param  {Boolean}    tabs                     = false
-     * @param  {Boolean}    generateDescPlaceholders = true
-     * @param  {String}     tabText
+     * @param  {Array}       parameters
+     * @param  {String|null} returnType
+     * @param  {boolean}     generateDescriptionPlaceholders
+     * @param  {String}      tabText
      *
      * @return {String}
     ###
-    build: (methodName, parameters, returnVariables, tabs = false, generateDescPlaceholders = true, tabText = '') =>
-        hasAtLeastOneLine = false
-        docs = @buildLine "/**", tabs, tabText
+    buildForMethod: (parameters, returnType, generateDescriptionPlaceholders = true, tabText = '') =>
+        lines = []
 
-        if generateDescPlaceholders
-            docs += @buildDocumentationLine "[#{methodName} description]", tabs, tabText
-            hasAtLeastOneLine = true
+        if generateDescriptionPlaceholders
+            lines.push("[Short description of the method]")
 
         if parameters.length > 0
             descriptionPlaceholder = ""
 
-            if generateDescPlaceholders
-                docs += @buildLine " *", tabs, tabText
-                descriptionPlaceholder = " [description]"
+            if generateDescriptionPlaceholders
+                lines.push('')
 
-            longestType = 0
-            longestVariable = 0
+                descriptionPlaceholder = " [Description]"
 
+            # Determine the necessary padding.
+            parameterTypeLengths = parameters.map (item) ->
+                return if item.type then item.type.length else 0
+
+            parameterNameLengths = parameters.map (item) ->
+                return if item.name then item.name.length else 0
+
+            longestTypeLength = Math.max(parameterTypeLengths...)
+            longestNameLength = Math.max(parameterNameLengths...)
+
+            # Generate parameter lines.
             for parameter in parameters
-                if parameter.type.length > longestType
-                    longestType = parameter.type.length
+                typePadding     = longestTypeLength - parameter.type.length
+                variablePadding = longestNameLength - parameter.name.length
 
-                if parameter.name.length > longestVariable
-                    longestVariable = parameter.name.length
+                type     = parameter.type + ' '.repeat(typePadding)
+                variable = parameter.name + ' '.repeat(variablePadding)
 
-            for parameter in parameters
-                typePadding = longestType - parameter.type.length
-                variablePadding = longestVariable - parameter.name.length
+                lines.push("@param #{type} #{variable}#{descriptionPlaceholder}")
 
-                type = parameter.type + ' '.repeat(typePadding + 1)
-                variable = parameter.name + ' '.repeat(variablePadding + 1)
+        if returnType? and returnType != 'void'
+            if generateDescriptionPlaceholders or parameters.length > 0
+                lines.push('')
 
-                docs += @buildDocumentationLine "@param #{type} #{variable}#{descriptionPlaceholder}", tabs, tabText
-                hasAtLeastOneLine = true
+            lines.push("@return #{returnType}")
 
-        if returnVariables != null && returnVariables.length > 0
-            docs += @buildLine " *", tabs, tabText
-            hasAtLeastOneLine = true
+        return @buildByLines(lines, tabText)
 
-            if returnVariables.length == 1
-                docs += @buildDocumentationLine "@return #{returnVariables[0].type}", tabs, tabText
+    ###*
+     * @param  {String|null} type
+     * @param  {boolean}     generateDescriptionPlaceholders
+     * @param  {String}      tabText
+     *
+     * @return {String}
+    ###
+    buildForProperty: (type, generateDescriptionPlaceholders = true, tabText = '') =>
+        lines = []
 
-            else if returnVariables.length > 1
-                docs += @buildDocumentationLine "@return array", tabs, tabText
+        if generateDescriptionPlaceholders
+            lines.push("[Short description of the property]")
+            lines.push('')
 
-        if not hasAtLeastOneLine
-            docs += @buildLine " *", tabs, tabText
+        lines.push("@var #{type}")
 
-        docs += @buildLine " */", tabs, tabText
+        return @buildByLines(lines, tabText)
+
+    ###*
+     * @param  {Array}  lines
+     * @param  {String} tabText
+     *
+     * @return {String}
+    ###
+    buildByLines: (lines, tabText = '') =>
+        docs = @buildLine("/**", tabText)
+
+        if lines.length == 0
+            # Ensure we always have at least one line.
+            lines.push('')
+
+        for line in lines
+            docs += @buildDocblockLine(line, tabText)
+
+        docs += @buildLine(" */", tabText)
 
         return docs
 
     ###*
-     * Builds a documentation line. This uses buildLine function just with
-     * " * " prefixed to the content.
-     *
-     * @param  {String}  content
-     * @param  {Boolean} tabs    = false
-     * @param  {String}  tabText
+     * @param {String} content
+     * @param {String} tabText
      *
      * @return {String}
     ###
-    buildDocumentationLine: (content, tabs = false, tabText = '') ->
+    buildDocblockLine: (content, tabText = '') ->
         content = " * #{content}"
-        return @buildLine(content, tabs, tabText)
 
+        return @buildLine(content.trimRight(), tabText)
 
     ###*
-     * Builds a single line of the new method. This will add a new line to the
-     * end and add any tabs that are needed (if requested).
-     *
-     * @param  {String}  content
-     * @param  {Boolean} tabs    = false
-     * @param  {String}  tabText
+     * @param {String}  content
+     * @param {String}  tabText
      *
      * @return {String}
     ###
-    buildLine: (content, tabs = false, tabText = '') ->
-        if tabs
-            content = "#{tabText}#{content}"
-
-        content += "\n"
-
-        return content
+    buildLine: (content, tabText = '') ->
+        return "#{tabText}#{content}\n"
