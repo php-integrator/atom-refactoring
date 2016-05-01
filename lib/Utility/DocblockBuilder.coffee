@@ -37,8 +37,8 @@ class DocblockBuilder
                 typePadding = longestType - parameter.type.length
                 variablePadding = longestVariable - parameter.name.length
 
-                type = parameter.type + new Array(typePadding + 1).join(' ')
-                variable = parameter.name + new Array(variablePadding + 1).join(' ')
+                type = parameter.type + ' '.repeat(typePadding + 1)
+                variable = parameter.name + ' '.repeat(variablePadding + 1)
 
                 docs += @buildDocumentationLine "@param #{type} #{variable}#{descriptionPlaceholder}", tabs, tabText
 
