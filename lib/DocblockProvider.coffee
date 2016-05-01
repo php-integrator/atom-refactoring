@@ -30,8 +30,11 @@ class DocblockProvider extends AbstractProvider
         return [{
             grammarScopes: ['entity.name.type.class.php', 'entity.name.type.interface.php', 'entity.name.type.trait.php']
             getIntentions: ({textEditor, bufferPosition}) =>
-                classNameRange = textEditor.bufferRangeForScopeAtCursor('entity.name.type')
-                className = textEditor.getTextInBufferRange(classNameRange)
+                nameRange = textEditor.bufferRangeForScopeAtCursor('entity.name.type')
+
+                return if not nameRange?
+
+                name = textEditor.getTextInBufferRange(nameRange)
 
                 return [
                     {
@@ -40,14 +43,17 @@ class DocblockProvider extends AbstractProvider
                         title    : 'Generate Docblock'
 
                         selected : () =>
-                            @generateClassLikeDocblock(textEditor, bufferPosition, className)
+                            @generateClassLikeDocblock(textEditor, bufferPosition, name)
                     }
                 ]
         }, {
             grammarScopes: ['entity.name.function.php']
             getIntentions: ({textEditor, bufferPosition}) =>
-                functionNameRange = textEditor.bufferRangeForScopeAtCursor('entity.name.function.php')
-                functionName = textEditor.getTextInBufferRange(functionNameRange)
+                nameRange = textEditor.bufferRangeForScopeAtCursor('entity.name.function.php')
+
+                return if not nameRange?
+
+                name = textEditor.getTextInBufferRange(nameRange)
 
                 return [
                     {
@@ -56,14 +62,17 @@ class DocblockProvider extends AbstractProvider
                         title    : 'Generate Docblock'
 
                         selected : () =>
-                            @generateFunctionLikeDocblock(textEditor, bufferPosition, functionName)
+                            @generateFunctionLikeDocblock(textEditor, bufferPosition, name)
                     }
                 ]
         }, {
             grammarScopes: ['variable.other.php']
             getIntentions: ({textEditor, bufferPosition}) =>
-                propertyNameRange = textEditor.bufferRangeForScopeAtCursor('variable.other.php')
-                propertyName = textEditor.getTextInBufferRange(propertyNameRange)
+                nameRange = textEditor.bufferRangeForScopeAtCursor('variable.other.php')
+
+                return if not nameRange?
+
+                name = textEditor.getTextInBufferRange(nameRange)
 
                 return [
                     {
@@ -72,7 +81,7 @@ class DocblockProvider extends AbstractProvider
                         title    : 'Generate Docblock'
 
                         selected : () =>
-                            @generatePropertyDocblock(textEditor, bufferPosition, propertyName)
+                            @generatePropertyDocblock(textEditor, bufferPosition, name)
                     }
                 ]
         }]
