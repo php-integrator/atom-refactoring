@@ -10,11 +10,10 @@ class DocblockBuilder
      * @param  {Boolean}    tabs                     = false
      * @param  {Boolean}    generateDescPlaceholders = true
      * @param  {String}     tabText
-     * @param  {Boolean}    doFinalNewline
      *
      * @return {String}
     ###
-    build: (methodName, parameters, returnVariables, tabs = false, generateDescPlaceholders = true, tabText = '', doFinalNewline = true) =>
+    build: (methodName, parameters, returnVariables, tabs = false, generateDescPlaceholders = true, tabText = '') =>
         docs = @buildLine "/**", tabs, tabText
 
         if generateDescPlaceholders
@@ -51,7 +50,7 @@ class DocblockBuilder
             else if returnVariables.length > 1
                 docs += @buildDocumentationLine "@return array", tabs, tabText
 
-        docs += @buildLine " */", tabs, tabText, doFinalNewline
+        docs += @buildLine " */", tabs, tabText
 
         return docs
 
@@ -77,15 +76,13 @@ class DocblockBuilder
      * @param  {String}  content
      * @param  {Boolean} tabs    = false
      * @param  {String}  tabText
-     * @param  {Boolean} doNewline
      *
      * @return {String}
     ###
-    buildLine: (content, tabs = false, tabText = '', doNewLine = true) ->
+    buildLine: (content, tabs = false, tabText = '') ->
         if tabs
             content = "#{tabText}#{content}"
 
-        if doNewLine
-            content += "\n"
+        content += "\n"
 
         return content
