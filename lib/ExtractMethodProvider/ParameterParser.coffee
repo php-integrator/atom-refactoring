@@ -128,7 +128,27 @@ class ParameterParser
         promises = []
 
         parameters = parameters.forEach (parameter) =>
-            promises.push @getTypeForParameter editor, parameter
+            successHandler = (typeData) =>
+                nestedSuccessHandler = (localizedType) =>
+                    if localizedType?
+                        typeData.type = localizedType
+
+                    return typeData
+
+                nestedFailureHandler = () ->
+                    return typeData
+
+                return @service.localizeType(editor.getPath(), @selectedBufferRange.end.row + 1, typeData.type).then(
+                    nestedSuccessHandler,
+                    nestedFailureHandler
+                )
+
+            failureHandler = () ->
+                return null
+
+            promise = @getTypeForParameter(editor, parameter).then(successHandler, failureHandler)
+
+            promises.push(promise)
 
         return Promise.all(promises)
 

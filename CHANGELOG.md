@@ -1,6 +1,7 @@
 ## 0.5.0 (base 0.9.0)
 * Tweaked some defaults.
-* Add basic support for generating docblocks (by typing `/**` and pressing `alt-enter`).
+* Add basic support for generating docblocks.
+* The extract method command will now suggest class names relative to the use statements when type hinting (rather than always suggest an FQCN).
 * *Important*: The [intentions](https://github.com/steelbrain/intentions) package is now required.
   * You can now use intentions (bound to alt-enter by default) to perform various refactoring actions in certain contexts, for example:
     * Press alt-enter when code is selected to extract a method.
