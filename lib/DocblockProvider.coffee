@@ -59,25 +59,7 @@ class DocblockProvider extends AbstractProvider
 
                 name = textEditor.getTextInBufferRange(nameRange)
 
-                return [
-                    {
-                        priority : 100
-                        icon     : 'gear'
-                        title    : 'Generate Docblock'
-
-                        selected : () =>
-                            @generatePropertyDocblock(textEditor, bufferPosition, name)
-                    },
-
-                    {
-                        priority : 100
-                        icon     : 'gear'
-                        title    : 'Generate inheritDoc'
-
-                        selected : () =>
-                            @generateDocblockInheritance(textEditor, bufferPosition)
-                    }
-                ]
+                return @getPropertyIntentions(textEditor, bufferPosition, name)
         }, {
             grammarScopes: ['constant.other.php']
             getIntentions: ({textEditor, bufferPosition}) =>
@@ -253,32 +235,51 @@ class DocblockProvider extends AbstractProvider
     ###*
      * @param {TextEditor} editor
      * @param {Point}      triggerPosition
-     * @param {string}     propertyName
+     * @param {String}     name
     ###
-    generatePropertyDocblock: (editor, triggerPosition, propertyName) ->
+    getPropertyIntentions: (editor, triggerPosition, name) ->
+        failureHandler = () =>
+            return []
+
         successHandler = (currentClassName) =>
-            return if not currentClassName
+            return [] if not currentClassName?
 
             nestedSuccessHandler = (classInfo) =>
-                propertyName = propertyName.substr(1)
+                name = name.substr(1)
 
-                return if not propertyName of classInfo.properties
+                return [] if not name of classInfo.properties
 
-                property = classInfo.properties[propertyName]
+                propertyData = classInfo.properties[name]
 
-                return if not property
+                return if not propertyData?
 
-                zeroBasedStartLine = property.startLine - 1
+                intentions = []
 
-                @generatePropertyDocblockFor(editor, property)
+                return intentions if not propertyData
 
-            nestedFailureHandler = () =>
-                return
+                if not propertyData.hasDocblock
+                    if propertyData.hasDocumentation
+                        intentions.push({
+                            priority : 100
+                            icon     : 'gear'
+                            title    : 'Generate Docblock (inheritDoc)'
 
-            @service.getClassInfo(currentClassName).then(nestedSuccessHandler, nestedFailureHandler)
+                            selected : () =>
+                                @generateDocblockInheritance(editor, triggerPosition)
+                        })
 
-        failureHandler = () =>
-            return
+                    intentions.push({
+                        priority : 100
+                        icon     : 'gear'
+                        title    : 'Generate Docblock'
+
+                        selected : () =>
+                            @generatePropertyDocblockFor(editor, propertyData)
+                    })
+
+                return intentions
+
+            @service.getClassInfo(currentClassName).then(nestedSuccessHandler, failureHandler)
 
         @service.determineCurrentClassName(editor, triggerPosition).then(successHandler, failureHandler)
 
