@@ -69,16 +69,7 @@ class DocblockProvider extends AbstractProvider
 
                 name = textEditor.getTextInBufferRange(nameRange)
 
-                return [
-                    {
-                        priority : 100
-                        icon     : 'gear'
-                        title    : 'Generate Docblock'
-
-                        selected : () =>
-                            @generateConstantDocblock(textEditor, bufferPosition, name)
-                    }
-                ]
+                return @getConstantIntentions(textEditor, bufferPosition, name)
         }]
 
     ###*
@@ -303,43 +294,43 @@ class DocblockProvider extends AbstractProvider
     ###*
      * @param {TextEditor} editor
      * @param {Point}      triggerPosition
-     * @param {string}     constantName
+     * @param {String}     name
     ###
-    generateConstantDocblock: (editor, triggerPosition, constantName) ->
+    getConstantIntentions: (editor, triggerPosition, name) ->
+        failureHandler = () =>
+            return []
+
         successHandler = (currentClassName) =>
-            nestedFailureHandler = () =>
-                return
+            helperFunction = (constantData) =>
+                intentions = []
+
+                return intentions if not constantData
+
+                if not constantData.hasDocblock
+                    intentions.push({
+                        priority : 100
+                        icon     : 'gear'
+                        title    : 'Generate Docblock'
+
+                        selected : () =>
+                            @generateConstantDocblockFor(editor, constantData)
+                    })
+
+                return intentions
 
             if currentClassName
                 nestedSuccessHandler = (classInfo) =>
-                    return if not constantName of classInfo.constants
+                    return [] if not name of classInfo.constants
+                    return helperFunction(classInfo.constants[name])
 
-                    methodData = classInfo.constants[constantName]
-
-                    return if not methodData
-
-                    zeroBasedStartLine = methodData.startLine - 1
-
-                    @generateConstantDocblockFor(editor, methodData)
-
-                @service.getClassInfo(currentClassName).then(nestedSuccessHandler, nestedFailureHandler)
+                @service.getClassInfo(currentClassName).then(nestedSuccessHandler, failureHandler)
 
             else
                 nestedSuccessHandler = (globalConstants) =>
-                    return if not constantName of globalConstants
+                    return [] if not name of globalConstants
+                    return helperFunction(globalConstants[name])
 
-                    functionData = globalConstants[constantName]
-
-                    return if not functionData
-
-                    zeroBasedStartLine = functionData.startLine - 1
-
-                    @generateConstantDocblockFor(editor, functionData)
-
-                @service.getGlobalConstants().then(nestedSuccessHandler, nestedFailureHandler)
-
-        failureHandler = () =>
-            return
+                @service.getGlobalConstants().then(nestedSuccessHandler, failureHandler)
 
         @service.determineCurrentClassName(editor, triggerPosition).then(successHandler, failureHandler)
 
