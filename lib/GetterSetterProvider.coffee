@@ -270,7 +270,7 @@ class GetterSetterProvider extends AbstractProvider
              *
              * @param #{item.type} $#{item.name}
              *
-             * @return $this
+             * @return static
              */
             public function #{item.setterName}(#{typePrefix}$#{item.name}#{defaultValueSuffix})#{returnTypeDeclaration}
             {

@@ -1,5 +1,6 @@
 ## 0.5.0 (base 0.9.0)
 * Tweaked some defaults.
+* Setters will now generate a docblock with `@return static` instead of `@return $this`. The latter is not mentioned by the draft PSR-5 anymore.
 * Add basic support for generating docblocks.
 * The extract method command will now suggest class names relative to the use statements when type hinting (rather than always suggest an FQCN).
 * *Important*: The [intentions](https://github.com/steelbrain/intentions) package is now required.
