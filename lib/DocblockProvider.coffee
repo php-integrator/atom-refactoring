@@ -44,6 +44,15 @@ class DocblockProvider extends AbstractProvider
 
                         selected : () =>
                             @generateClassLikeDocblock(textEditor, bufferPosition, name)
+                    },
+
+                    {
+                        priority : 100
+                        icon     : 'gear'
+                        title    : 'Generate inheritDoc'
+
+                        selected : () =>
+                            @generateDocblockInheritance(textEditor, bufferPosition)
                     }
                 ]
         }, {
@@ -66,6 +75,15 @@ class DocblockProvider extends AbstractProvider
 
                         selected : () =>
                             @generateFunctionLikeDocblock(textEditor, bufferPosition, name)
+                    },
+
+                    {
+                        priority : 100
+                        icon     : 'gear'
+                        title    : 'Generate inheritDoc'
+
+                        selected : () =>
+                            @generateDocblockInheritance(textEditor, bufferPosition)
                     }
                 ]
         }, {
@@ -85,6 +103,15 @@ class DocblockProvider extends AbstractProvider
 
                         selected : () =>
                             @generatePropertyDocblock(textEditor, bufferPosition, name)
+                    },
+
+                    {
+                        priority : 100
+                        icon     : 'gear'
+                        title    : 'Generate inheritDoc'
+
+                        selected : () =>
+                            @generateDocblockInheritance(textEditor, bufferPosition)
                     }
                 ]
         }, {
@@ -338,3 +365,17 @@ class DocblockProvider extends AbstractProvider
         )
 
         editor.getBuffer().insert(new Point(zeroBasedStartLine, -1), docblock)
+
+    ###*
+     * @param {TextEditor} editor
+     * @param {Point}      triggerPosition
+    ###
+    generateDocblockInheritance: (editor, triggerPosition) ->
+        indentationLevel = editor.indentationForBufferRow(triggerPosition.row)
+
+        docblock = @docblockBuilder.buildByLines(
+            ['@inheritDoc'],
+            editor.getTabText().repeat(indentationLevel)
+        )
+
+        editor.getBuffer().insert(new Point(triggerPosition.row, -1), docblock)
