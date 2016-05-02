@@ -49,25 +49,7 @@ class DocblockProvider extends AbstractProvider
 
                 name = textEditor.getTextInBufferRange(nameRange)
 
-                return [
-                    {
-                        priority : 100
-                        icon     : 'gear'
-                        title    : 'Generate Docblock'
-
-                        selected : () =>
-                            @generateFunctionlikeDocblock(textEditor, bufferPosition, name)
-                    },
-
-                    {
-                        priority : 100
-                        icon     : 'gear'
-                        title    : 'Generate inheritDoc'
-
-                        selected : () =>
-                            @generateDocblockInheritance(textEditor, bufferPosition)
-                    }
-                ]
+                return @getFunctionlikeIntentions(textEditor, bufferPosition, name)
         }, {
             grammarScopes: ['variable.other.php']
             getIntentions: ({textEditor, bufferPosition}) =>
@@ -187,43 +169,53 @@ class DocblockProvider extends AbstractProvider
     ###*
      * @param {TextEditor} editor
      * @param {Point}      triggerPosition
-     * @param {string}     functionName
+     * @param {String}     name
     ###
-    generateFunctionlikeDocblock: (editor, triggerPosition, functionName) ->
+    getFunctionlikeIntentions: (editor, triggerPosition, name) ->
+        failureHandler = () =>
+            return []
+
         successHandler = (currentClassName) =>
-            nestedFailureHandler = () =>
-                return
+            helperFunction = (functionlikeData) =>
+                intentions = []
+
+                return intentions if not functionlikeData
+
+                if not functionlikeData.hasDocblock
+                    if functionlikeData.hasDocumentation
+                        intentions.push({
+                            priority : 100
+                            icon     : 'gear'
+                            title    : 'Generate Docblock (inheritDoc)'
+
+                            selected : () =>
+                                @generateDocblockInheritance(editor, triggerPosition)
+                        })
+
+                    intentions.push({
+                        priority : 100
+                        icon     : 'gear'
+                        title    : 'Generate Docblock'
+
+                        selected : () =>
+                            @generateFunctionlikeDocblockFor(editor, functionlikeData)
+                    })
+
+                return intentions
 
             if currentClassName
                 nestedSuccessHandler = (classInfo) =>
-                    return if not functionName of classInfo.methods
+                    return [] if not name of classInfo.methods
+                    return helperFunction(classInfo.methods[name])
 
-                    methodData = classInfo.methods[functionName]
-
-                    return if not methodData
-
-                    zeroBasedStartLine = methodData.startLine - 1
-
-                    @generateFunctionlikeDocblockFor(editor, methodData)
-
-                @service.getClassInfo(currentClassName).then(nestedSuccessHandler, nestedFailureHandler)
+                @service.getClassInfo(currentClassName).then(nestedSuccessHandler, failureHandler)
 
             else
                 nestedSuccessHandler = (globalFunctions) =>
-                    return if not functionName of globalFunctions
+                    return [] if not name of globalFunctions
+                    return helperFunction(globalFunctions[name])
 
-                    functionData = globalFunctions[functionName]
-
-                    return if not functionData
-
-                    zeroBasedStartLine = functionData.startLine - 1
-
-                    @generateFunctionlikeDocblockFor(editor, functionData)
-
-                @service.getGlobalFunctions().then(nestedSuccessHandler, nestedFailureHandler)
-
-        failureHandler = () =>
-            return
+                @service.getGlobalFunctions().then(nestedSuccessHandler, failureHandler)
 
         @service.determineCurrentClassName(editor, triggerPosition).then(successHandler, failureHandler)
 
