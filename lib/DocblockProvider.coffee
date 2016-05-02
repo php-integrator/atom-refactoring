@@ -36,25 +36,7 @@ class DocblockProvider extends AbstractProvider
 
                 name = textEditor.getTextInBufferRange(nameRange)
 
-                return [
-                    {
-                        priority : 100
-                        icon     : 'gear'
-                        title    : 'Generate Docblock'
-
-                        selected : () =>
-                            @generateClassLikeDocblock(textEditor, bufferPosition, name)
-                    },
-
-                    {
-                        priority : 100
-                        icon     : 'gear'
-                        title    : 'Generate inheritDoc'
-
-                        selected : () =>
-                            @generateDocblockInheritance(textEditor, bufferPosition)
-                    }
-                ]
+                return @getClasslikeIntentions(textEditor, bufferPosition, name)
         }, {
             grammarScopes: ['entity.name.function.php', 'support.function.magic.php']
             getIntentions: ({textEditor, bufferPosition}) =>
@@ -148,30 +130,49 @@ class DocblockProvider extends AbstractProvider
     ###*
      * @param {TextEditor} editor
      * @param {Point}      triggerPosition
-     * @param {string}     className
+     * @param {String}     name
     ###
-    generateClassLikeDocblock: (editor, triggerPosition, className) ->
-        classInfo = {
-            startLine : triggerPosition.row + 1
-        }
+    getClasslikeIntentions: (editor, triggerPosition, name) ->
+        failureHandler = () ->
+            return []
 
-        @generateClassLikeDocblockFor(editor, classInfo)
+        successHandler = (resolvedType) =>
+            nestedSuccessHandler = (classInfo) =>
+                intentions = []
 
-        # successHandler = (classInfo) =>
-            # return if not classInfo
+                return intentions if not classInfo?
 
-            # @generateClassLikeDocblockFor(editor, classInfo)
+                if not classInfo.hasDocblock
+                    if classInfo.hasDocumentation
+                        intentions.push({
+                            priority : 100
+                            icon     : 'gear'
+                            title    : 'Generate Docblock (inheritDoc)'
 
-        # failureHandler = () =>
-            # return
+                            selected : () =>
+                                @generateDocblockInheritance(editor, triggerPosition)
+                        })
 
-        # return @service.getClassListForFile(className).then(successHandler, failureHandler)
+                    intentions.push({
+                        priority : 100
+                        icon     : 'gear'
+                        title    : 'Generate Docblock'
+
+                        selected : () =>
+                            @generateClasslikeDocblockFor(editor, classInfo)
+                    })
+
+                return intentions
+
+            return @service.getClassInfo(resolvedType).then(nestedSuccessHandler, failureHandler)
+
+        return @service.resolveType(editor.getPath(), triggerPosition.row + 1, name).then(successHandler, failureHandler)
 
     ###*
      * @param {TextEditor} editor
      * @param {Object}     classData
     ###
-    generateClassLikeDocblockFor: (editor, classData) ->
+    generateClasslikeDocblockFor: (editor, classData) ->
         zeroBasedStartLine = classData.startLine - 1
 
         indentationLevel = editor.indentationForBufferRow(zeroBasedStartLine)
