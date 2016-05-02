@@ -56,7 +56,7 @@ class DocblockProvider extends AbstractProvider
                         title    : 'Generate Docblock'
 
                         selected : () =>
-                            @generateFunctionLikeDocblock(textEditor, bufferPosition, name)
+                            @generateFunctionlikeDocblock(textEditor, bufferPosition, name)
                     },
 
                     {
@@ -189,7 +189,7 @@ class DocblockProvider extends AbstractProvider
      * @param {Point}      triggerPosition
      * @param {string}     functionName
     ###
-    generateFunctionLikeDocblock: (editor, triggerPosition, functionName) ->
+    generateFunctionlikeDocblock: (editor, triggerPosition, functionName) ->
         successHandler = (currentClassName) =>
             nestedFailureHandler = () =>
                 return
@@ -204,7 +204,7 @@ class DocblockProvider extends AbstractProvider
 
                     zeroBasedStartLine = methodData.startLine - 1
 
-                    @generateFunctionLikeDocblockFor(editor, methodData)
+                    @generateFunctionlikeDocblockFor(editor, methodData)
 
                 @service.getClassInfo(currentClassName).then(nestedSuccessHandler, nestedFailureHandler)
 
@@ -218,7 +218,7 @@ class DocblockProvider extends AbstractProvider
 
                     zeroBasedStartLine = functionData.startLine - 1
 
-                    @generateFunctionLikeDocblockFor(editor, functionData)
+                    @generateFunctionlikeDocblockFor(editor, functionData)
 
                 @service.getGlobalFunctions().then(nestedSuccessHandler, nestedFailureHandler)
 
@@ -231,7 +231,7 @@ class DocblockProvider extends AbstractProvider
      * @param {TextEditor} editor
      * @param {Object}     data
     ###
-    generateFunctionLikeDocblockFor: (editor, data) ->
+    generateFunctionlikeDocblockFor: (editor, data) ->
         zeroBasedStartLine = data.startLine - 1
 
         parameters = []
