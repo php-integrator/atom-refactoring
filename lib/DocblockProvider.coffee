@@ -47,9 +47,12 @@ class DocblockProvider extends AbstractProvider
                     }
                 ]
         }, {
-            grammarScopes: ['entity.name.function.php']
+            grammarScopes: ['entity.name.function.php', 'support.function.magic.php']
             getIntentions: ({textEditor, bufferPosition}) =>
                 nameRange = textEditor.bufferRangeForScopeAtCursor('entity.name.function.php')
+
+                if not nameRange?
+                    nameRange = textEditor.bufferRangeForScopeAtCursor('support.function.magic.php')
 
                 return if not nameRange?
 
