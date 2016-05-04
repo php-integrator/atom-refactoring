@@ -207,11 +207,6 @@ class DocblockProvider extends AbstractProvider
                 type: if parameter.type then parameter.type else 'mixed'
             })
 
-        returnVariables = []
-
-        if data.return.type and data.return.type != 'void'
-            returnVariables = [data.return]
-
         indentationLevel = editor.indentationForBufferRow(zeroBasedStartLine)
 
         docblock = @docblockBuilder.buildForMethod(
