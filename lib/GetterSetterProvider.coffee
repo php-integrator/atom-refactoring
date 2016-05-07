@@ -197,6 +197,8 @@ class GetterSetterProvider extends AbstractProvider
 
     ###*
      * Called when the selection of properties is cancelled.
+     *
+     * @param {Object|null} metadata
     ###
     onCancel: (metadata) ->
 
@@ -220,7 +222,7 @@ class GetterSetterProvider extends AbstractProvider
         output = itemOutputs.join("\n").trim()
 
         metadata.editor.getBuffer().insert(metadata.editor.getCursorBufferPosition(), output)
-        
+
     ###*
      * Generates a getter for the specified selected item.
      *
