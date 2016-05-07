@@ -219,17 +219,8 @@ class GetterSetterProvider extends AbstractProvider
 
         output = itemOutputs.join("\n").trim()
 
-        metadata.editor.insertText(output, {
-            autoIndent         : true
-            autoIndentNewline  : true
-            autoDecreaseIndent : true
-        })
-
-        # FIXME: Atom doesn't seem to want to auto indent the added text. If select: true is passed during insertion
-        # and this method invoked, it works, but we don't want to alter the user's selection (or have to restore it
-        # just because functionality that should be working fails).
-        #metadata.editor.autoIndentSelectedRows()
-
+        metadata.editor.getBuffer().insert(metadata.editor.getCursorBufferPosition(), output)
+        
     ###*
      * Generates a getter for the specified selected item.
      *
