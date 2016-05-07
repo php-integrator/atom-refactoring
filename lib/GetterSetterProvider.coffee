@@ -2,6 +2,9 @@ AbstractProvider = require './AbstractProvider'
 
 View = require './GetterSetterProvider/View'
 
+FunctionBuilder = require './Utility/FunctionBuilder'
+DocblockBuilder = require './Utility/DocblockBuilder'
+
 module.exports =
 
 ##*
@@ -14,6 +17,16 @@ class GetterSetterProvider extends AbstractProvider
     selectionView: null
 
     ###*
+     * Aids in building methods.
+    ###
+    functionBuilder: null
+
+    ###*
+     * The docblock builder.
+    ###
+    docblockBuilder: null
+
+    ###*
      * @inheritdoc
     ###
     activate: (service) ->
@@ -22,6 +35,9 @@ class GetterSetterProvider extends AbstractProvider
         @selectionView = new View(@onConfirm.bind(this), @onCancel.bind(this))
         @selectionView.setLoading('Loading class information...')
         @selectionView.setEmptyMessage('No properties found.')
+
+        @functionBuilder = new FunctionBuilder()
+        @docblockBuilder = new DocblockBuilder()
 
         atom.commands.add 'atom-workspace', "php-integrator-refactoring:generate-getter": =>
             @executeCommand(true, false)
@@ -37,6 +53,12 @@ class GetterSetterProvider extends AbstractProvider
     ###
     deactivate: () ->
         super()
+
+        if @functionBuilder
+            @functionBuilder = null
+
+        if @docblockBuilder
+            @docblockBuilder = null
 
         if @selectionView
             @selectionView.destroy()
@@ -113,6 +135,10 @@ class GetterSetterProvider extends AbstractProvider
                 enabledItems = []
                 disabledItems = []
 
+                zeroBasedStartLine = classInfo.startLine - 1
+
+                indentationLevel = activeTextEditor.indentationForBufferRow(zeroBasedStartLine) + 1
+
                 for name, property of classInfo.properties
                     type = if property.return.type then property.return.type else 'mixed'
 
@@ -123,12 +149,13 @@ class GetterSetterProvider extends AbstractProvider
                     setterExists = if setterName of classInfo.methods then true else false
 
                     data = {
-                        name                     : name
-                        type                     : type
-                        needsGetter              : enableGetterGeneration
-                        needsSetter              : enableSetterGeneration
-                        getterName               : getterName
-                        setterName               : setterName
+                        name        : name
+                        type        : type
+                        needsGetter : enableGetterGeneration
+                        needsSetter : enableSetterGeneration
+                        getterName  : getterName
+                        setterName  : setterName
+                        tabText     : activeTextEditor.getTabText().repeat(indentationLevel)
                     }
 
                     if (enableGetterGeneration and enableSetterGeneration and getterExists and setterExists) or
@@ -190,7 +217,7 @@ class GetterSetterProvider extends AbstractProvider
             if item.needsSetter
                 itemOutputs.push(@generateSetterForItem(item, enablePhp7Support))
 
-        output = itemOutputs.join("\n\n").trim()
+        output = itemOutputs.join("\n").trim()
 
         metadata.editor.insertText(output, {
             autoIndent         : true
@@ -212,25 +239,37 @@ class GetterSetterProvider extends AbstractProvider
      * @return {string}
     ###
     generateGetterForItem: (item, enablePhp7Support) ->
-        returnTypeDeclaration = ''
+        returnType = null
 
         if enablePhp7Support and item.type != 'mixed'
             allowedTypes = item.type.split('|')
 
             if allowedTypes.length == 1
-                returnTypeDeclaration = ': ' + item.type
+                returnType = item.type
 
-        return """
-            /**
-             * Retrieves the currently set #{item.name}.
-             *
-             * @return #{item.type}
-             */
-            public function #{item.getterName}()#{returnTypeDeclaration}
-            {
-                return $this->#{item.name};
-            }
-        """
+        statements = [
+            "return $this->#{item.name};"
+        ]
+
+        functionText = @functionBuilder
+            .makePublic()
+            .setIsStatic(false)
+            .setIsAbstract(false)
+            .setName(item.getterName)
+            .setReturnType(returnType)
+            .setParameters([])
+            .setStatements(statements)
+            .setTabText(item.tabText)
+            .build()
+
+        docblockText = @docblockBuilder.buildForMethod(
+            [],
+            item.type,
+            false,
+            item.tabText
+        )
+
+        return docblockText + functionText
 
     ###*
      * Generates a setter for the specified selected item.
@@ -241,8 +280,8 @@ class GetterSetterProvider extends AbstractProvider
      * @return {string}
     ###
     generateSetterForItem: (item, enablePhp7Support) ->
-        typePrefix = ''
-        defaultValueSuffix = ''
+        parameterType = null
+        defaultValue = null
 
         type = item.type
         allowedTypes = item.type.split('|')
@@ -255,26 +294,44 @@ class GetterSetterProvider extends AbstractProvider
             (allowedTypes.length == 1 or (allowedTypes.length == 2 and 'null' in allowedTypes))
                 # Make this setter's type hint nullable by specifying the default value.
                 if allowedTypes.length > 1
-                    defaultValueSuffix = ' = null'
+                    defaultValue = 'null'
 
-                typePrefix += type + ' '
+                parameterType = type
 
-        returnTypeDeclaration = ''
+        returnType = null
 
         if enablePhp7Support
-            returnTypeDeclaration = ': self'
+            returnType = 'self'
 
-        return """
-            /**
-             * Sets the #{item.name} to use.
-             *
-             * @param #{item.type} $#{item.name}
-             *
-             * @return static
-             */
-            public function #{item.setterName}(#{typePrefix}$#{item.name}#{defaultValueSuffix})#{returnTypeDeclaration}
+        statements = [
+            "$this->#{item.name} = $#{item.name};"
+            "return $this;"
+        ]
+
+        parameters = [
             {
-                $this->#{item.name} = $#{item.name};
-                return $this;
+                name         : item.name
+                typeHint     : parameterType
+                defaultValue : defaultValue
             }
-        """
+        ]
+
+        functionText = @functionBuilder
+            .makePublic()
+            .setIsStatic(false)
+            .setIsAbstract(false)
+            .setName(item.setterName)
+            .setReturnType(returnType)
+            .setParameters(parameters)
+            .setStatements(statements)
+            .setTabText(item.tabText)
+            .build()
+
+        docblockText = @docblockBuilder.buildForMethod(
+            [{name : '$' + item.name, type : item.type}],
+            'static',
+            false,
+            item.tabText
+        )
+
+        return docblockText + functionText
