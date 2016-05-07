@@ -203,6 +203,12 @@ class FunctionBuilder
             if parameter.typeHint?
                 signatureLine += "#{parameter.typeHint} "
 
+            if parameter.isVariadic
+                signatureLine += '...'
+
+            if parameter.isReference
+                signatureLine += '&'
+
             signatureLine += "$#{parameter.name}"
 
             if parameter.defaultValue?
