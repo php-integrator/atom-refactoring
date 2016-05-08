@@ -1,3 +1,6 @@
+## 0.6.0 (base 0.10.0)
+* Added the ability to generate constructors.
+
 ## 0.5.0 (base 0.9.0)
 * Tweaked some defaults.
 * Add basic support for generating docblocks.

@@ -2,12 +2,14 @@ module.exports =
 
 class TypeHelper
     ###*
-     * @param  {String}  typeSpecification
-     * @param  {boolean} allowPhp7
+     * @param {String|null} typeSpecification
+     * @param {boolean}     allowPhp7
      *
      * @return {Object|null}
     ###
     getTypeHintForTypeSpecification: (typeSpecification, allowPhp7) ->
+        return null if not typeSpecification?
+
         types = typeSpecification.split('|')
 
         isNullable = false
@@ -38,12 +40,14 @@ class TypeHelper
         }
 
     ###*
-     * @param  {String}  type
-     * @param  {boolean} allowPhp7
+     * @param {String|null} type
+     * @param {boolean}     allowPhp7
      *
      * @return {String|null}
     ###
     getTypeHintForType: (type, allowPhp7) ->
+        return null if not type?
+
         if allowPhp7
             return 'string'   if type == 'string'
             return 'int'      if type == 'int'

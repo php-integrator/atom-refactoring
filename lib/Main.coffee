@@ -11,11 +11,13 @@ module.exports =
         DocblockProvider = require './DocblockProvider'
         GetterSetterProvider = require './GetterSetterProvider'
         ExtractMethodProvider = require './ExtractMethodProvider'
+        ConstructorGenerationProvider = require './ConstructorGenerationProvider'
 
         @providers = []
         @providers.push new DocblockProvider()
         @providers.push new GetterSetterProvider()
         @providers.push new ExtractMethodProvider()
+        @providers.push new ConstructorGenerationProvider()
 
     ###*
      * Deactivates the package.
