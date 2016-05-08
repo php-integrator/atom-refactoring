@@ -198,7 +198,7 @@ class DocblockProvider extends AbstractProvider
             })
 
             docblockParameters.push({
-                name : item.name
+                name : '$' + item.name
                 type : if item.type? then item.type else 'mixed'
             })
 
