@@ -2,6 +2,7 @@ AbstractProvider = require './AbstractProvider'
 
 View = require './GetterSetterProvider/View'
 
+TypeHelper = require './Utility/TypeHelper'
 FunctionBuilder = require './Utility/FunctionBuilder'
 DocblockBuilder = require './Utility/DocblockBuilder'
 
@@ -27,6 +28,11 @@ class GetterSetterProvider extends AbstractProvider
     docblockBuilder: null
 
     ###*
+     * The type helper.
+    ###
+    typeHelper: null
+
+    ###*
      * @inheritdoc
     ###
     activate: (service) ->
@@ -36,6 +42,7 @@ class GetterSetterProvider extends AbstractProvider
         @selectionView.setLoading('Loading class information...')
         @selectionView.setEmptyMessage('No properties found.')
 
+        @typeHelper = new TypeHelper()
         @functionBuilder = new FunctionBuilder()
         @docblockBuilder = new DocblockBuilder()
 
@@ -53,6 +60,9 @@ class GetterSetterProvider extends AbstractProvider
     ###
     deactivate: () ->
         super()
+
+        if @typeHelper
+            @typeHelper = null
 
         if @functionBuilder
             @functionBuilder = null
@@ -234,11 +244,11 @@ class GetterSetterProvider extends AbstractProvider
     generateGetterForItem: (item, enablePhp7Support) ->
         returnType = null
 
-        if enablePhp7Support and item.type != 'mixed'
-            allowedTypes = item.type.split('|')
+        if enablePhp7Support
+            returnTypeHint = @typeHelper.getTypeHintForTypeSpecification(item.type, enablePhp7Support)
 
-            if allowedTypes.length == 1
-                returnType = item.type
+            if returnTypeHint? and not returnTypeHint.isNullable
+                returnType = returnTypeHint.typeHint
 
         statements = [
             "return $this->#{item.name};"
@@ -273,23 +283,10 @@ class GetterSetterProvider extends AbstractProvider
      * @return {string}
     ###
     generateSetterForItem: (item, enablePhp7Support) ->
-        parameterType = null
-        defaultValue = null
+        parameterTypeHint = @typeHelper.getTypeHintForTypeSpecification(item.type, enablePhp7Support)
 
-        type = item.type
-        allowedTypes = item.type.split('|')
-
-        if allowedTypes.length > 1 and 'null' in allowedTypes
-            type = (if allowedTypes[0] != 'null' then allowedTypes[0] else allowedTypes[1])
-
-        if (enablePhp7Support or @isClassType(type)) and
-            type != 'mixed' and
-            (allowedTypes.length == 1 or (allowedTypes.length == 2 and 'null' in allowedTypes))
-                # Make this setter's type hint nullable by specifying the default value.
-                if allowedTypes.length > 1
-                    defaultValue = 'null'
-
-                parameterType = type
+        parameterType = if parameterTypeHint? then parameterTypeHint.typeHint else null
+        defaultValue  = if parameterTypeHint? and parameterTypeHint.isNullable then 'null' else null
 
         returnType = null
 
