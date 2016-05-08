@@ -10,7 +10,7 @@ class TypeHelper
     getTypeHintForTypeSpecification: (typeSpecification, allowPhp7) ->
         return null if not typeSpecification?
 
-        types = typeSpecification.split('|')
+        types = @getDocblockTypesFromDocblockTypeSpecification(typeSpecification)
 
         isNullable = false
 
@@ -24,7 +24,7 @@ class TypeHelper
         previousTypeHint = null
 
         for type in types
-            typeHint = @getTypeHintForType(type, allowPhp7)
+            typeHint = @getTypeHintForDocblockType(type, allowPhp7)
 
             if previousTypeHint? and typeHint != previousTypeHint
                 # Several different type hints are necessary, we can't provide a common denominator.
@@ -40,12 +40,43 @@ class TypeHelper
         }
 
     ###*
+     * @param {String|null} typeSpecification
+     *
+     * @return {Array}
+    ###
+    getDocblockTypesFromDocblockTypeSpecification: (typeSpecification) ->
+        return [] if not typeSpecification?
+        return typeSpecification.split('|')
+
+    ###*
      * @param {String|null} type
      * @param {boolean}     allowPhp7
      *
      * @return {String|null}
     ###
-    getTypeHintForType: (type, allowPhp7) ->
+    getTypeHintForDocblockType: (type, allowPhp7) ->
+        return null if not type?
+        return type if @isClassType(type, allowPhp7)
+        return @getScalarTypeHintForDocblockType(type, allowPhp7)
+
+    ###*
+     * @param {String|null} type
+     * @param {boolean}     allowPhp7
+     *
+     * @return {boolean}
+    ###
+    isClassType: (type, allowPhp7) ->
+        return if (@getScalarTypeHintForDocblockType(type, allowPhp7) == false) then true else false
+
+    ###*
+     * @param {String|null} type
+     * @param {boolean}     allowPhp7
+     *
+     * @return {String|null|false} Null if the type is recognized, but there is no type hint available, false of the
+     *                             type is not recognized at all, and the type hint itself if it is recognized and there
+     *                             is a type hint.
+    ###
+    getScalarTypeHintForDocblockType: (type, allowPhp7) ->
         return null if not type?
 
         if allowPhp7
@@ -79,5 +110,4 @@ class TypeHelper
         return null if type == 'parent'
         return null if type == '$this'
 
-        # Must be a class type.
-        return type
+        return false
