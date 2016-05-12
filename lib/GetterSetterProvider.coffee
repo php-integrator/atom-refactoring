@@ -150,8 +150,6 @@ class GetterSetterProvider extends AbstractProvider
                 indentationLevel = activeTextEditor.indentationForBufferRow(zeroBasedStartLine) + 1
 
                 for name, property of classInfo.properties
-                    type = if property.return.type then property.return.type else 'mixed'
-
                     getterName = 'get' + name.substr(0, 1).toUpperCase() + name.substr(1)
                     setterName = 'set' + name.substr(0, 1).toUpperCase() + name.substr(1)
 
@@ -160,7 +158,7 @@ class GetterSetterProvider extends AbstractProvider
 
                     data = {
                         name        : name
-                        type        : type
+                        types       : property.types
                         needsGetter : enableGetterGeneration
                         needsSetter : enableSetterGeneration
                         getterName  : getterName
@@ -242,10 +240,12 @@ class GetterSetterProvider extends AbstractProvider
      * @return {string}
     ###
     generateGetterForItem: (item, enablePhp7Support) ->
+        typeSpecification = @typeHelper.buildTypeSpecificationFromTypeArray(item.types)
+
         returnType = null
 
         if enablePhp7Support
-            returnTypeHint = @typeHelper.getTypeHintForTypeSpecification(item.type, enablePhp7Support)
+            returnTypeHint = @typeHelper.getTypeHintForTypeSpecification(typeSpecification, enablePhp7Support)
 
             if returnTypeHint? and not returnTypeHint.isNullable
                 returnType = returnTypeHint.typeHint
@@ -267,7 +267,7 @@ class GetterSetterProvider extends AbstractProvider
 
         docblockText = @docblockBuilder.buildForMethod(
             [],
-            item.type,
+            typeSpecification,
             false,
             item.tabText
         )
@@ -283,7 +283,9 @@ class GetterSetterProvider extends AbstractProvider
      * @return {string}
     ###
     generateSetterForItem: (item, enablePhp7Support) ->
-        parameterTypeHint = @typeHelper.getTypeHintForTypeSpecification(item.type, enablePhp7Support)
+        typeSpecification = @typeHelper.buildTypeSpecificationFromTypeArray(item.types)
+
+        parameterTypeHint = @typeHelper.getTypeHintForTypeSpecification(typeSpecification, enablePhp7Support)
 
         parameterType = if parameterTypeHint? then parameterTypeHint.typeHint else null
         defaultValue  = if parameterTypeHint? and parameterTypeHint.isNullable then 'null' else null
@@ -318,7 +320,7 @@ class GetterSetterProvider extends AbstractProvider
             .build()
 
         docblockText = @docblockBuilder.buildForMethod(
-            [{name : '$' + item.name, type : item.type}],
+            [{name : '$' + item.name, type : typeSpecification}],
             'static',
             false,
             item.tabText
