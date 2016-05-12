@@ -2,6 +2,7 @@
 
 AbstractProvider = require './AbstractProvider'
 
+TypeHelper = require './Utility/TypeHelper'
 DocblockBuilder = require './Utility/DocblockBuilder'
 
 module.exports =
@@ -16,12 +17,27 @@ class DocblockProvider extends AbstractProvider
     docblockBuilder: null
 
     ###*
+     * The type helper.
+    ###
+    typeHelper: null
+
+    ###*
      * @inheritdoc
     ###
     activate: (service) ->
         super(service)
 
+        @typeHelper = new TypeHelper()
         @docblockBuilder = new DocblockBuilder()
+
+    ###*
+     * @inheritdoc
+    ###
+    deactivate: () ->
+        super()
+
+        if @typeHelper
+            @typeHelper = null
 
     ###*
      * @inheritdoc
@@ -199,19 +215,27 @@ class DocblockProvider extends AbstractProvider
     generateFunctionlikeDocblockFor: (editor, data) ->
         zeroBasedStartLine = data.startLine - 1
 
-        parameters = []
+        parameters = data.parameters.map (parameter) =>
+            type = 'mixed'
 
-        for parameter in data.parameters
-            parameters.push({
+            if parameter.types.length > 0
+                type = @typeHelper.buildTypeSpecificationFromTypeArray(parameter.types)
+
+            return {
                 name: '$' + parameter.name
-                type: if parameter.type then parameter.type else 'mixed'
-            })
+                type: type
+            }
 
         indentationLevel = editor.indentationForBufferRow(zeroBasedStartLine)
 
+        returnType = null
+
+        if data.returnTypes.length > 0
+            returnType = @typeHelper.buildTypeSpecificationFromTypeArray(data.returnTypes)
+
         docblock = @docblockBuilder.buildForMethod(
             parameters,
-            data.return.type,
+            returnType,
             false,
             editor.getTabText().repeat(indentationLevel)
         )
@@ -278,8 +302,13 @@ class DocblockProvider extends AbstractProvider
 
         indentationLevel = editor.indentationForBufferRow(zeroBasedStartLine)
 
+        type = 'mixed'
+
+        if data.types.length > 0
+            type = @typeHelper.buildTypeSpecificationFromTypeArray(data.types)
+
         docblock = @docblockBuilder.buildForProperty(
-            if data.return.type then data.return.type else 'mixed',
+            type,
             false,
             editor.getTabText().repeat(indentationLevel)
         )
@@ -338,8 +367,13 @@ class DocblockProvider extends AbstractProvider
 
         indentationLevel = editor.indentationForBufferRow(zeroBasedStartLine)
 
+        type = 'mixed'
+
+        if data.types.length > 0
+            type = @typeHelper.buildTypeSpecificationFromTypeArray(data.types)
+
         docblock = @docblockBuilder.buildForProperty(
-            if data.return.type then data.return.type else 'mixed',
+            type,
             false,
             editor.getTabText().repeat(indentationLevel)
         )

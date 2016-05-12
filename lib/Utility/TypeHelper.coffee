@@ -111,3 +111,16 @@ class TypeHelper
         return null if type == '$this'
 
         return false
+
+    ###*
+     * Takes a type list (list of type objects) and turns them into a single docblock type specification.
+     *
+     * @param {Array} typeList
+     *
+     * @return {String}
+    ###
+    buildTypeSpecificationFromTypeArray: (typeList) ->
+        typeNames = typeList.map (type) ->
+            return type.type
+
+        return typeNames.join('|')
