@@ -99,26 +99,32 @@ class DocblockProvider extends AbstractProvider
                         items = []
                         promises = []
 
+                        # Ensure all types are localized to the use statements of this file, the original types will be
+                        # relative to the original file (which may not be the same). The FQCN works but is long and
+                        # there may be a local use statement that can be used to shorten it.
                         for name, property of classInfo.properties
                             items.push({
-                                name          : name
-                                type          : property.return.type
-                                localizedType : null
+                                name  : name
+                                types : property.types
                             })
 
-                            if property.return.resolvedType?
-                                promises.push @service.localizeType(
-                                    editor.getPath(),
-                                    triggerPosition.row + 1,
-                                    property.return.resolvedType
-                                )
+                            for type in property.types
+                                if @typeHelper.isClassType(type.fqcn)
+                                    promises.push @service.localizeType(
+                                        editor.getPath(),
+                                        triggerPosition.row + 1,
+                                        type.fqcn
+                                    )
 
-                            else
-                                promises.push Promise.resolve(property.return.resolvedType)
+                                else
+                                    promises.push Promise.resolve(type.fqcn)
 
                         localTypesResolvedHandler = (results) =>
-                            for item, i in items
-                                item.localizedType = results[i]
+                            resultIndex = 0
+
+                            for item in items
+                                for type in item.types
+                                    type.type = results[resultIndex++]
 
                             sorter = (a, b) ->
                                 return a.name.localeCompare(b.name)
@@ -185,8 +191,9 @@ class DocblockProvider extends AbstractProvider
         docblockParameters = []
 
         for item in selectedItems
-            # parameterTypeHint = @typeHelper.getTypeHintForTypeSpecification(item.type, enablePhp7Support)
-            parameterTypeHint = @typeHelper.getTypeHintForTypeSpecification(item.type, enablePhp7Support)
+            typeSpecification = @typeHelper.buildTypeSpecificationFromTypeArray(item.types)
+
+            parameterTypeHint = @typeHelper.getTypeHintForTypeSpecification(typeSpecification, enablePhp7Support)
 
             parameterType = if parameterTypeHint? then parameterTypeHint.typeHint else null
             defaultValue  = if parameterTypeHint? and parameterTypeHint.isNullable then 'null' else null
@@ -199,7 +206,7 @@ class DocblockProvider extends AbstractProvider
 
             docblockParameters.push({
                 name : '$' + item.name
-                type : if item.type? then item.type else 'mixed'
+                type : if item.types.length > 0 then typeSpecification else 'mixed'
             })
 
             statements.push("$this->#{item.name} = $#{item.name};")
