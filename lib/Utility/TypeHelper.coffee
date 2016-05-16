@@ -12,6 +12,24 @@ class TypeHelper
 
         types = @getDocblockTypesFromDocblockTypeSpecification(typeSpecification)
 
+        return @getTypeHintForDocblockTypes(types, allowPhp7)
+
+    ###*
+     * @param {String|null} typeSpecification
+     *
+     * @return {Array}
+    ###
+    getDocblockTypesFromDocblockTypeSpecification: (typeSpecification) ->
+        return [] if not typeSpecification?
+        return typeSpecification.split('|')
+
+    ###*
+     * @param {Array}   types
+     * @param {boolean} allowPhp7
+     *
+     * @return {Object|null}
+    ###
+    getTypeHintForDocblockTypes: (types, allowPhp7) ->
         isNullable = false
 
         types = types.filter (type) =>
@@ -38,15 +56,6 @@ class TypeHelper
             typeHint   : typeHint
             isNullable : isNullable
         }
-
-    ###*
-     * @param {String|null} typeSpecification
-     *
-     * @return {Array}
-    ###
-    getDocblockTypesFromDocblockTypeSpecification: (typeSpecification) ->
-        return [] if not typeSpecification?
-        return typeSpecification.split('|')
 
     ###*
      * @param {String|null} type
