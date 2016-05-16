@@ -132,4 +132,14 @@ class TypeHelper
         typeNames = typeList.map (type) ->
             return type.type
 
+        return @buildTypeSpecificationFromTypes(typeNames)
+
+    ###*
+     * Takes a list of type names and turns them into a single docblock type specification.
+     *
+     * @param {Array} typeNames
+     *
+     * @return {String}
+    ###
+    buildTypeSpecificationFromTypes: (typeNames) ->
         return typeNames.join('|')
