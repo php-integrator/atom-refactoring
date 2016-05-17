@@ -209,7 +209,7 @@ class FunctionBuilder
             if parameter.isReference
                 signatureLine += '&'
 
-            signatureLine += "$#{parameter.name}"
+            signatureLine += "#{parameter.name}"
 
             if parameter.defaultValue?
                 signatureLine += " = #{parameter.defaultValue}"

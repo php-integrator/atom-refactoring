@@ -302,7 +302,7 @@ class GetterSetterProvider extends AbstractProvider
 
         parameters = [
             {
-                name         : item.name
+                name         : '$' + item.name
                 typeHint     : parameterType
                 defaultValue : defaultValue
             }

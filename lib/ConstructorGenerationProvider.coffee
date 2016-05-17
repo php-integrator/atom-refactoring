@@ -199,7 +199,7 @@ class DocblockProvider extends AbstractProvider
             defaultValue  = if parameterTypeHint? and parameterTypeHint.isNullable then 'null' else null
 
             parameters.push({
-                name         : item.name
+                name         : '$' + item.name
                 typeHint     : parameterType
                 defaultValue : defaultValue
             })
