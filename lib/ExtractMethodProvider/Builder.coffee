@@ -163,7 +163,7 @@ class Builder
 
                 return {
                     name         : parameter.name
-                    typeHint     : if typeHintInfo? then typeHintInfo.typeHint else null
+                    typeHint     : if typeHintInfo? and settings.typeHinting    then typeHintInfo.typeHint else null
                     defaultValue : if typeHintInfo? and typeHintInfo.isNullable then 'null' else null
                 }
 
