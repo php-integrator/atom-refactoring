@@ -202,11 +202,13 @@ class Builder
                 returnType = 'void'
 
                 if @returnVariables != null && @returnVariables.length > 0
-                    if @returnVariables.length == 1
-                        returnType = if @returnVariables[0].types.length > 0 then @returnVariables[0].types else '[type]'
+                    returnType = '[type]'
 
-                    else if @returnVariables.length > 1
+                    if @returnVariables.length > 1
                         returnType = 'array'
+
+                    else if @returnVariables.length == 1 and @returnVariables[0].types.length > 0
+                        returnType = @typeHelper.buildTypeSpecificationFromTypes(@returnVariables[0].types)
 
                 docblockText = @docblockBuilder.buildForMethod(
                     docblockParameters,
