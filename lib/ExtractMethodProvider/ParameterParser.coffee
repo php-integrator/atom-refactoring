@@ -1,5 +1,7 @@
 {Point, Range} = require 'atom'
 
+TypeHelper = require '../Utility/TypeHelper'
+
 module.exports =
 
 class ParameterParser
@@ -9,6 +11,11 @@ class ParameterParser
      * @type {Service}
     ###
     service: null
+
+    ###*
+     * @type {TypeHelper}
+    ###
+    typeHelper: null
 
     ###*
      * List of all the variable declarations that have been process
@@ -31,6 +38,7 @@ class ParameterParser
     ###
     constructor: (service) ->
         @service = service
+        @typeHelper = new TypeHelper
 
     ###*
      * Takes the editor and the range and loops through finding all the
@@ -80,6 +88,7 @@ class ParameterParser
             }
         ]
 
+        getTypePromises = []
         variableDeclarations = []
 
         for filter in regexFilters
@@ -96,7 +105,7 @@ class ParameterParser
                             break
 
                     if chosenParameter != null
-                        chosenParameter = @getTypeForParameter editor, chosenParameter
+                        getTypePromises.push (@getTypesForParameter editor, chosenParameter)
                         variableDeclarations.push chosenParameter
 
                 for variable in variables
@@ -128,29 +137,54 @@ class ParameterParser
         promises = []
 
         parameters = parameters.forEach (parameter) =>
-            successHandler = (typeData) =>
-                nestedSuccessHandler = (localizedType) =>
-                    if localizedType?
-                        typeData.type = localizedType
+            successHandler = (parameter) =>
+                localizeTypeSuccessHandler = (localizedType) =>
+                    return localizedType
 
-                    return typeData
+                localizeTypeFailureHandler = () ->
+                    return null
 
-                nestedFailureHandler = () ->
-                    return typeData
+                typeResolutionPromises = []
+                path = editor.getPath()
 
-                return @service.localizeType(editor.getPath(), @selectedBufferRange.end.row + 1, typeData.type).then(
-                    nestedSuccessHandler,
-                    nestedFailureHandler
+                for typeData in parameter.types
+                    if @typeHelper.isClassType(typeData.fqcn)
+                        typeResolutionPromise = @service.localizeType(
+                            path,
+                            @selectedBufferRange.end.row + 1,
+                            typeData.fqcn
+                        )
+
+                        typeResolutionPromises.push typeResolutionPromise.then(
+                            localizeTypeSuccessHandler,
+                            localizeTypeFailureHandler
+                        )
+
+                    else
+                        typeResolutionPromises.push Promise.resolve(typeData.fqcn)
+
+                combineResolvedTypesHandler = (processedTypeArray) ->
+                    for i, type of parameter.types
+                        type.type = processedTypeArray[i]
+
+                    return parameter
+
+                return Promise.all(typeResolutionPromises).then(
+                    combineResolvedTypesHandler,
+                    combineResolvedTypesHandler
                 )
 
             failureHandler = () ->
                 return null
 
-            promise = @getTypeForParameter(editor, parameter).then(successHandler, failureHandler)
+            promise = @getTypesForParameter(editor, parameter).then(successHandler, failureHandler)
 
             promises.push(promise)
 
-        return Promise.all(promises)
+        returnFirstResultHandler = (resultArray) ->
+            return resultArray[0]
+
+        return Promise.all([Promise.all(promises), Promise.all(getTypePromises)]).then(returnFirstResultHandler)
 
     ###*
      * Takes the current buffer position and returns a range of the current
@@ -271,19 +305,19 @@ class ParameterParser
      *
      * @return {Promise}
     ###
-    getTypeForParameter: (editor, parameter) ->
-        successHandler = (type) =>
-            if type == null
-                type = "[type]"
-
-            parameter.type = type
+    getTypesForParameter: (editor, parameter) ->
+        successHandler = (types) =>
+            parameter.types = types
 
             return parameter
 
         failureHandler = () =>
             return null
 
-        return @service.getVariableType(editor, @selectedBufferRange.end, parameter.name).then(successHandler, failureHandler)
+        return @service.getVariableTypes(editor, @selectedBufferRange.end, parameter.name).then(
+            successHandler,
+            failureHandler
+        )
 
     ###*
      * Returns all the variable declarations that have been parsed.

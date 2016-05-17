@@ -2,6 +2,8 @@
 
 ParameterParser = require './ParameterParser'
 
+TypeHelper = require '../Utility/TypeHelper'
+FunctionBuilder = require '../Utility/FunctionBuilder'
 DocblockBuilder = require '../Utility/DocblockBuilder'
 
 module.exports =
@@ -64,6 +66,16 @@ class Builder
     docblockBuilder: null
 
     ###*
+     * @type {FunctionBuilder}
+    ###
+    functionBuilder: null
+
+    ###*
+     * @type {TypeHelper}
+    ###
+    typeHelper: null
+
+    ###*
      * Constructor.
      *
      * @param  {Service} service php-integrator-base service
@@ -72,6 +84,8 @@ class Builder
         @setService service
         @parameterParser = new ParameterParser @service
         @docblockBuilder = new DocblockBuilder
+        @functionBuilder = new FunctionBuilder
+        @typeHelper = new TypeHelper
 
     ###*
      * Sets the method body to use in the preview.
@@ -131,43 +145,84 @@ class Builder
      * @return {Promise}
     ###
     buildMethod: (settings) =>
-        if @returnVariables == null
-            @returnVariables = @workOutReturnVariables @parameterParser.getVariableDeclarations()
-
         successHandler = (parameters) =>
-            formattedParameters = @buildFunctionParameters parameters, settings.typeHinting
+            if @returnVariables == null
+                @returnVariables = @workOutReturnVariables @parameterParser.getVariableDeclarations()
 
-            newMethod = @buildLine "#{settings.visibility} function #{settings.methodName}(#{formattedParameters})", settings.tabs
-            newMethod += @buildLine "{", settings.tabs
-            for line in @methodBody.split('\n')
-                newMethod += @buildLine "#{line}", settings.tabs
-            newMethod += @buildReturnLine @returnVariables, settings.tabs, settings.arraySyntax
-            newMethod += @buildLine "}", settings.tabs
+            statements = @methodBody.split('\n')
+
+            tabText = if settings.tabs then @tabText else ''
+
+            returnStatement = @buildReturnStatement(@returnVariables, settings.arraySyntax)
+
+            if returnStatement?
+                statements.push(returnStatement)
+
+            functionParameters = parameters.map (parameter) =>
+                typeHintInfo = @typeHelper.getTypeHintForDocblockTypes(parameter.types)
+
+                return {
+                    name         : parameter.name
+                    typeHint     : if typeHintInfo? then typeHintInfo.typeHint else null
+                    defaultValue : if typeHintInfo? and typeHintInfo.isNullable then 'null' else null
+                }
+
+            docblockParameters = parameters.map (parameter) =>
+                typeSpecification = @typeHelper.buildTypeSpecificationFromTypes(parameter.types)
+
+                return {
+                    name : parameter.name
+                    type : if typeSpecification.length > 0 then typeSpecification else '[type]'
+                }
+
+            @functionBuilder
+                .setIsStatic(false)
+                .setIsAbstract(false)
+                .setName(settings.methodName)
+                .setReturnType(null)
+                .setParameters(functionParameters)
+                .setStatements(statements)
+                .setTabText(tabText)
+
+            if settings.visibility == 'public'
+                @functionBuilder.makePublic()
+
+            else if settings.visibility == 'protected'
+                @functionBuilder.makeProtected()
+
+            else if settings.visibility == 'private'
+                @functionBuilder.makePrivate()
+
+            else
+                 @functionBuilder.makeGlobal()
+
+            docblockText = ''
 
             if settings.generateDocs
                 returnType = 'void'
 
                 if @returnVariables != null && @returnVariables.length > 0
                     if @returnVariables.length == 1
-                        returnType = @returnVariables[0].type
+                        returnType = if @returnVariables[0].types.length > 0 then @returnVariables[0].types else '[type]'
 
                     else if @returnVariables.length > 1
                         returnType = 'array'
 
-                docs = @docblockBuilder.buildForMethod(
-                    parameters,
+                docblockText = @docblockBuilder.buildForMethod(
+                    docblockParameters,
                     returnType,
                     settings.generateDescPlaceholders,
-                    if settings.tabs then @tabText else ''
+                    tabText
                 )
-                newMethod = docs + newMethod
 
-            return newMethod
+                docblockText = docblockText.trimLeft()
+
+            return docblockText + @functionBuilder.build()
 
         failureHandler = () ->
             return null
 
-        @parameterParser.findParameters(@editor, @selectedBufferRange).then(successHandler, failureHandler)
+        return @parameterParser.findParameters(@editor, @selectedBufferRange).then(successHandler, failureHandler)
 
     ###*
      * Build the line that calls the new method and the variable the method
@@ -208,20 +263,6 @@ class Builder
         @parameterParser.findParameters(@editor, @selectedBufferRange).then(successHandler, failureHandler)
 
     ###*
-     * Builds a single line of the new method. This will add a new line to the
-     * end and add any tabs that are needed (if requested).
-     *
-     * @param  {String}  content
-     * @param  {Boolean} tabs    = false
-     *
-     * @return {String}
-    ###
-    buildLine: (content, tabs = false) ->
-        if tabs
-            content = "#{@tabText}#{content}"
-        return content + "\n"
-
-    ###*
      * Performs any clean up needed with the builder.
     ###
     cleanUp: ->
@@ -247,10 +288,7 @@ class Builder
         return null if allVariablesAfterExtraction == null
 
         variableDeclarations = variableDeclarations.filter (variable) =>
-            for variables in allVariablesAfterExtraction
-                if variables == variable.name
-                    return true
-
+            return true if variable.name in allVariablesAfterExtraction
             return false
 
         return variableDeclarations
@@ -258,37 +296,32 @@ class Builder
     ###*
      * Builds the return statement for the new method.
      *
-     * @param  {Array}   variableDeclarations
-     * @param  {Boolean} tabs
-     * @param  {String}  arrayType ['word', 'brackets']
+     * @param {Array}  variableDeclarations
+     * @param {String} arrayType ['word', 'brackets']
      *
-     * @return {String}
+     * @return {String|null}
     ###
-    buildReturnLine: (variableDeclarations, tabs, arrayType = 'word') ->
-        if variableDeclarations == null
-            return ''
+    buildReturnStatement: (variableDeclarations, arrayType = 'word') ->
+        if variableDeclarations?
+            if variableDeclarations.length == 1
+                return "#{@tabText}return #{variableDeclarations[0].name};"
 
-        content = @buildLine '', false
-        if variableDeclarations.length == 1
-            content += @buildLine "#{@tabText}return #{variableDeclarations[0].name};", tabs
-            return content
+            else if variableDeclarations.length > 1
+                variables = variableDeclarations.reduce (previous, current) ->
+                    if typeof previous != 'string'
+                        previous = previous.name
 
-        if variableDeclarations.length > 1
-            variables = variableDeclarations.reduce (previous, current) ->
-                if typeof previous != 'string'
-                    previous = previous.name
+                    return previous + ', ' + current.name
 
-                return previous + ', ' + current.name
+                if arrayType == 'brackets'
+                    variables = "[#{variables}]"
 
-            if arrayType == 'brackets'
-                variables = "[#{variables}]"
-            else
-                variables = "array(#{variables})"
+                else
+                    variables = "array(#{variables})"
 
-            content += @buildLine "#{@tabText}return #{variables};", tabs
-            return content
+                return "#{@tabText}return #{variables};"
 
-        return ''
+        return null
 
     ###*
      * Checks if the new method will be returning any values.
@@ -305,44 +338,3 @@ class Builder
     ###
     hasMultipleReturnValues: ->
         return @returnVariables != null && @returnVariables.length > 1
-
-    ###*
-     * Builds the parameters inside the () of the function.
-     *
-     * @param  {Array} parameters
-     * @param  {Boolean} typeHinting
-     *
-     * @return {String}
-    ###
-    buildFunctionParameters: (parameters, typeHinting) ->
-        if parameters.length == 0
-            return ''
-
-        if parameters.length == 1
-            return @convertParameterObjectIntoString parameters[0], typeHinting
-
-        formattedParameters = parameters.reduce (previous, current) =>
-            if typeof previous != 'string'
-                previous = @convertParameterObjectIntoString previous, typeHinting
-
-            current = @convertParameterObjectIntoString current, typeHinting
-
-            return previous + ', ' + current
-
-        return formattedParameters
-
-    ###*
-     * Converts a parameter object into a string to be used in a function
-     *
-     * @param  {Object} parameter
-     * @param  {Boolean} typeHinting
-     *
-     * @return {String}
-    ###
-    convertParameterObjectIntoString: (parameter, typeHinting) ->
-        parameterString = parameter.name
-
-        if typeHinting
-            parameterString = parameter.type + ' ' + parameterString
-
-        return parameterString
