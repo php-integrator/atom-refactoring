@@ -217,8 +217,6 @@ class Builder
                     tabText
                 )
 
-                docblockText = docblockText.trimLeft()
-
             return docblockText + @functionBuilder.build()
 
         failureHandler = () ->
