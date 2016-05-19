@@ -8,7 +8,7 @@ class TypeHelper
      * @return {Object|null}
     ###
     getTypeHintForTypeSpecification: (typeSpecification, allowPhp7) ->
-        return null if not typeSpecification?
+        return null if not typeSpecification
 
         types = @getDocblockTypesFromDocblockTypeSpecification(typeSpecification)
 
