@@ -129,57 +129,14 @@ class ParameterParser
 
         parameters = @makeUnique parameters
 
-        # Removing $this from parameters as this doesn't need to be passed in
-        parameters = parameters.filter (item) ->
-            return item.name != '$this'
-
-        # Grab the variable types of the parameters
+        # Grab the variable types of the parameters.
         promises = []
 
-        parameters = parameters.forEach (parameter) =>
-            successHandler = (parameter) =>
-                localizeTypeSuccessHandler = (localizedType) =>
-                    return localizedType
+        parameters.forEach (parameter) =>
+            # Removing $this from parameters as this doesn't need to be passed in.
+            return if parameter.name == '$this'
 
-                localizeTypeFailureHandler = () ->
-                    return null
-
-                typeResolutionPromises = []
-                path = editor.getPath()
-
-                for typeData in parameter.types
-                    if @typeHelper.isClassType(typeData.fqcn)
-                        typeResolutionPromise = @service.localizeType(
-                            path,
-                            @selectedBufferRange.end.row + 1,
-                            typeData.fqcn
-                        )
-
-                        typeResolutionPromises.push typeResolutionPromise.then(
-                            localizeTypeSuccessHandler,
-                            localizeTypeFailureHandler
-                        )
-
-                    else
-                        typeResolutionPromises.push Promise.resolve(typeData.fqcn)
-
-                combineResolvedTypesHandler = (processedTypeArray) ->
-                    for i, type of parameter.types
-                        type.type = processedTypeArray[i]
-
-                    return parameter
-
-                return Promise.all(typeResolutionPromises).then(
-                    combineResolvedTypesHandler,
-                    combineResolvedTypesHandler
-                )
-
-            failureHandler = () ->
-                return null
-
-            promise = @getTypesForParameter(editor, parameter).then(successHandler, failureHandler)
-
-            promises.push(promise)
+            promises.push @getTypesForParameter(editor, parameter)
 
         returnFirstResultHandler = (resultArray) ->
             return resultArray[0]
@@ -309,7 +266,40 @@ class ParameterParser
         successHandler = (types) =>
             parameter.types = types
 
-            return parameter
+            typeResolutionPromises = []
+            path = editor.getPath()
+
+            localizeTypeSuccessHandler = (localizedType) =>
+                return localizedType
+
+            localizeTypeFailureHandler = () ->
+                return null
+
+            for fqcn in parameter.types
+                if @typeHelper.isClassType(fqcn)
+                    typeResolutionPromise = @service.localizeType(
+                        path,
+                        @selectedBufferRange.end.row + 1,
+                        fqcn
+                    )
+
+                    typeResolutionPromises.push typeResolutionPromise.then(
+                        localizeTypeSuccessHandler,
+                        localizeTypeFailureHandler
+                    )
+
+                else
+                    typeResolutionPromises.push Promise.resolve(fqcn)
+
+            combineResolvedTypesHandler = (processedTypeArray) ->
+                parameter.types = processedTypeArray
+
+                return parameter
+
+            return Promise.all(typeResolutionPromises).then(
+                combineResolvedTypesHandler,
+                combineResolvedTypesHandler
+            )
 
         failureHandler = () =>
             return null
