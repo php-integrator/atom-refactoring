@@ -1,7 +1,8 @@
 ## 0.6.0 (base 0.10.0)
 * Rewrote the code to support multiple types.
 * Added the ability to generate constructors.
-* Added the ability to generate missing interface methods.
+* Added the ability to generate unimplemented abstract methods.
+* Added the ability to generate unimplemented interface methods.
 * Fixed parameters types and the return type not always being localized when extractind a method.
 * Fixed the extract method preview wrapping code to the next line instead of providing a horizontal scrollbar.
 
