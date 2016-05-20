@@ -14,7 +14,8 @@ What is included?
   * Method extraction.
   * Constructor generation.
   * Getter and setter generation.
-  * Missing interface method generation.
+  * Unimplemented abstract method generation.
+  * Unimplemented interface method generation.
   * Docblock generation (press `alt-enter` whilst on a functionlike, classlike or constant).
 
 ![GPLv3 Logo](http://gplv3.fsf.org/gplv3-127x51.png)
