@@ -177,6 +177,46 @@ class FunctionBuilder
         return this
 
     ###*
+     * Sets the parameters of the builder based on raw method data from the base service.
+     *
+     * @param {Object} data
+     *
+     * @return {FunctionBuilder}
+    ###
+    setFromRawMethodData: (data) ->
+        if data.isPublic
+            @makePublic()
+
+        else if data.isProtected
+            @makeProtected()
+
+        else if data.isPrivate
+            @makePrivate()
+
+        else
+            @makeGlobal()
+
+        @setName(data.name)
+        @setIsStatic(data.isStatic)
+        @setIsAbstract(data.isAbstract)
+        @setReturnType(data.returnTypeHint)
+
+        parameters = []
+
+        for parameter in data.parameters
+            parameters.push({
+                name         : '$' + parameter.name
+                typeHint     : parameter.typeHint
+                isVariadic   : parameter.isVariadic
+                isReference  : parameter.isReference
+                defaultValue : parameter.defaultValue
+            })
+
+        @setParameters(parameters)
+
+        return this
+
+    ###*
      * Builds the method using the preconfigured settings.
      *
      * @return {String}
