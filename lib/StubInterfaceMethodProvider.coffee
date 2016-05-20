@@ -103,7 +103,7 @@ class StubInterfaceMethodProvider extends AbstractProvider
                     {
                         priority : 100
                         icon     : 'link'
-                        title    : 'Stub Missing Interface Method(s)'
+                        title    : 'Stub Unimplemented Interface Method(s)'
 
                         selected : () =>
                             @executeStubInterfaceMethods(editor)
