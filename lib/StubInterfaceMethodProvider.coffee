@@ -1,6 +1,6 @@
 AbstractProvider = require './AbstractProvider'
 
-View = require './InterfaceMethodProvider/View'
+View = require './StubInterfaceMethodProvider/View'
 
 FunctionBuilder = require './Utility/FunctionBuilder'
 DocblockBuilder = require './Utility/DocblockBuilder'
@@ -10,7 +10,7 @@ module.exports =
 ##*
 # Provides the ability to implement interface methods.
 ##
-class InterfaceMethodProvider extends AbstractProvider
+class StubInterfaceMethodProvider extends AbstractProvider
     ###*
      * The view that allows the user to select the properties to generate for.
     ###
