@@ -11,14 +11,17 @@ module.exports =
         DocblockProvider = require './DocblockProvider'
         GetterSetterProvider = require './GetterSetterProvider'
         ExtractMethodProvider = require './ExtractMethodProvider'
-        ConstructorGenerationProvider = require './ConstructorGenerationProvider'
+        StubAbstractMethodProvider = require './StubAbstractMethodProvider'
         StubInterfaceMethodProvider = require './StubInterfaceMethodProvider'
+        ConstructorGenerationProvider = require './ConstructorGenerationProvider'
 
         @providers = []
         @providers.push new DocblockProvider()
         @providers.push new GetterSetterProvider()
         @providers.push new ExtractMethodProvider()
         @providers.push new ConstructorGenerationProvider()
+        
+        @providers.push new StubAbstractMethodProvider()
         @providers.push new StubInterfaceMethodProvider()
 
     ###*
