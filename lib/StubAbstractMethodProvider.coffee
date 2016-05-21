@@ -8,7 +8,7 @@ DocblockBuilder = require './Utility/DocblockBuilder'
 module.exports =
 
 ##*
-# Provides the ability to implement interface methods.
+# Provides the ability to stub abstract methods.
 ##
 class StubAbstractMethodProvider extends AbstractProvider
     ###*
