@@ -8,7 +8,7 @@ This package provides refactoring capabilities for your PHP source code using [P
 
 **Note that the [php-integrator-base](https://github.com/Gert-dev/php-integrator-base) package is required and needs to be set up correctly for this package to function correctly.**
 
-**Note that the [intentions](https://github.com/steelbrain/intentions) package is also required. Intentions trigger by default using the `alt-enter` key.**
+**Note that the [intentions](https://github.com/steelbrain/intentions) package is also required. Intentions trigger using the `alt-enter` key by default.**
 
 What is included?
   * Method extraction.
