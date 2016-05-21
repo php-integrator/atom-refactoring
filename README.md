@@ -12,6 +12,7 @@ This package provides refactoring capabilities for your PHP source code using [P
 
 What is included?
   * Method extraction.
+  * Method overriding.
   * Constructor generation.
   * Getter and setter generation.
   * Unimplemented abstract method generation.
