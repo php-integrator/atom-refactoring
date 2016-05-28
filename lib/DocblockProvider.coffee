@@ -221,8 +221,14 @@ class DocblockProvider extends AbstractProvider
             if parameter.types.length > 0
                 type = @typeHelper.buildTypeSpecificationFromTypeArray(parameter.types)
 
+            name = '$' + parameter.name
+
+            if parameter.isVariadic
+                name = '...' + name
+                type += '[]'
+
             return {
-                name: '$' + parameter.name
+                name: name
                 type: type
             }
 

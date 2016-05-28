@@ -7,6 +7,22 @@
 * Fixed parameters types and the return type not always being localized when extractind a method.
 * Fixed the extract method preview wrapping code to the next line instead of providing a horizontal scrollbar.
 
+* The docblock generator learned how to properly generate docblocks for variadic parameters:
+
+```php
+// -- Before
+/**
+ * @param Foo $foo
+ */
+protected function (Foo ...$foo) {}
+
+// -- After
+/**
+ * @param Foo[] ...$foo
+ */
+protected function (Foo ...$foo) {}
+```
+
 ## 0.5.0 (base 0.9.0)
 * Tweaked some defaults.
 * Add basic support for generating docblocks.
