@@ -126,11 +126,6 @@ class DocblockProvider extends AbstractProvider
                                 for type in item.types
                                     type.type = results[resultIndex++]
 
-                            sorter = (a, b) ->
-                                return a.name.localeCompare(b.name)
-
-                            items.sort(sorter)
-
                             zeroBasedStartLine = classInfo.startLine - 1
 
                             indentationLevel = editor.indentationForBufferRow(zeroBasedStartLine) + 1

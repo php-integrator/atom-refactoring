@@ -6,6 +6,7 @@
 * Added the ability to generate unimplemented interface methods.
 * Fixed parameters types and the return type not always being localized when extractind a method.
 * Fixed the extract method preview wrapping code to the next line instead of providing a horizontal scrollbar.
+* Lists are no longer alphabetically sorted. The ordering they are returned in is now maintained, which feels more fluent as it is the same order the items are defined in.
 
 * The docblock generator learned how to properly generate docblocks for variadic parameters:
 

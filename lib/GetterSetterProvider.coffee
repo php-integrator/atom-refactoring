@@ -175,14 +175,7 @@ class GetterSetterProvider extends AbstractProvider
                     else
                         data.className = ''
                         enabledItems.push(data)
-
-                # Sort alphabetically and put the disabled items at the end.
-                sorter = (a, b) ->
-                    return a.name.localeCompare(b.name)
-
-                enabledItems.sort(sorter)
-                disabledItems.sort(sorter)
-
+                        
                 @selectionView.setItems(enabledItems.concat(disabledItems))
 
             nestedFailureHandler = () =>

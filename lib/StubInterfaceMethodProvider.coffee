@@ -92,11 +92,6 @@ class StubInterfaceMethodProvider extends AbstractProvider
 
                 return [] if items.length == 0
 
-                sorter = (a, b) ->
-                    return a.name.localeCompare(b.name)
-
-                items.sort(sorter)
-
                 @selectionView.setItems(items)
 
                 return [
