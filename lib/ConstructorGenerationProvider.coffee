@@ -128,11 +128,10 @@ class DocblockProvider extends AbstractProvider
 
                             zeroBasedStartLine = classInfo.startLine - 1
 
-                            indentationLevel = editor.indentationForBufferRow(zeroBasedStartLine) + 1
+                            tabText = editor.getTabText()
+                            indentationLevel = editor.indentationForBufferRow(triggerPosition.row)
 
-                            tabText = editor.getTabText().repeat(indentationLevel)
-
-                            @generateConstructor(editor, triggerPosition, items, tabText)
+                            @generateConstructor(editor, triggerPosition, items, tabText, indentationLevel)
 
                         Promise.all(promises).then(localTypesResolvedHandler, failureHandler)
                 }]
@@ -149,12 +148,14 @@ class DocblockProvider extends AbstractProvider
      * @param {Point}      triggerPosition
      * @param {Array}      items
      * @param {String}     tabText
+     * @param {Number}     indentationLevel
     ###
-    generateConstructor: (editor, triggerPosition, items, tabText) ->
+    generateConstructor: (editor, triggerPosition, items, tabText, indentationLevel) ->
         metadata = {
-            editor   : editor
-            position : triggerPosition
-            tabText  : tabText
+            editor           : editor
+            position         : triggerPosition
+            tabText          : tabText
+            indentationLevel : indentationLevel
         }
 
         if items.length > 0
@@ -218,13 +219,14 @@ class DocblockProvider extends AbstractProvider
             .setParameters(parameters)
             .setStatements(statements)
             .setTabText(metadata.tabText)
+            .setIndentationLevel(metadata.indentationLevel)
             .build()
 
         docblockText = @docblockBuilder.buildForMethod(
             docblockParameters,
             null,
             false,
-            metadata.tabText
+            metadata.tabText.repeat(metadata.indentationLevel)
         )
 
         text = docblockText.trimLeft() + functionText

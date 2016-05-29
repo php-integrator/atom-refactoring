@@ -177,6 +177,16 @@ class FunctionBuilder
         return this
 
     ###*
+     * Sets the indentation level to use. The tab text is repeated this many times for each line.
+     *
+     * @param {Number} indentationLevel
+     *
+     * @return {FunctionBuilder}
+    ###
+    setIndentationLevel: (@indentationLevel) ->
+        return this
+
+    ###*
      * Sets the parameters of the builder based on raw method data from the base service.
      *
      * @param {Object} data
@@ -276,4 +286,6 @@ class FunctionBuilder
      * @return {String}
     ###
     buildLine: (content) ->
-        return "#{@tabText}#{content}\n"
+        tabText = @tabText.repeat(@indentationLevel)
+
+        return "#{tabText}#{content}\n"

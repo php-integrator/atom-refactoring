@@ -132,26 +132,26 @@ class OverrideMethodProvider extends AbstractProvider
     onConfirm: (selectedItems, metadata) ->
         itemOutputs = []
 
+        tabText = metadata.editor.getTabText()
         indentationLevel = metadata.editor.indentationForBufferRow(metadata.editor.getCursorBufferPosition().row)
 
-        indentation = metadata.editor.getTabText().repeat(indentationLevel)
-
         for item in selectedItems
-            itemOutputs.push(@generateStubForInterfaceMethod(item.method, indentation))
+            itemOutputs.push(@generateStubForInterfaceMethod(item.method, tabText, indentationLevel))
 
         output = itemOutputs.join("\n").trim()
 
         metadata.editor.insertText(output)
 
     ###*
-     * Generates a getter for the specified selected data.
+     * Generates an override for the specified selected data.
      *
      * @param {Object} data
-     * @param {String} indentation
+     * @param {String} tabText
+     * @param {Number} indentationLevel
      *
      * @return {string}
     ###
-    generateStubForInterfaceMethod: (data, indentation) ->
+    generateStubForInterfaceMethod: (data, tabText, indentationLevel) ->
         statements = [
             "// TODO"
         ]
@@ -160,9 +160,10 @@ class OverrideMethodProvider extends AbstractProvider
             .setFromRawMethodData(data)
             .setIsAbstract(false)
             .setStatements(statements)
-            .setTabText(indentation)
+            .setTabText(tabText)
+            .setIndentationLevel(indentationLevel)
             .build()
 
-        docblockText = @docblockBuilder.buildByLines(['@inheritDoc'], indentation)
+        docblockText = @docblockBuilder.buildByLines(['@inheritDoc'], tabText.repeat(indentationLevel))
 
         return docblockText + functionText

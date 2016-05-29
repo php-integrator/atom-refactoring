@@ -25,6 +25,11 @@ class Builder
     tabText: ''
 
     ###*
+     * @type {Number}
+    ###
+    indentationLevel: null
+
+    ###*
      * The php-integrator-base service.
      *
      * @type {Service}
@@ -96,12 +101,18 @@ class Builder
         @methodBody = text
 
     ###*
-     * The tab string to use when genereating new method.
+     * The tab string to use when generating the new method.
      *
      * @param {String} tab
     ###
     setTabText: (tab) ->
         @tabText = tab
+
+    ###*
+     * @param {Number} indentationLevel
+    ###
+    setIndentationLevel: (indentationLevel) ->
+        @indentationLevel = indentationLevel
 
     ###*
      * Set the php-integrator-base service to be used.
@@ -127,6 +138,7 @@ class Builder
     setEditor: (editor) =>
         @editor = editor
         @setTabText(editor.getTabText())
+        @setIndentationLevel(1)
         @setSelectedBufferRange(editor.getSelectedBufferRange())
 
     ###*
@@ -149,9 +161,15 @@ class Builder
             if @returnVariables == null
                 @returnVariables = @workOutReturnVariables @parameterParser.getVariableDeclarations()
 
-            statements = @methodBody.split('\n')
-
             tabText = if settings.tabs then @tabText else ''
+            totalIndentation = tabText.repeat(@indentationLevel)
+
+            statements = []
+
+            for statement in @methodBody.split('\n')
+                newStatement = statement.substr(totalIndentation.length)
+
+                statements.push(newStatement)
 
             returnStatement = @buildReturnStatement(@returnVariables, settings.arraySyntax)
 
@@ -182,6 +200,7 @@ class Builder
                 .setReturnType(null)
                 .setParameters(functionParameters)
                 .setStatements(statements)
+                .setIndentationLevel(@indentationLevel)
                 .setTabText(tabText)
 
             if settings.visibility == 'public'
@@ -214,7 +233,7 @@ class Builder
                     docblockParameters,
                     returnType,
                     settings.generateDescPlaceholders,
-                    tabText
+                    totalIndentation
                 )
 
             return docblockText + @functionBuilder.build()

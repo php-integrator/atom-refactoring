@@ -145,9 +145,7 @@ class GetterSetterProvider extends AbstractProvider
                 enabledItems = []
                 disabledItems = []
 
-                zeroBasedStartLine = classInfo.startLine - 1
-
-                indentationLevel = activeTextEditor.indentationForBufferRow(zeroBasedStartLine) + 1
+                indentationLevel = activeTextEditor.indentationForBufferRow(activeTextEditor.getCursorBufferPosition().row)
 
                 for name, property of classInfo.properties
                     getterName = 'get' + name.substr(0, 1).toUpperCase() + name.substr(1)
@@ -157,13 +155,14 @@ class GetterSetterProvider extends AbstractProvider
                     setterExists = if setterName of classInfo.methods then true else false
 
                     data = {
-                        name        : name
-                        types       : property.types
-                        needsGetter : enableGetterGeneration
-                        needsSetter : enableSetterGeneration
-                        getterName  : getterName
-                        setterName  : setterName
-                        tabText     : activeTextEditor.getTabText().repeat(indentationLevel)
+                        name             : name
+                        types            : property.types
+                        needsGetter      : enableGetterGeneration
+                        needsSetter      : enableSetterGeneration
+                        getterName       : getterName
+                        setterName       : setterName
+                        tabText          : activeTextEditor.getTabText()
+                        indentationLevel : indentationLevel
                     }
 
                     if (enableGetterGeneration and enableSetterGeneration and getterExists and setterExists) or
@@ -175,7 +174,7 @@ class GetterSetterProvider extends AbstractProvider
                     else
                         data.className = ''
                         enabledItems.push(data)
-                        
+
                 @selectionView.setItems(enabledItems.concat(disabledItems))
 
             nestedFailureHandler = () =>
@@ -256,13 +255,14 @@ class GetterSetterProvider extends AbstractProvider
             .setParameters([])
             .setStatements(statements)
             .setTabText(item.tabText)
+            .setIndentationLevel(item.indentationLevel)
             .build()
 
         docblockText = @docblockBuilder.buildForMethod(
             [],
             typeSpecification,
             false,
-            item.tabText
+            item.tabText.repeat(item.indentationLevel)
         )
 
         return docblockText + functionText
@@ -310,13 +310,14 @@ class GetterSetterProvider extends AbstractProvider
             .setParameters(parameters)
             .setStatements(statements)
             .setTabText(item.tabText)
+            .setIndentationLevel(item.indentationLevel)
             .build()
 
         docblockText = @docblockBuilder.buildForMethod(
             [{name : '$' + item.name, type : typeSpecification}],
             'static',
             false,
-            item.tabText
+            item.tabText.repeat(item.indentationLevel)
         )
 
         return docblockText + functionText
