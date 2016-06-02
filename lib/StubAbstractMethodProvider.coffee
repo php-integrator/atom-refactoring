@@ -153,7 +153,7 @@ class StubAbstractMethodProvider extends AbstractProvider
     ###
     generateStubForInterfaceMethod: (data, tabText, indentationLevel) ->
         statements = [
-            "// TODO"
+            "throw new \\LogicException('Not implemented'); // TODO"
         ]
 
         functionText = @functionBuilder
