@@ -152,8 +152,17 @@ class OverrideMethodProvider extends AbstractProvider
      * @return {string}
     ###
     generateStubForInterfaceMethod: (data, tabText, indentationLevel) ->
+        parameterNames = data.parameters.map (item) ->
+            return '$' + item.name
+
+        parentCallStatement = "parent::" + data.name + '('
+        parentCallStatement += parameterNames.join(', ')
+        parentCallStatement += ');'
+
         statements = [
-            "// TODO"
+            parentCallStatement
+            ''
+            '// TODO'
         ]
 
         functionText = @functionBuilder
