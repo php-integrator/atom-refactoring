@@ -174,6 +174,8 @@ class Builder
             returnStatement = @buildReturnStatement(@returnVariables, settings.arraySyntax)
 
             if returnStatement?
+                returnStatement = returnStatement.substr(totalIndentation.length)
+
                 statements.push('')
                 statements.push(returnStatement)
 
