@@ -174,6 +174,7 @@ class Builder
             returnStatement = @buildReturnStatement(@returnVariables, settings.arraySyntax)
 
             if returnStatement?
+                statements.push('')
                 statements.push(returnStatement)
 
             functionParameters = parameters.map (parameter) =>
