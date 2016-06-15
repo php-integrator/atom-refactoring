@@ -5,7 +5,7 @@
 * Added the ability to generate unimplemented abstract methods.
 * Added the ability to generate unimplemented interface methods.
 * The getter and setter generator will now maintain the indentation level of the cursor.
-* Fixed parameters types and the return type not always being localized when extractind a method.
+* Fixed parameters types and the return type not always being localized when extracting a method.
 * Fixed the extract method preview wrapping code to the next line instead of providing a horizontal scrollbar.
 * Lists are no longer alphabetically sorted. The ordering they are returned in is now maintained, which feels more fluent as it is the same order the items are defined in.
 
