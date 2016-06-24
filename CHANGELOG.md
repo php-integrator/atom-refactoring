@@ -1,4 +1,4 @@
-## 0.6.0 (base 0.10.0)
+## 1.0.0 (base 1.0.0)
 * Rewrote the code to support multiple types.
 * Added the ability to generate constructors.
 * Added the ability to override existing methods.
