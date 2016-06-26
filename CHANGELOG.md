@@ -1,3 +1,6 @@
+## 1.1.0
+* Added the ability to introduce new class properties.
+
 ## 1.0.0 (base 1.0.0)
 * Rewrote the code to support multiple types.
 * Added the ability to generate constructors.
