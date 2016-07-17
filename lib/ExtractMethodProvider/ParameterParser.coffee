@@ -304,7 +304,7 @@ class ParameterParser
         failureHandler = () =>
             return null
 
-        return @service.getVariableTypes(editor, @selectedBufferRange.end, parameter.name).then(
+        return @service.deduceTypesAt([parameter.name], editor, @selectedBufferRange.end).then(
             successHandler,
             failureHandler
         )
