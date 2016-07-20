@@ -1,5 +1,6 @@
 ## 1.1.0
 * Added the ability to introduce new class properties.
+* Updated atom-space-pen-views to 2.2.0. This causes modal dialogs not to disappear because Atom is unfocused.
 
 ## 1.0.0 (base 1.0.0)
 * Rewrote the code to support multiple types.
