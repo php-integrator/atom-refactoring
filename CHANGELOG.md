@@ -1,4 +1,4 @@
-## 1.2.0
+## 1.2.0 (base 1.3.0)
 * The `Enable PHP 7 Support` checkboxes have been removed. Whether or not PHP 7 is to be used is now determined automatically from your project's PHP version. No more having to manually click the checkbox every time.
 
 ## 1.1.0
