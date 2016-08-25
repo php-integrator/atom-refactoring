@@ -1,3 +1,6 @@
+## 1.2.0
+* The `Enable PHP 7 Support` checkboxes have been removed. Whether or not PHP 7 is to be used is now determined automatically from your project's PHP version. No more having to manually click the checkbox every time.
+
 ## 1.1.0
 * Added the ability to introduce new class properties.
 * Updated atom-space-pen-views to 2.2.0. This causes modal dialogs not to disappear when Atom is unfocused.

@@ -62,6 +62,8 @@ class StubInterfaceMethodProvider extends AbstractProvider
         return [{
             grammarScopes: ['source.php']
             getIntentions: ({textEditor, bufferPosition}) =>
+                return [] if not @getCurrentProjectPhpVersion()?
+                
                 return @getStubInterfaceMethodIntentions(textEditor, bufferPosition)
         }]
 

@@ -84,6 +84,8 @@ class AbstractProvider
     ###*
      * Retrieves intention providers (by default, the intentions menu shows when the user presses alt-enter).
      *
+     * This method should be overwritten by subclasses.
+     *
      * @return {array}
     ###
     getIntentionProviders: () ->
@@ -102,3 +104,14 @@ class AbstractProvider
      * @param {Object} @snippetManager
     ###
     setSnippetManager: (@snippetManager) ->
+
+    ###*
+     * @return {Number|null}
+    ###
+    getCurrentProjectPhpVersion: () ->
+        projectSettings = @service.getCurrentProjectSettings()
+
+        if projectSettings?
+            return projectSettings.phpVersion
+
+        return null

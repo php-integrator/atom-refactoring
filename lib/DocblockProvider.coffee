@@ -49,6 +49,7 @@ class DocblockProvider extends AbstractProvider
                 nameRange = textEditor.bufferRangeForScopeAtCursor('entity.name.type')
 
                 return if not nameRange?
+                return [] if not @getCurrentProjectPhpVersion()?
 
                 name = textEditor.getTextInBufferRange(nameRange)
 
@@ -62,6 +63,7 @@ class DocblockProvider extends AbstractProvider
                     nameRange = textEditor.bufferRangeForScopeAtCursor('support.function.magic.php')
 
                 return if not nameRange?
+                return [] if not @getCurrentProjectPhpVersion()?
 
                 name = textEditor.getTextInBufferRange(nameRange)
 
@@ -72,6 +74,7 @@ class DocblockProvider extends AbstractProvider
                 nameRange = textEditor.bufferRangeForScopeAtCursor('variable.other.php')
 
                 return if not nameRange?
+                return [] if not @getCurrentProjectPhpVersion()?
 
                 name = textEditor.getTextInBufferRange(nameRange)
 
@@ -82,6 +85,7 @@ class DocblockProvider extends AbstractProvider
                 nameRange = textEditor.bufferRangeForScopeAtCursor('constant.other.php')
 
                 return if not nameRange?
+                return [] if not @getCurrentProjectPhpVersion()?
 
                 name = textEditor.getTextInBufferRange(nameRange)
 

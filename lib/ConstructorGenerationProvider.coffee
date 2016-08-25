@@ -74,6 +74,8 @@ class DocblockProvider extends AbstractProvider
         return [{
             grammarScopes: ['source.php']
             getIntentions: ({textEditor, bufferPosition}) =>
+                return [] if not @getCurrentProjectPhpVersion()?
+
                 return @getIntentions(textEditor, bufferPosition)
         }]
 
@@ -178,13 +180,14 @@ class DocblockProvider extends AbstractProvider
      * Called when the selection of properties is confirmed.
      *
      * @param {array}       selectedItems
-     * @param {boolean}     enablePhp7Support
      * @param {Object|null} metadata
     ###
-    onConfirm: (selectedItems, enablePhp7Support, metadata) ->
+    onConfirm: (selectedItems, metadata) ->
         statements = []
         parameters = []
         docblockParameters = []
+
+        enablePhp7Support = if @getCurrentProjectPhpVersion() >= 7.0 then true else false
 
         for item in selectedItems
             typeSpecification = @typeHelper.buildTypeSpecificationFromTypeArray(item.types)

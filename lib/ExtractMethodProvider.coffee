@@ -59,6 +59,7 @@ class ExtractMethodProvider extends AbstractProvider
                 activeTextEditor = atom.workspace.getActiveTextEditor()
 
                 return [] if not activeTextEditor
+                return [] if not @getCurrentProjectPhpVersion()?
 
                 selection = activeTextEditor.getSelectedBufferRange()
 

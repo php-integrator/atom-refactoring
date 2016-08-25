@@ -43,6 +43,7 @@ class IntroducePropertyProvider extends AbstractProvider
                 nameRange = textEditor.bufferRangeForScopeAtCursor('variable.other.property')
 
                 return if not nameRange?
+                return [] if not @getCurrentProjectPhpVersion()?
 
                 name = textEditor.getTextInBufferRange(nameRange)
 

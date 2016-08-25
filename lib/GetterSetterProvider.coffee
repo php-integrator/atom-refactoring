@@ -119,6 +119,7 @@ class GetterSetterProvider extends AbstractProvider
                 activeTextEditor = atom.workspace.getActiveTextEditor()
 
                 return [] if not activeTextEditor
+                return [] if not @getCurrentProjectPhpVersion()?
 
                 return @service.determineCurrentClassName(activeTextEditor, activeTextEditor.getCursorBufferPosition()).then(successHandler, failureHandler)
         }]
@@ -206,11 +207,12 @@ class GetterSetterProvider extends AbstractProvider
      * Called when the selection of properties is confirmed.
      *
      * @param {array}       selectedItems
-     * @param {boolean}     enablePhp7Support
      * @param {Object|null} metadata
     ###
-    onConfirm: (selectedItems, enablePhp7Support, metadata) ->
+    onConfirm: (selectedItems, metadata) ->
         itemOutputs = []
+
+        enablePhp7Support = if @getCurrentProjectPhpVersion() >= 7.0 then true else false
 
         for item in selectedItems
             if item.needsGetter
@@ -222,6 +224,8 @@ class GetterSetterProvider extends AbstractProvider
         output = itemOutputs.join("\n").trim()
 
         metadata.editor.getBuffer().insert(metadata.editor.getCursorBufferPosition(), output)
+
+
 
     ###*
      * Generates a getter for the specified selected item.
