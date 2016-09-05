@@ -73,6 +73,7 @@ class MultiSelectionView extends SelectListView
             @div class: 'button-bar', =>
                 @button class: 'btn btn-error   inline-block-tight pull-left  icon icon-circle-slash button--cancel', cancelButtonText
                 @button class: 'btn btn-success inline-block-tight pull-right icon icon-gear         button--confirm', confirmButtonText
+                @div class: 'clear-float'
 
         buttonBar.appendTo(this)
 
