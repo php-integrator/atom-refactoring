@@ -289,8 +289,8 @@ class GetterSetterProvider extends AbstractProvider
 
         returnType = null
 
-        if enablePhp7Support
-            returnType = 'self'
+        # if enablePhp7Support
+            # returnType = 'self'
 
         statements = [
             "$this->#{item.name} = $#{item.name};"
