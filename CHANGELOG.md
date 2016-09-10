@@ -3,6 +3,9 @@
 * The `Enable PHP 7 Support` checkboxes have been removed. Whether or not PHP 7 is to be used is now determined automatically from your project's PHP version. No more having to manually click the checkbox every time.
 * Generated setters will no longer return `self` in PHP 7. The docblock type will still indicate `static`, but making the return type hint `self` will prevent them from being overridden to return a child class instance.
 
+## 1.1.1
+* Rename the package and repository.
+
 ## 1.1.0
 * Added the ability to introduce new class properties.
 * Updated atom-space-pen-views to 2.2.0. This causes modal dialogs not to disappear when Atom is unfocused.
