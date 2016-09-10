@@ -1,3 +1,6 @@
+## 1.1.1
+* Rename the package and repository.
+
 ## 1.1.0
 * Added the ability to introduce new class properties.
 * Updated atom-space-pen-views to 2.2.0. This causes modal dialogs not to disappear when Atom is unfocused.
