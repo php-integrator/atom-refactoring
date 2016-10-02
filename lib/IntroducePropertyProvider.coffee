@@ -89,10 +89,7 @@ class IntroducePropertyProvider extends AbstractProvider
      * @param {String}     name
     ###
     introducePropertyFor: (editor, classData, name) ->
-        zeroBasedStartLine = classData.startLine - 1
-        startLine = zeroBasedStartLine + 2
-
-        indentationLevel = editor.indentationForBufferRow(zeroBasedStartLine) + 1
+        indentationLevel = editor.indentationForBufferRow(classData.startLine - 1) + 1
 
         tabText = editor.getTabText().repeat(indentationLevel)
 
@@ -104,4 +101,42 @@ class IntroducePropertyProvider extends AbstractProvider
 
         property = "#{tabText}protected $#{name};\n\n"
 
-        editor.getBuffer().insert(new Point(startLine, -1), docblock + property)
+        point = @findLocationToInsertProperty(editor, classData)
+
+        editor.getBuffer().insert(point, docblock + property)
+
+
+    ###*
+     * @param {TextEditor} editor
+     * @param {Object}     classData
+     *
+     * @return {Point}
+    ###
+    findLocationToInsertProperty: (editor, classData) ->
+        startLine = null
+
+        # Try to place the new property underneath the existing properties.
+        for name,propertyData of classData.properties
+            if propertyData.declaringStructure.name == classData.name
+                startLine = propertyData.endLine + 1
+
+        if not startLine?
+            # Ensure we don't end up somewhere in the middle of the class definition if it spans multiple lines.
+            lineCount = editor.getLineCount()
+
+            for line in [classData.startLine .. lineCount]
+                lineText = editor.lineTextForBufferRow(line)
+
+                continue if not lineText?
+
+                for i in [0 .. lineText.length - 1]
+                    if lineText[i] == '{'
+                        startLine = line + 1
+                        break
+
+                break if startLine?
+
+        if not startLine?
+            startLine = classData.startLine + 1
+
+        return new Point(startLine, -1)
