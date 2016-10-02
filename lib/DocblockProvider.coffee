@@ -240,7 +240,7 @@ class DocblockProvider extends AbstractProvider
 
         returnType = null
 
-        if data.returnTypes.length > 0
+        if data.returnTypes.length > 0 and data.name != '__construct'
             returnType = @typeHelper.buildTypeSpecificationFromTypeArray(data.returnTypes)
 
         docblock = @docblockBuilder.buildForMethod(
