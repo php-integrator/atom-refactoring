@@ -42,6 +42,11 @@ class FunctionBuilder
     tabText: ''
 
     ###*
+     * The indentation level.
+    ###
+    indentationLevel: null
+
+    ###*
      * Constructor.
     ###
     constructor: () ->
