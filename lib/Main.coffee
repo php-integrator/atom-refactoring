@@ -8,6 +8,8 @@ module.exports =
 
     ###*
      * List of refactoring providers.
+     *
+     * @var {Array}
     ###
     providers: []
 
@@ -45,6 +47,8 @@ module.exports =
 
     ###*
      * Activates the providers using the specified service.
+     *
+     * @param {Object} service
     ###
     activateProviders: (service) ->
         for provider in @providers
@@ -62,7 +66,9 @@ module.exports =
     ###*
      * Sets the php-integrator service.
      *
-     * @param {mixed} service
+     * @param {Object} service
+     *
+     * @return {Disposable}
     ###
     setService: (service) ->
         @activateProviders(service)
@@ -83,7 +89,7 @@ module.exports =
     ###*
      * Returns a list of intention providers.
      *
-     * @return {array}
+     * @return {Array}
     ###
     provideIntentions: () ->
         intentionProviders = []
