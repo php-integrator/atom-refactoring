@@ -164,6 +164,7 @@ class GetterSetterProvider extends AbstractProvider
                         setterName       : setterName
                         tabText          : activeTextEditor.getTabText()
                         indentationLevel : indentationLevel
+                        maxLineLength    : atom.config.get('editor.preferredLineLength', activeTextEditor.getLastCursor().getScopeDescriptor())
                     }
 
                     if (enableGetterGeneration and enableSetterGeneration and getterExists and setterExists) or
@@ -225,8 +226,6 @@ class GetterSetterProvider extends AbstractProvider
 
         metadata.editor.getBuffer().insert(metadata.editor.getCursorBufferPosition(), output)
 
-
-
     ###*
      * Generates a getter for the specified selected item.
      *
@@ -260,6 +259,7 @@ class GetterSetterProvider extends AbstractProvider
             .setStatements(statements)
             .setTabText(item.tabText)
             .setIndentationLevel(item.indentationLevel)
+            .setMaxLineLength(item.maxLineLength)
             .build()
 
         docblockText = @docblockBuilder.buildForMethod(
@@ -315,6 +315,7 @@ class GetterSetterProvider extends AbstractProvider
             .setStatements(statements)
             .setTabText(item.tabText)
             .setIndentationLevel(item.indentationLevel)
+            .setMaxLineLength(item.maxLineLength)
             .build()
 
         docblockText = @docblockBuilder.buildForMethod(

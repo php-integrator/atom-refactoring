@@ -133,7 +133,14 @@ class DocblockProvider extends AbstractProvider
                             tabText = editor.getTabText()
                             indentationLevel = editor.indentationForBufferRow(triggerPosition.row)
 
-                            @generateConstructor(editor, triggerPosition, items, tabText, indentationLevel)
+                            @generateConstructor(
+                                editor,
+                                triggerPosition,
+                                items,
+                                tabText,
+                                indentationLevel,
+                                atom.config.get('editor.preferredLineLength', editor.getLastCursor().getScopeDescriptor())
+                            )
 
                         Promise.all(promises).then(localTypesResolvedHandler, failureHandler)
                 }]
@@ -151,13 +158,15 @@ class DocblockProvider extends AbstractProvider
      * @param {Array}      items
      * @param {String}     tabText
      * @param {Number}     indentationLevel
+     * @param {Number}     maxLineLength
     ###
-    generateConstructor: (editor, triggerPosition, items, tabText, indentationLevel) ->
+    generateConstructor: (editor, triggerPosition, items, tabText, indentationLevel, maxLineLength) ->
         metadata = {
             editor           : editor
             position         : triggerPosition
             tabText          : tabText
             indentationLevel : indentationLevel
+            maxLineLength    : maxLineLength
         }
 
         if items.length > 0
@@ -223,6 +232,7 @@ class DocblockProvider extends AbstractProvider
             .setStatements(statements)
             .setTabText(metadata.tabText)
             .setIndentationLevel(metadata.indentationLevel)
+            .setMaxLineLength(metadata.maxLineLength)
             .build()
 
         docblockText = @docblockBuilder.buildForMethod(

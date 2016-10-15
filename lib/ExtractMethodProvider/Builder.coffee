@@ -9,7 +9,6 @@ DocblockBuilder = require '../Utility/DocblockBuilder'
 module.exports =
 
 class Builder
-
     ###*
      * The body of the new method that will be shown in the preview area.
      *
@@ -28,6 +27,11 @@ class Builder
      * @type {Number}
     ###
     indentationLevel: null
+
+    ###*
+     * @type {Number}
+    ###
+    maxLineLength: null
 
     ###*
      * The php-integrator-base service.
@@ -115,6 +119,12 @@ class Builder
         @indentationLevel = indentationLevel
 
     ###*
+     * @param {Number} maxLineLength
+    ###
+    setMaxLineLength: (maxLineLength) ->
+        @maxLineLength = maxLineLength
+
+    ###*
      * Set the php-integrator-base service to be used.
      *
      * @param {Service} service
@@ -139,6 +149,7 @@ class Builder
         @editor = editor
         @setTabText(editor.getTabText())
         @setIndentationLevel(1)
+        @setMaxLineLength(atom.config.get('editor.preferredLineLength', editor.getLastCursor().getScopeDescriptor()))
         @setSelectedBufferRange(editor.getSelectedBufferRange())
 
     ###*
@@ -205,6 +216,7 @@ class Builder
                 .setStatements(statements)
                 .setIndentationLevel(@indentationLevel)
                 .setTabText(tabText)
+                .setMaxLineLength(maxLineLength)
 
             if settings.visibility == 'public'
                 @functionBuilder.makePublic()

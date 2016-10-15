@@ -136,9 +136,10 @@ class StubInterfaceMethodProvider extends AbstractProvider
 
         tabText = metadata.editor.getTabText()
         indentationLevel = metadata.editor.indentationForBufferRow(metadata.editor.getCursorBufferPosition().row)
+        maxLineLength = atom.config.get('editor.preferredLineLength', metadata.editor.getLastCursor().getScopeDescriptor())
 
         for item in selectedItems
-            itemOutputs.push(@generateStubForInterfaceMethod(item.method, tabText, indentationLevel))
+            itemOutputs.push(@generateStubForInterfaceMethod(item.method, tabText, indentationLevel, maxLineLength))
 
         output = itemOutputs.join("\n").trim()
 
@@ -150,10 +151,11 @@ class StubInterfaceMethodProvider extends AbstractProvider
      * @param {Object} data
      * @param {String} tabText
      * @param {Number} indentationLevel
+     * @param {Number} maxLineLength
      *
      * @return {string}
     ###
-    generateStubForInterfaceMethod: (data, tabText, indentationLevel) ->
+    generateStubForInterfaceMethod: (data, tabText, indentationLevel, maxLineLength) ->
         statements = [
             "throw new \\LogicException('Not implemented'); // TODO"
         ]
@@ -163,6 +165,7 @@ class StubInterfaceMethodProvider extends AbstractProvider
             .setStatements(statements)
             .setTabText(tabText)
             .setIndentationLevel(indentationLevel)
+            .setMaxLineLength(maxLineLength)
             .build()
 
         docblockText = @docblockBuilder.buildByLines(['@inheritDoc'], tabText.repeat(indentationLevel))

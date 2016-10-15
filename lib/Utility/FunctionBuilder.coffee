@@ -47,6 +47,13 @@ class FunctionBuilder
     indentationLevel: null
 
     ###*
+     * The indentation level.
+     *
+     * @var {Number|null}
+    ###
+    maxLineLength: null
+
+    ###*
      * Constructor.
     ###
     constructor: () ->
@@ -192,6 +199,19 @@ class FunctionBuilder
         return this
 
     ###*
+     * Sets the maximum length a single line may occupy. After this, text will wrap.
+     *
+     * This primarily influences parameter lists, which will automatically be split over multiple lines if the parameter
+     * list would otherwise exceed the maximum length.
+     *
+     * @param {Number|null} maxLineLength The length or null to disable the maximum.
+     *
+     * @return {FunctionBuilder}
+    ###
+    setMaxLineLength: (@maxLineLength) ->
+        return this
+
+    ###*
      * Sets the parameters of the builder based on raw method data from the base service.
      *
      * @param {Object} data
@@ -237,6 +257,31 @@ class FunctionBuilder
      * @return {String}
     ###
     build: () =>
+        output = ''
+
+        signature = @buildSignature(false)
+
+        if @maxLineLength? and signature.length > @maxLineLength
+            output += @buildSignature(true)
+            output += " {\n"
+
+        else
+            output += signature + "\n"
+            output += @buildLine('{')
+
+        for statement in @statements
+            output += @tabText + @buildLine(statement)
+
+        output += @buildLine('}')
+
+        return output
+
+    ###*
+     * @param {Boolean} isMultiLine
+     *
+     * @return {String}
+    ###
+    buildSignature: (isMultiLine) ->
         signatureLine = ''
 
         if @isAbstract
@@ -248,49 +293,70 @@ class FunctionBuilder
         if @isStatic
             signatureLine += 'static '
 
-
         signatureLine += "function #{@name}("
 
-        for parameter, i in @parameters
-            if i > 0
-                signatureLine += ', '
+        parameters = []
+
+        for parameter in @parameters
+            parameterText = ''
 
             if parameter.typeHint?
-                signatureLine += "#{parameter.typeHint} "
+                parameterText += "#{parameter.typeHint} "
 
             if parameter.isVariadic
-                signatureLine += '...'
+                parameterText += '...'
 
             if parameter.isReference
-                signatureLine += '&'
+                parameterText += '&'
 
-            signatureLine += "#{parameter.name}"
+            parameterText += "#{parameter.name}"
 
             if parameter.defaultValue?
-                signatureLine += " = #{parameter.defaultValue}"
+                parameterText += " = #{parameter.defaultValue}"
 
-        signatureLine += ')'
+            parameters.push(parameterText)
+
+        if not isMultiLine
+            signatureLine += parameters.join(', ')
+            signatureLine += ')'
+
+            signatureLine = @addTabText(signatureLine)
+
+        else
+            signatureLine = @buildLine(signatureLine)
+
+            for i, parameter of parameters
+                if i < (parameters.length - 1)
+                    parameter += ', '
+
+                signatureLine += @buildLine(parameter, @indentationLevel + 1)
+
+            signatureLine += @addTabText(')')
 
         if @returnType?
             signatureLine += ": #{@returnType}"
 
-        output = ''
-        output += @buildLine(signatureLine)
-        output += @buildLine('{')
-
-        for statement in @statements
-            output += @tabText + @buildLine(statement)
-
-        output += @buildLine('}')
-
-        return output
+        return signatureLine
 
     ###*
-     * @param {String} content
+     * @param {String}      content
+     * @param {Number|null} indentationLevel
      *
      * @return {String}
     ###
-    buildLine: (content) ->
-        tabText = @tabText.repeat(@indentationLevel)
+    buildLine: (content, indentationLevel = null) ->
+        return @addTabText(content, indentationLevel) + "\n"
 
-        return "#{tabText}#{content}\n"
+    ###*
+     * @param {String}      content
+     * @param {Number|null} indentationLevel
+     *
+     * @return {String}
+    ###
+    addTabText: (content, indentationLevel = null) ->
+        if not indentationLevel?
+            indentationLevel = @indentationLevel
+
+        tabText = @tabText.repeat(indentationLevel)
+
+        return "#{tabText}#{content}"

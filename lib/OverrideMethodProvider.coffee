@@ -63,7 +63,7 @@ class OverrideMethodProvider extends AbstractProvider
             grammarScopes: ['source.php']
             getIntentions: ({textEditor, bufferPosition}) =>
                 return [] if not @getCurrentProjectPhpVersion()?
-                
+
                 return @getStubInterfaceMethodIntentions(textEditor, bufferPosition)
         }]
 
@@ -136,9 +136,12 @@ class OverrideMethodProvider extends AbstractProvider
 
         tabText = metadata.editor.getTabText()
         indentationLevel = metadata.editor.indentationForBufferRow(metadata.editor.getCursorBufferPosition().row)
+        maxLineLength = atom.config.get('editor.preferredLineLength', metadata.editor.getLastCursor().getScopeDescriptor())
 
         for item in selectedItems
-            itemOutputs.push(@generateStubForInterfaceMethod(item.method, tabText, indentationLevel))
+            stub = @generateStubForInterfaceMethod(item.method, tabText, indentationLevel, maxLineLength)
+
+            itemOutputs.push(stub)
 
         output = itemOutputs.join("\n").trim()
 
@@ -150,10 +153,11 @@ class OverrideMethodProvider extends AbstractProvider
      * @param {Object} data
      * @param {String} tabText
      * @param {Number} indentationLevel
+     * @param {Number} maxLineLength
      *
      * @return {string}
     ###
-    generateStubForInterfaceMethod: (data, tabText, indentationLevel) ->
+    generateStubForInterfaceMethod: (data, tabText, indentationLevel, maxLineLength) ->
         parameterNames = data.parameters.map (item) ->
             return '$' + item.name
 
@@ -173,6 +177,7 @@ class OverrideMethodProvider extends AbstractProvider
             .setStatements(statements)
             .setTabText(tabText)
             .setIndentationLevel(indentationLevel)
+            .setMaxLineLength(maxLineLength)
             .build()
 
         docblockText = @docblockBuilder.buildByLines(['@inheritDoc'], tabText.repeat(indentationLevel))
