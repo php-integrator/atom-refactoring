@@ -5,6 +5,8 @@
 * When generating method bodies, your preferred line length will now be taken into account. This means that parameter lists will be automatically wrapped over multiple lines if they are too long.
 * The `Enable PHP 7 Support` checkboxes have been removed. Whether or not PHP 7 is to be used is now determined automatically from your project's PHP version. No more having to manually click the checkbox every time.
 * Generated setters will no longer return `self` in PHP 7. The docblock type will still indicate `static`, but making the return type hint `self` will prevent them from being overridden to return a child class instance.
+* When overriding methods that have a return value, code will now be generated that catches and returns the return value from the automatically generated `parent::` call.
+  * This is useful as usually one adds additional logic but still returns or further manipulates the parent value.
 
 ## 1.1.1
 * Rename the package and repository.

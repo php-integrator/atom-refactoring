@@ -161,7 +161,14 @@ class OverrideMethodProvider extends AbstractProvider
         parameterNames = data.parameters.map (item) ->
             return '$' + item.name
 
-        parentCallStatement = "parent::" + data.name + '('
+        hasReturnValue = @hasReturnValue(data)
+
+        parentCallStatement = ''
+
+        if hasReturnValue
+            parentCallStatement += '$value = '
+
+        parentCallStatement += 'parent::' + data.name + '('
         parentCallStatement += parameterNames.join(', ')
         parentCallStatement += ');'
 
@@ -170,6 +177,10 @@ class OverrideMethodProvider extends AbstractProvider
             ''
             '// TODO'
         ]
+
+        if hasReturnValue
+            statements.push('')
+            statements.push('return $value;')
 
         functionText = @functionBuilder
             .setFromRawMethodData(data)
@@ -183,3 +194,14 @@ class OverrideMethodProvider extends AbstractProvider
         docblockText = @docblockBuilder.buildByLines(['@inheritDoc'], tabText.repeat(indentationLevel))
 
         return docblockText + functionText
+
+    ###*
+     * @param {Object} data
+     *
+     * @return {Boolean}
+    ###
+    hasReturnValue: (data) ->
+        return false if data.returnTypes.length == 0
+        return false if data.returnTypes.length == 1 and data.returnTypes[0].type == 'void'
+
+        return true
