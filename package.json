@@ -28,8 +28,12 @@
     }
   },
   "dependencies": {
+    "atom-package-deps": "^4.3.1",
     "atom-space-pen-views": "~2.2"
   },
+  "package-deps": [
+    "intentions"
+  ],
   "keywords": [
     "php",
     "refactoring",

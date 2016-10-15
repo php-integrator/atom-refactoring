@@ -1,5 +1,12 @@
 module.exports =
     ###*
+     * The name of the package.
+     *
+     * @var {String}
+    ###
+    packageName: 'php-integrator-refactoring'
+
+    ###*
      * List of refactoring providers.
     ###
     providers: []
@@ -27,6 +34,8 @@ module.exports =
         @providers.push new OverrideMethodProvider()
         @providers.push new StubAbstractMethodProvider()
         @providers.push new StubInterfaceMethodProvider()
+
+        require('atom-package-deps').install(@packageName)
 
     ###*
      * Deactivates the package.
