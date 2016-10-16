@@ -216,7 +216,7 @@ class Builder
                 .setStatements(statements)
                 .setIndentationLevel(@indentationLevel)
                 .setTabText(tabText)
-                .setMaxLineLength(maxLineLength)
+                .setMaxLineLength(@maxLineLength)
 
             if settings.visibility == 'public'
                 @functionBuilder.makePublic()
