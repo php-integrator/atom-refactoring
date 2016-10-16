@@ -104,7 +104,8 @@ class ExtractMethodView extends View
                             @div class: 'controls', =>
                                 @label class: 'control-label', =>
                                     @div class: 'setting-title', 'Preview'
-                                    @pre class: 'preview-area', outlet: 'previewArea'
+                                    @div class: 'preview-area', =>
+                                        @subview 'previewArea', new TextEditorView(), class: 'preview-area'
             @div class: 'button-bar', =>
                 @button class: 'btn btn-error inline-block-tight pull-left icon icon-circle-slash button--cancel', 'Cancel'
                 @button class: 'btn btn-success inline-block-tight pull-right icon icon-gear button--confirm', 'Extract'
@@ -163,9 +164,11 @@ class ExtractMethodView extends View
 
         @panel ?= atom.workspace.addModalPanel(item: this, visible: false)
 
+        previewAreaTextEditor = @previewArea.getModel()
+        previewAreaTextEditor.setGrammar(atom.grammars.grammarForScopeName('text.html.php'))
+
         @on 'click', document, (event) =>
             event.stopPropagation()
-
 
         $(document).on 'click', (event) =>
             @cancel() if @panel?.isVisible()
@@ -234,7 +237,7 @@ class ExtractMethodView extends View
                 $('.php-integrator-refactoring-extract-method .return-control').addClass('hide')
                 $('.php-integrator-refactoring-extract-method .return-multiple-control').addClass('hide')
 
-            $(@previewArea).text(methodBody)
+            @previewArea.getModel().getBuffer().setText('<?php' + "\n\n" + methodBody)
 
         failureHandler = () ->
             # Do nothing.
