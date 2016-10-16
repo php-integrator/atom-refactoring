@@ -109,7 +109,7 @@ class ExtractMethodView extends View
             @div class: 'button-bar', =>
                 @button class: 'btn btn-error inline-block-tight pull-left icon icon-circle-slash button--cancel', 'Cancel'
                 @button class: 'btn btn-success inline-block-tight pull-right icon icon-gear button--confirm', 'Extract'
-
+                @div class: 'clear-float'
 
     ###*
      * @inheritdoc
