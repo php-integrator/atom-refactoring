@@ -101,26 +101,6 @@ class DocblockProvider extends AbstractProvider
                         items = []
                         promises = []
 
-                        # Ensure all types are localized to the use statements of this file, the original types will be
-                        # relative to the original file (which may not be the same). The FQCN works but is long and
-                        # there may be a local use statement that can be used to shorten it.
-                        for name, property of classInfo.properties
-                            items.push({
-                                name  : name
-                                types : property.types
-                            })
-
-                            for type in property.types
-                                if @typeHelper.isClassType(type.fqcn)
-                                    promises.push @service.localizeType(
-                                        editor.getPath(),
-                                        triggerPosition.row + 1,
-                                        type.fqcn
-                                    )
-
-                                else
-                                    promises.push Promise.resolve(type.fqcn)
-
                         localTypesResolvedHandler = (results) =>
                             resultIndex = 0
 
@@ -142,7 +122,31 @@ class DocblockProvider extends AbstractProvider
                                 atom.config.get('editor.preferredLineLength', editor.getLastCursor().getScopeDescriptor())
                             )
 
-                        Promise.all(promises).then(localTypesResolvedHandler, failureHandler)
+                        if classInfo.properties.length == 0
+                            localTypesResolvedHandler([])
+
+                        else
+                            # Ensure all types are localized to the use statements of this file, the original types will be
+                            # relative to the original file (which may not be the same). The FQCN works but is long and
+                            # there may be a local use statement that can be used to shorten it.
+                            for name, property of classInfo.properties
+                                items.push({
+                                    name  : name
+                                    types : property.types
+                                })
+
+                                for type in property.types
+                                    if @typeHelper.isClassType(type.fqcn)
+                                        promises.push @service.localizeType(
+                                            editor.getPath(),
+                                            triggerPosition.row + 1,
+                                            type.fqcn
+                                        )
+
+                                    else
+                                        promises.push Promise.resolve(type.fqcn)
+
+                            Promise.all(promises).then(localTypesResolvedHandler, failureHandler)
                 }]
 
             return @service.getClassInfo(currentClassName).then(nestedSuccessHandler, failureHandler)
@@ -176,7 +180,7 @@ class DocblockProvider extends AbstractProvider
             @selectionView.present()
 
         else
-            @onConfirm([], false, metadata)
+            @onConfirm([], metadata)
 
     ###*
      * Called when the selection of properties is cancelled.

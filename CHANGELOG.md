@@ -3,6 +3,7 @@
 * Fix docblocks for constructors sometimes getting a `@return self`.
 * Fix the button bar in dialogs falling outside the bottom of the dialog.
 * The intentions package will now be installed automatically, if necessary.
+* Fix not being able to generate a constructor in classes that have no properties.
 * When generating method bodies, your preferred line length will now be taken into account. This means that parameter lists will be automatically wrapped over multiple lines if they are too long.
 * The `Enable PHP 7 Support` checkboxes have been removed. Whether or not PHP 7 is to be used is now determined automatically from your project's PHP version. No more having to manually click the checkbox every time.
 * Generated setters will no longer return `self` in PHP 7. The docblock type will still indicate `static`, but making the return type hint `self` will prevent them from being overridden to return a child class instance.
