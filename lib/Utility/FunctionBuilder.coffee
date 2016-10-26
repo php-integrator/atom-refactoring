@@ -327,7 +327,7 @@ class FunctionBuilder
 
             for i, parameter of parameters
                 if i < (parameters.length - 1)
-                    parameter += ', '
+                    parameter += ','
 
                 signatureLine += @buildLine(parameter, @indentationLevel + 1)
 
