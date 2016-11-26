@@ -89,7 +89,7 @@ class StubInterfaceMethodProvider extends AbstractProvider
                         method : method
                     }
 
-                    if method.declaringStructure.type == 'interface' and method.implementation?.length == 0
+                    if method.declaringStructure.type == 'interface' and method.implementations?.length == 0
                         items.push(data)
 
                 return [] if items.length == 0
