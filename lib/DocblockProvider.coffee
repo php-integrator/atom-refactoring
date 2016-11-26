@@ -141,7 +141,7 @@ class DocblockProvider extends AbstractProvider
 
             return @service.getClassInfo(resolvedType).then(nestedSuccessHandler, failureHandler)
 
-        return @service.resolveType(editor.getPath(), triggerPosition.row + 1, name).then(successHandler, failureHandler)
+        return @service.resolveType(editor.getPath(), triggerPosition.row + 1, name, 'classlike').then(successHandler, failureHandler)
 
     ###*
      * @param {TextEditor} editor
