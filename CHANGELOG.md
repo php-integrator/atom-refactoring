@@ -1,4 +1,4 @@
-## 1.2.0 (base 1.3.0)
+## 1.2.0 (base 2.0.0)
 * The extract method preview panel is now syntax highlighted.
 * Fix docblocks for constructors sometimes getting a `@return self`.
 * Fix the button bar in dialogs falling outside the bottom of the dialog.
