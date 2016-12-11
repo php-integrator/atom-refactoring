@@ -69,7 +69,7 @@ class ExtractMethodView extends View
                                     @div class: 'setting-title', 'Access Modifier'
                                     @select outlet: 'accessMethodsInput', class: 'form-control', =>
                                         @option value: 'public', 'Public'
-                                        @option value: 'protected', 'Protected'
+                                        @option value: 'protected', selected: "selected", 'Protected'
                                         @option value: 'private', 'Private'
                         @div class: 'control-group', =>
                             @label class: 'control-label', =>
