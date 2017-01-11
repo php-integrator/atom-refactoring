@@ -1,3 +1,6 @@
+## 1.3.1
+* Fix deprecations.
+
 ## 1.3.0 (base 2.0.0)
 * The extract method preview panel is now syntax highlighted.
 * Fix docblocks for constructors sometimes getting a `@return self`.
