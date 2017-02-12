@@ -1,3 +1,6 @@
+## 1.3.2
+* Fix reference parameters missing the leading '&' in generated docblocks.
+
 ## 1.3.1
 * Fix deprecations.
 
