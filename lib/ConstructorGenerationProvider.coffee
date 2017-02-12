@@ -89,8 +89,6 @@ class DocblockProvider extends AbstractProvider
 
             nestedSuccessHandler = (classInfo) =>
                 return [] if not classInfo?
-                return [] if '__construct' of classInfo.methods and
-                             classInfo.methods['__construct'].declaringClass.name == classInfo.name
 
                 return [{
                     priority : 100
