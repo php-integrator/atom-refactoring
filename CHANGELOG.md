@@ -1,5 +1,6 @@
 ## 1.3.2
 * Fix reference parameters missing the leading '&' in generated docblocks.
+* Don't try to return the value of the parent method call when overriding a constructor.
 
 ## 1.3.1
 * Fix deprecations.

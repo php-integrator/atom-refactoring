@@ -201,6 +201,7 @@ class OverrideMethodProvider extends AbstractProvider
      * @return {Boolean}
     ###
     hasReturnValue: (data) ->
+        return false if data.name == '__construct'
         return false if data.returnTypes.length == 0
         return false if data.returnTypes.length == 1 and data.returnTypes[0].type == 'void'
 
