@@ -1,4 +1,4 @@
-## 1.3.2
+## 1.4.0
 * Fix reference parameters missing the leading '&' in generated docblocks.
 * Don't try to return the value of the parent method call when overriding a constructor.
 * `Generate Constructor` will now always remain available and never disappear from the action list.
