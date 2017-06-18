@@ -1,4 +1,5 @@
 ## 1.4.0
+* Due to changes in the core, overriding or implementing methods with explicit nullability from PHP 7.1 (the question mark) should now work properly.
 * Fix reference parameters missing the leading '&' in generated docblocks.
 * Don't try to return the value of the parent method call when overriding a constructor.
 * `Generate Constructor` will now always remain available and never disappear from the action list.
