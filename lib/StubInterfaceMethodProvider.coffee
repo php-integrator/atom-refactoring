@@ -1,7 +1,5 @@
 AbstractProvider = require './AbstractProvider'
 
-View = require './StubInterfaceMethodProvider/View'
-
 module.exports =
 
 ##*
@@ -28,16 +26,6 @@ class StubInterfaceMethodProvider extends AbstractProvider
      * @param {Object} functionBuilder
     ###
     constructor: (@docblockBuilder, @functionBuilder) ->
-
-    ###*
-     * @inheritdoc
-    ###
-    activate: (service) ->
-        super(service)
-
-        @selectionView = new View(@onConfirm.bind(this), @onCancel.bind(this))
-        @selectionView.setLoading('Loading class information...')
-        @selectionView.setEmptyMessage('No unimplemented interface methods found.')
 
     ###*
      * @inheritdoc
@@ -88,7 +76,7 @@ class StubInterfaceMethodProvider extends AbstractProvider
 
                 return [] if items.length == 0
 
-                @selectionView.setItems(items)
+                @getSelectionView().setItems(items)
 
                 return [
                     {
@@ -110,9 +98,9 @@ class StubInterfaceMethodProvider extends AbstractProvider
      * @param {Point}      triggerPosition
     ###
     executeStubInterfaceMethods: (editor) ->
-        @selectionView.setMetadata({editor: editor})
-        @selectionView.storeFocusedElement()
-        @selectionView.present()
+        @getSelectionView().setMetadata({editor: editor})
+        @getSelectionView().storeFocusedElement()
+        @getSelectionView().present()
 
     ###*
      * Called when the selection of properties is cancelled.
@@ -165,3 +153,16 @@ class StubInterfaceMethodProvider extends AbstractProvider
         docblockText = @docblockBuilder.buildByLines(['@inheritDoc'], tabText.repeat(indentationLevel))
 
         return docblockText + functionText
+
+    ###*
+     * @return {Builder}
+    ###
+    getSelectionView: () ->
+        if not @selectionView?
+            View = require './StubInterfaceMethodProvider/View'
+
+            @selectionView = new View(@onConfirm.bind(this), @onCancel.bind(this))
+            @selectionView.setLoading('Loading class information...')
+            @selectionView.setEmptyMessage('No unimplemented interface methods found.')
+
+        return @selectionView

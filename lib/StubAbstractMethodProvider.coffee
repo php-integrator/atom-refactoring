@@ -1,7 +1,5 @@
 AbstractProvider = require './AbstractProvider'
 
-View = require './StubAbstractMethodProvider/View'
-
 module.exports =
 
 ##*
@@ -28,16 +26,6 @@ class StubAbstractMethodProvider extends AbstractProvider
      * @param {Object} functionBuilder
     ###
     constructor: (@docblockBuilder, @functionBuilder) ->
-
-    ###*
-     * @inheritdoc
-    ###
-    activate: (service) ->
-        super(service)
-
-        @selectionView = new View(@onConfirm.bind(this), @onCancel.bind(this))
-        @selectionView.setLoading('Loading class information...')
-        @selectionView.setEmptyMessage('No unimplemented abstract methods found.')
 
     ###*
      * @inheritdoc
@@ -88,7 +76,7 @@ class StubAbstractMethodProvider extends AbstractProvider
 
                 return [] if items.length == 0
 
-                @selectionView.setItems(items)
+                @getSelectionView().setItems(items)
 
                 return [
                     {
@@ -110,9 +98,9 @@ class StubAbstractMethodProvider extends AbstractProvider
      * @param {Point}      triggerPosition
     ###
     executeStubInterfaceMethods: (editor) ->
-        @selectionView.setMetadata({editor: editor})
-        @selectionView.storeFocusedElement()
-        @selectionView.present()
+        @getSelectionView().setMetadata({editor: editor})
+        @getSelectionView().storeFocusedElement()
+        @getSelectionView().present()
 
     ###*
      * Called when the selection of properties is cancelled.
@@ -166,3 +154,16 @@ class StubAbstractMethodProvider extends AbstractProvider
         docblockText = @docblockBuilder.buildByLines(['@inheritDoc'], tabText.repeat(indentationLevel))
 
         return docblockText + functionText
+
+    ###*
+     * @return {Builder}
+    ###
+    getSelectionView: () ->
+        if not @selectionView?
+            View = require './StubAbstractMethodProvider/View'
+
+            @selectionView = new View(@onConfirm.bind(this), @onCancel.bind(this))
+            @selectionView.setLoading('Loading class information...')
+            @selectionView.setEmptyMessage('No unimplemented abstract methods found.')
+
+        return @selectionView

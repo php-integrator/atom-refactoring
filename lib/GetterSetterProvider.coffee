@@ -1,7 +1,5 @@
 AbstractProvider = require './AbstractProvider'
 
-View = require './GetterSetterProvider/View'
-
 module.exports =
 
 ##*
@@ -40,10 +38,6 @@ class GetterSetterProvider extends AbstractProvider
     ###
     activate: (service) ->
         super(service)
-
-        @selectionView = new View(@onConfirm.bind(this), @onCancel.bind(this))
-        @selectionView.setLoading('Loading class information...')
-        @selectionView.setEmptyMessage('No properties found.')
 
         atom.commands.add 'atom-workspace', "php-integrator-refactoring:generate-getter": =>
             @executeCommand(true, false)
@@ -125,9 +119,9 @@ class GetterSetterProvider extends AbstractProvider
 
         return if not activeTextEditor
 
-        @selectionView.setMetadata({editor: activeTextEditor})
-        @selectionView.storeFocusedElement()
-        @selectionView.present()
+        @getSelectionView().setMetadata({editor: activeTextEditor})
+        @getSelectionView().storeFocusedElement()
+        @getSelectionView().present()
 
         successHandler = (currentClassName) =>
             return if not currentClassName
@@ -167,15 +161,15 @@ class GetterSetterProvider extends AbstractProvider
                         data.className = ''
                         enabledItems.push(data)
 
-                @selectionView.setItems(enabledItems.concat(disabledItems))
+                @getSelectionView().setItems(enabledItems.concat(disabledItems))
 
             nestedFailureHandler = () =>
-                @selectionView.setItems([])
+                @getSelectionView().setItems([])
 
             @service.getClassInfo(currentClassName).then(nestedSuccessHandler, nestedFailureHandler)
 
         failureHandler = () =>
-            @selectionView.setItems([])
+            @getSelectionView().setItems([])
 
         @service.determineCurrentClassName(activeTextEditor, activeTextEditor.getCursorBufferPosition()).then(successHandler, failureHandler)
 
@@ -316,3 +310,16 @@ class GetterSetterProvider extends AbstractProvider
         )
 
         return docblockText + functionText
+
+    ###*
+     * @return {Builder}
+    ###
+    getSelectionView: () ->
+        if not @selectionView?
+            View = require './GetterSetterProvider/View'
+
+            @selectionView = new View(@onConfirm.bind(this), @onCancel.bind(this))
+            @selectionView.setLoading('Loading class information...')
+            @selectionView.setEmptyMessage('No properties found.')
+
+        return @selectionView

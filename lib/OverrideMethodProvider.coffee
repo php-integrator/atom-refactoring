@@ -1,7 +1,5 @@
 AbstractProvider = require './AbstractProvider'
 
-View = require './OverrideMethodProvider/View'
-
 module.exports =
 
 ##*
@@ -28,16 +26,6 @@ class OverrideMethodProvider extends AbstractProvider
      * @param {Object} functionBuilder
     ###
     constructor: (@docblockBuilder, @functionBuilder) ->
-
-    ###*
-     * @inheritdoc
-    ###
-    activate: (service) ->
-        super(service)
-
-        @selectionView = new View(@onConfirm.bind(this), @onCancel.bind(this))
-        @selectionView.setLoading('Loading class information...')
-        @selectionView.setEmptyMessage('No overridable methods found.')
 
     ###*
      * @inheritdoc
@@ -88,7 +76,7 @@ class OverrideMethodProvider extends AbstractProvider
 
                 return [] if items.length == 0
 
-                @selectionView.setItems(items)
+                @getSelectionView().setItems(items)
 
                 return [
                     {
@@ -110,9 +98,9 @@ class OverrideMethodProvider extends AbstractProvider
      * @param {Point}      triggerPosition
     ###
     executeStubInterfaceMethods: (editor) ->
-        @selectionView.setMetadata({editor: editor})
-        @selectionView.storeFocusedElement()
-        @selectionView.present()
+        @getSelectionView().setMetadata({editor: editor})
+        @getSelectionView().storeFocusedElement()
+        @getSelectionView().present()
 
     ###*
      * Called when the selection of properties is cancelled.
@@ -200,3 +188,16 @@ class OverrideMethodProvider extends AbstractProvider
         return false if data.returnTypes.length == 1 and data.returnTypes[0].type == 'void'
 
         return true
+
+    ###*
+     * @return {Builder}
+    ###
+    getSelectionView: () ->
+        if not @selectionView?
+            View = require './OverrideMethodProvider/View'
+
+            @selectionView = new View(@onConfirm.bind(this), @onCancel.bind(this))
+            @selectionView.setLoading('Loading class information...')
+            @selectionView.setEmptyMessage('No overridable methods found.')
+
+        return @selectionView

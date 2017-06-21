@@ -2,8 +2,6 @@
 
 AbstractProvider = require './AbstractProvider'
 
-View    = require './ExtractMethodProvider/View'
-
 module.exports =
 
 ##*
@@ -13,9 +11,9 @@ class ExtractMethodProvider extends AbstractProvider
     ###*
      * View that the user interacts with when extracting code.
      *
-     * @type {View}
+     * @type {Object}
     ###
-    extractMethodView: null
+    view: null
 
     ###*
      * Builder used to generate the new method.
@@ -35,9 +33,6 @@ class ExtractMethodProvider extends AbstractProvider
     activate: (service) ->
         super(service)
 
-        @extractMethodView = new View(@onConfirm.bind(this), @onCancel.bind(this))
-        @extractMethodView.setBuilder(@builder)
-
         atom.commands.add 'atom-text-editor', "php-integrator-refactoring:extract-method": =>
             @executeCommand()
 
@@ -47,9 +42,9 @@ class ExtractMethodProvider extends AbstractProvider
     deactivate: () ->
         super()
 
-        if @extractMethodView
-            @extractMethodView.destroy()
-            @extractMethodView = null
+        if @view
+            @view.destroy()
+            @view = null
 
     ###*
      * @inheritdoc
@@ -122,8 +117,8 @@ class ExtractMethodProvider extends AbstractProvider
         @builder.setEditor(activeTextEditor)
         @builder.setMethodBody(reducedHighlightedText)
 
-        @extractMethodView.storeFocusedElement()
-        @extractMethodView.present()
+        @getView().storeFocusedElement()
+        @getView().present()
 
     ###*
      * Called when the user has cancel the extraction in the modal.
@@ -321,3 +316,15 @@ class ExtractMethodProvider extends AbstractProvider
 
         # Same position
         return 0
+
+    ###*
+     * @return {View}
+    ###
+    getView: () ->
+        if not @view?
+            View = require './ExtractMethodProvider/View'
+
+            @view = new View(@onConfirm.bind(this), @onCancel.bind(this))
+            @view.setBuilder(@builder)
+
+        return @view

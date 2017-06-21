@@ -2,8 +2,6 @@
 
 AbstractProvider = require './AbstractProvider'
 
-View = require './ConstructorGenerationProvider/View'
-
 module.exports =
 
 ##*
@@ -36,16 +34,6 @@ class DocblockProvider extends AbstractProvider
      * @param {Object} docblockBuilder
     ###
     constructor: (@typeHelper, @functionBuilder, @docblockBuilder) ->
-
-    ###*
-     * @inheritdoc
-    ###
-    activate: (service) ->
-        super(service)
-
-        @selectionView = new View(@onConfirm.bind(this), @onCancel.bind(this))
-        @selectionView.setLoading('Loading class information...')
-        @selectionView.setEmptyMessage('No properties found.')
 
     ###*
      * @inheritdoc
@@ -162,10 +150,10 @@ class DocblockProvider extends AbstractProvider
         }
 
         if items.length > 0
-            @selectionView.setItems(items)
-            @selectionView.setMetadata(metadata)
-            @selectionView.storeFocusedElement()
-            @selectionView.present()
+            @getSelectionView().setItems(items)
+            @getSelectionView().setMetadata(metadata)
+            @getSelectionView().storeFocusedElement()
+            @getSelectionView().present()
 
         else
             @onConfirm([], metadata)
@@ -237,3 +225,16 @@ class DocblockProvider extends AbstractProvider
         text = docblockText.trimLeft() + functionText
 
         metadata.editor.getBuffer().insert(metadata.position, text)
+
+    ###*
+     * @return {Builder}
+    ###
+    getSelectionView: () ->
+        if not @selectionView?
+            View = require './ConstructorGenerationProvider/View'
+
+            @selectionView = new View(@onConfirm.bind(this), @onCancel.bind(this))
+            @selectionView.setLoading('Loading class information...')
+            @selectionView.setEmptyMessage('No properties found.')
+
+        return @selectionView
