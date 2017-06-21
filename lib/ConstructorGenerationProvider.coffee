@@ -4,10 +4,6 @@ AbstractProvider = require './AbstractProvider'
 
 View = require './ConstructorGenerationProvider/View'
 
-TypeHelper = require './Utility/TypeHelper'
-DocblockBuilder = require './Utility/DocblockBuilder'
-FunctionBuilder = require './Utility/FunctionBuilder'
-
 module.exports =
 
 ##*
