@@ -1,9 +1,9 @@
 ## 1.4.0
 * [Improve package activation time](https://github.com/php-integrator/atom-refactoring/issues/46)
-* Due to changes in the core, overriding or implementing methods with explicit nullability from PHP 7.1 (the question mark) should now work properly.
-* Fix reference parameters missing the leading '&' in generated docblocks.
-* Don't try to return the value of the parent method call when overriding a constructor.
-* `Generate Constructor` will now always remain available and never disappear from the action list.
+* Due to changes in the core, overriding or implementing methods with explicit nullability from PHP 7.1 (the question mark) should now work properly
+* Fix reference parameters missing the leading '&' in generated docblocks
+* Don't try to return the value of the parent method call when overriding a constructor
+* `Generate Constructor` will now always remain available and never disappear from the action list
   * Previously, it disappeared when a constructor was added, but only if it was added in the current class, i.e. not an ancestor.
   * This was troublesome when you wanted to quickly generate a new constructor after removing the existing one, as you always had to pause a moment for indexing to catch up on the fact that it was removed.
 
