@@ -2,8 +2,6 @@
 
 AbstractProvider = require './AbstractProvider'
 
-DocblockBuilder = require './Utility/DocblockBuilder'
-
 module.exports =
 
 ##*
@@ -16,22 +14,9 @@ class IntroducePropertyProvider extends AbstractProvider
     docblockBuilder: null
 
     ###*
-     * @inheritdoc
+     * @param {Object} docblockBuilder
     ###
-    activate: (service) ->
-        super(service)
-
-        @docblockBuilder = new DocblockBuilder()
-
-    ###*
-     * @inheritdoc
-    ###
-    deactivate: () ->
-        super()
-
-        if @docblockBuilder
-            #@docblockBuilder.destroy()
-            @docblockBuilder = null
+    constructor: (@docblockBuilder) ->
 
     ###*
      * @inheritdoc

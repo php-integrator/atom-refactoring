@@ -1,11 +1,5 @@
 {Range} = require 'atom'
 
-ParameterParser = require './ParameterParser'
-
-TypeHelper = require '../Utility/TypeHelper'
-FunctionBuilder = require '../Utility/FunctionBuilder'
-DocblockBuilder = require '../Utility/DocblockBuilder'
-
 module.exports =
 
 class Builder
@@ -58,7 +52,7 @@ class Builder
      * The parameter parser that will work out the parameters the
      * selectedBufferRange will need.
      *
-     * @type {ParameterParser}
+     * @type {Object}
     ###
     parameterParser: null
 
@@ -70,31 +64,29 @@ class Builder
     returnVariables: null
 
     ###*
-     * @type {DocblockBuilder}
+     * @type {Object}
     ###
     docblockBuilder: null
 
     ###*
-     * @type {FunctionBuilder}
+     * @type {Object}
     ###
     functionBuilder: null
 
     ###*
-     * @type {TypeHelper}
+     * @type {Object}
     ###
     typeHelper: null
 
     ###*
      * Constructor.
      *
-     * @param  {Service} service php-integrator-base service
+     * @param  {Object} parameterParser
+     * @param  {Object} docblockBuilder
+     * @param  {Object} functionBuilder
+     * @param  {Object} typeHelper
     ###
-    constructor: (service) ->
-        @setService service
-        @parameterParser = new ParameterParser @service
-        @docblockBuilder = new DocblockBuilder
-        @functionBuilder = new FunctionBuilder
-        @typeHelper = new TypeHelper
+    constructor: (@parameterParser, @docblockBuilder, @functionBuilder, @typeHelper) ->
 
     ###*
      * Sets the method body to use in the preview.
@@ -131,6 +123,7 @@ class Builder
     ###
     setService: (service) ->
         @service = service
+        @parameterParser.setService(service)
 
     ###*
      * Set the selectedBufferRange to analyse.

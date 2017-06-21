@@ -35,6 +35,13 @@ class DocblockProvider extends AbstractProvider
     typeHelper: null
 
     ###*
+     * @param {Object} typeHelper
+     * @param {Object} functionBuilder
+     * @param {Object} docblockBuilder
+    ###
+    constructor: (@typeHelper, @functionBuilder, @docblockBuilder) ->
+
+    ###*
      * @inheritdoc
     ###
     activate: (service) ->
@@ -44,24 +51,11 @@ class DocblockProvider extends AbstractProvider
         @selectionView.setLoading('Loading class information...')
         @selectionView.setEmptyMessage('No properties found.')
 
-        @typeHelper = new TypeHelper()
-        @functionBuilder = new FunctionBuilder()
-        @docblockBuilder = new DocblockBuilder()
-
     ###*
      * @inheritdoc
     ###
     deactivate: () ->
         super()
-
-        if @typeHelper
-            @typeHelper = null
-
-        if @functionBuilder
-            @functionBuilder = null
-
-        if @docblockBuilder
-            @docblockBuilder = null
 
         if @selectionView
             @selectionView.destroy()

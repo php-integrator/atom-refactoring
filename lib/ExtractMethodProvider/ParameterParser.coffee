@@ -1,7 +1,5 @@
 {Point, Range} = require 'atom'
 
-TypeHelper = require '../Utility/TypeHelper'
-
 module.exports =
 
 class ParameterParser
@@ -13,7 +11,7 @@ class ParameterParser
     service: null
 
     ###*
-     * @type {TypeHelper}
+     * @type {Object}
     ###
     typeHelper: null
 
@@ -34,11 +32,14 @@ class ParameterParser
     ###*
      * Constructor
      *
-     * @param {Service} service
+     * @param {Object} typeHelper
     ###
-    constructor: (service) ->
-        @service = service
-        @typeHelper = new TypeHelper
+    constructor: (@typeHelper) ->
+
+    ###*
+     * @param {Object} service
+    ###
+    setService: (@service) ->
 
     ###*
      * Takes the editor and the range and loops through finding all the

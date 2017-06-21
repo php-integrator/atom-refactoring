@@ -2,9 +2,6 @@ AbstractProvider = require './AbstractProvider'
 
 View = require './OverrideMethodProvider/View'
 
-FunctionBuilder = require './Utility/FunctionBuilder'
-DocblockBuilder = require './Utility/DocblockBuilder'
-
 module.exports =
 
 ##*
@@ -17,23 +14,26 @@ class OverrideMethodProvider extends AbstractProvider
     selectionView: null
 
     ###*
-     * @type {DocblockBuilder}
+     * @type {Object}
     ###
     docblockBuilder: null
 
     ###*
-     * @type {FunctionBuilder}
+     * @type {Object}
     ###
     functionBuilder: null
+
+    ###*
+     * @param {Object} docblockBuilder
+     * @param {Object} functionBuilder
+    ###
+    constructor: (@docblockBuilder, @functionBuilder) ->
 
     ###*
      * @inheritdoc
     ###
     activate: (service) ->
         super(service)
-
-        @docblockBuilder = new DocblockBuilder
-        @functionBuilder = new FunctionBuilder
 
         @selectionView = new View(@onConfirm.bind(this), @onCancel.bind(this))
         @selectionView.setLoading('Loading class information...')
@@ -44,12 +44,6 @@ class OverrideMethodProvider extends AbstractProvider
     ###
     deactivate: () ->
         super()
-
-        if @functionBuilder
-            @functionBuilder = null
-
-        if @docblockBuilder
-            @docblockBuilder = null
 
         if @selectionView
             @selectionView.destroy()

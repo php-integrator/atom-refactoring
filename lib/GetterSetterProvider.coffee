@@ -2,10 +2,6 @@ AbstractProvider = require './AbstractProvider'
 
 View = require './GetterSetterProvider/View'
 
-TypeHelper = require './Utility/TypeHelper'
-FunctionBuilder = require './Utility/FunctionBuilder'
-DocblockBuilder = require './Utility/DocblockBuilder'
-
 module.exports =
 
 ##*
@@ -33,6 +29,13 @@ class GetterSetterProvider extends AbstractProvider
     typeHelper: null
 
     ###*
+     * @param {Object} typeHelper
+     * @param {Object} functionBuilder
+     * @param {Object} docblockBuilder
+    ###
+    constructor: (@typeHelper, @functionBuilder, @docblockBuilder) ->
+
+    ###*
      * @inheritdoc
     ###
     activate: (service) ->
@@ -41,10 +44,6 @@ class GetterSetterProvider extends AbstractProvider
         @selectionView = new View(@onConfirm.bind(this), @onCancel.bind(this))
         @selectionView.setLoading('Loading class information...')
         @selectionView.setEmptyMessage('No properties found.')
-
-        @typeHelper = new TypeHelper()
-        @functionBuilder = new FunctionBuilder()
-        @docblockBuilder = new DocblockBuilder()
 
         atom.commands.add 'atom-workspace', "php-integrator-refactoring:generate-getter": =>
             @executeCommand(true, false)
@@ -60,15 +59,6 @@ class GetterSetterProvider extends AbstractProvider
     ###
     deactivate: () ->
         super()
-
-        if @typeHelper
-            @typeHelper = null
-
-        if @functionBuilder
-            @functionBuilder = null
-
-        if @docblockBuilder
-            @docblockBuilder = null
 
         if @selectionView
             @selectionView.destroy()

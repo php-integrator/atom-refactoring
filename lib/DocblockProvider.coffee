@@ -2,9 +2,6 @@
 
 AbstractProvider = require './AbstractProvider'
 
-TypeHelper = require './Utility/TypeHelper'
-DocblockBuilder = require './Utility/DocblockBuilder'
-
 module.exports =
 
 ##*
@@ -22,22 +19,10 @@ class DocblockProvider extends AbstractProvider
     typeHelper: null
 
     ###*
-     * @inheritdoc
+     * @param {Object} typeHelper
+     * @param {Object} docblockBuilder
     ###
-    activate: (service) ->
-        super(service)
-
-        @typeHelper = new TypeHelper()
-        @docblockBuilder = new DocblockBuilder()
-
-    ###*
-     * @inheritdoc
-    ###
-    deactivate: () ->
-        super()
-
-        if @typeHelper
-            @typeHelper = null
+    constructor: (@typeHelper, @docblockBuilder) ->
 
     ###*
      * @inheritdoc

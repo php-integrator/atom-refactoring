@@ -3,7 +3,6 @@
 AbstractProvider = require './AbstractProvider'
 
 View    = require './ExtractMethodProvider/View'
-Builder = require './ExtractMethodProvider/Builder'
 
 module.exports =
 
@@ -21,9 +20,14 @@ class ExtractMethodProvider extends AbstractProvider
     ###*
      * Builder used to generate the new method.
      *
-     * @type {Builder}
+     * @type {Object}
     ###
     builder: null
+
+    ###*
+     * @param {Object} builder
+    ###
+    constructor: (@builder) ->
 
     ###*
      * @inheritdoc
@@ -31,9 +35,7 @@ class ExtractMethodProvider extends AbstractProvider
     activate: (service) ->
         super(service)
 
-        @builder = new Builder(service)
         @extractMethodView = new View(@onConfirm.bind(this), @onCancel.bind(this))
-
         @extractMethodView.setBuilder(@builder)
 
         atom.commands.add 'atom-text-editor', "php-integrator-refactoring:extract-method": =>
