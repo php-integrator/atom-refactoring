@@ -46,7 +46,7 @@ class ExtractMethodView extends View
         @settings = {
             generateDocs: true,
             methodName: '',
-            visibility: 'public',
+            visibility: 'protected',
             tabs: false,
             arraySyntax: 'brackets',
             typeHinting: true,
