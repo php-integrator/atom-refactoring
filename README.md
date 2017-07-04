@@ -1,4 +1,4 @@
-# atom-refactoring
+# php-integrator/atom-refactoring
 <p align="right">
 :coffee:
 <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=YKTNLZCRHMRTJ">Send me some coffee beans</a>
