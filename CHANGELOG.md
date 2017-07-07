@@ -7,9 +7,9 @@
 * [Extract method now supports PHP 7.0 return types](https://github.com/php-integrator/atom-refactoring/issues/20)
 * [Unimplemented interface methods will no longer show up when overriding methods (they already show up in the `Stub Unimplemented Interface Method(s)` menu)](https://github.com/php-integrator/atom-refactoring/issues/49)
 * [Unoveridden abstract methods will no longer show up when overriding methods (they already show up in the `Stub Unimplemented Abstract Method(s)` menu)](https://github.com/php-integrator/atom-refactoring/issues/49)
-* Fix reference parameters missing the leading '&' in generated docblocks
+* [Fix reference parameters missing the leading '&' in generated docblocks](https://github.com/php-integrator/atom-refactoring/issues/37)
+* [Don't try to return the value of the parent method call when overriding a constructor](https://github.com/php-integrator/atom-refactoring/issues/39)
 * Fix `public` still being used as access modifier even though the default was set to `protected` when extracting methods
-* Don't try to return the value of the parent method call when overriding a constructor
 * `Generate Constructor` will now always remain available and never disappear from the action list
   * Previously, it disappeared when a constructor was added, but only if it was added in the current class, i.e. not an ancestor.
   * This was troublesome when you wanted to quickly generate a new constructor after removing the existing one, as you always had to pause a moment for indexing to catch up on the fact that it was removed.
