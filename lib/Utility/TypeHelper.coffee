@@ -120,7 +120,13 @@ class TypeHelper
     getScalarTypeHintForDocblockType: (type) ->
         return null if not type?
 
-        if @getCurrentProjectPhpVersion() >= 7.0
+        phpVersion = @getCurrentProjectPhpVersion()
+
+        if phpVersion >= 7.1
+            return 'iterable' if type == 'iterable'
+            return 'void'     if type == 'void'
+
+        else if phpVersion >= 7.0
             return 'string'   if type == 'string'
             return 'int'      if type == 'int'
             return 'bool'     if type == 'bool'
