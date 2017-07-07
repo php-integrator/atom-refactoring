@@ -178,16 +178,12 @@ class DocblockProvider extends AbstractProvider
 
         for item in selectedItems
             typeSpecification = @typeHelper.buildTypeSpecificationFromTypeArray(item.types)
-
             parameterTypeHint = @typeHelper.getTypeHintForTypeSpecification(typeSpecification)
-
-            parameterType = if parameterTypeHint? then parameterTypeHint.typeHint else null
-            defaultValue  = if parameterTypeHint? and parameterTypeHint.isNullable then 'null' else null
 
             parameters.push({
                 name         : '$' + item.name
-                typeHint     : parameterType
-                defaultValue : defaultValue
+                typeHint     : parameterTypeHint.typeHint
+                defaultValue : if parameterTypeHint.shouldSetDefaultValueToNull then 'null' else null
             })
 
             docblockParameters.push({

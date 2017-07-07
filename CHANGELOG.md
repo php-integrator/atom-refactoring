@@ -1,6 +1,9 @@
 ## 1.4.0
 * [Improve package activation time](https://github.com/php-integrator/atom-refactoring/issues/46)
 * Due to changes in the core, overriding or implementing methods with explicit nullability from PHP 7.1 (the question mark) should now work properly
+* [PHP 7.1's `iterable` and `void` scalar types are now supported](https://github.com/php-integrator/atom-refactoring/issues/48)
+* [Explicitly nullable types in PHP 7.1 will now be mimicked in getter and setter generation, constructor generation, ...](https://github.com/php-integrator/atom-refactoring/issues/45)
+* [Extract method now supports PHP 7.0 and PHP 7.1 scalar types for parameters](https://github.com/php-integrator/atom-refactoring/issues/20)
 * Fix reference parameters missing the leading '&' in generated docblocks
 * Fix `public` still being used as access modifier even though the default was set to `protected` when extracting methods
 * Don't try to return the value of the parent method call when overriding a constructor

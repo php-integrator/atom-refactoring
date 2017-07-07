@@ -253,13 +253,7 @@ class GetterSetterProvider extends AbstractProvider
     ###
     generateSetterForItem: (item) ->
         typeSpecification = @typeHelper.buildTypeSpecificationFromTypeArray(item.types)
-
         parameterTypeHint = @typeHelper.getTypeHintForTypeSpecification(typeSpecification)
-
-        parameterType = if parameterTypeHint? then parameterTypeHint.typeHint else null
-        defaultValue  = if parameterTypeHint? and parameterTypeHint.shouldSetDefaultValueToNull then 'null' else null
-
-        returnType = null
 
         statements = [
             "$this->#{item.name} = $#{item.name};"
@@ -269,8 +263,8 @@ class GetterSetterProvider extends AbstractProvider
         parameters = [
             {
                 name         : '$' + item.name
-                typeHint     : parameterType
-                defaultValue : defaultValue
+                typeHint     : parameterTypeHint.typeHint
+                defaultValue : if parameterTypeHint.shouldSetDefaultValueToNull then 'null' else null
             }
         ]
 
@@ -279,7 +273,7 @@ class GetterSetterProvider extends AbstractProvider
             .setIsStatic(false)
             .setIsAbstract(false)
             .setName(item.setterName)
-            .setReturnType(returnType)
+            .setReturnType(null)
             .setParameters(parameters)
             .setStatements(statements)
             .setTabText(item.tabText)

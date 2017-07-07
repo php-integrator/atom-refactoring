@@ -65,11 +65,11 @@ class TypeHelper
      * @return {Object|null}
     ###
     getTypeHintForDocblockTypes: (types) ->
-        shouldSetDefaultValueToNull = false
+        isNullable = false
 
         types = types.filter (type) =>
             if type == 'null'
-                shouldSetDefaultValueToNull = true
+                isNullable = true
 
             return type != 'null'
 
@@ -85,12 +85,24 @@ class TypeHelper
 
             previousTypeHint = typeHint
 
-        return null if not typeHint?
-
-        return {
+        data = {
             typeHint                    : typeHint
-            shouldSetDefaultValueToNull : shouldSetDefaultValueToNull
+            shouldSetDefaultValueToNull : false
         }
+
+        return data if not typeHint?
+        return data if not isNullable
+
+        currentPhpVersion = @getCurrentProjectPhpVersion()
+
+        if currentPhpVersion >= 7.1
+            data.typeHint = '?' + typeHint
+            data.shouldSetDefaultValueToNull = false
+
+        else
+            data.shouldSetDefaultValueToNull = true
+
+        return data
 
     ###*
      * @param {String|null} type
