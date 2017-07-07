@@ -71,6 +71,12 @@ class OverrideMethodProvider extends AbstractProvider
                         method : method
                     }
 
+                    # Interface methods can already be stubbed via StubInterfaceMethodProvider.
+                    continue if method.declaringStructure.type == 'interface'
+
+                    # Abstract methods can already be stubbed via StubAbstractMethodProvider.
+                    continue if method.isAbstract
+
                     if method.declaringStructure.name != classInfo.name
                         items.push(data)
 

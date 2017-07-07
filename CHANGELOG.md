@@ -4,6 +4,8 @@
 * [PHP 7.1's `iterable` and `void` scalar types are now supported](https://github.com/php-integrator/atom-refactoring/issues/48)
 * [Explicitly nullable types in PHP 7.1 will now be mimicked in getter and setter generation, constructor generation, ...](https://github.com/php-integrator/atom-refactoring/issues/45)
 * [Extract method now supports PHP 7.0 and PHP 7.1 scalar types for parameters](https://github.com/php-integrator/atom-refactoring/issues/20)
+* [Unimplemented interface methods will no longer show up when overriding methods (they already show up in the `Stub Unimplemented Interface Method(s)` menu)](https://github.com/php-integrator/atom-refactoring/issues/49)
+* [Unoveridden abstract methods will no longer show up when overriding methods (they already show up in the `Stub Unimplemented Abstract Method(s)` menu)](https://github.com/php-integrator/atom-refactoring/issues/49)
 * Fix reference parameters missing the leading '&' in generated docblocks
 * Fix `public` still being used as access modifier even though the default was set to `protected` when extracting methods
 * Don't try to return the value of the parent method call when overriding a constructor
