@@ -175,9 +175,16 @@ class Builder
 
                 statements.push(newStatement)
 
+            returnTypeHintSpecification = 'void'
             returnStatement = @buildReturnStatement(@returnVariables, settings.arraySyntax)
 
             if returnStatement?
+                if @returnVariables.length == 1
+                    returnTypeHintSpecification = @returnVariables[0].types.join('|')
+
+                else
+                    returnTypeHintSpecification = 'array'
+
                 returnStatement = returnStatement.substr(totalIndentation.length)
 
                 statements.push('')
@@ -204,7 +211,7 @@ class Builder
                 .setIsStatic(false)
                 .setIsAbstract(false)
                 .setName(settings.methodName)
-                .setReturnType(null)
+                .setReturnType(@typeHelper.getReturnTypeHintForTypeSpecification(returnTypeHintSpecification))
                 .setParameters(functionParameters)
                 .setStatements(statements)
                 .setIndentationLevel(@indentationLevel)
