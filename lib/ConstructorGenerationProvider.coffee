@@ -176,12 +176,10 @@ class DocblockProvider extends AbstractProvider
         parameters = []
         docblockParameters = []
 
-        enablePhp7Support = if @getCurrentProjectPhpVersion() >= 7.0 then true else false
-
         for item in selectedItems
             typeSpecification = @typeHelper.buildTypeSpecificationFromTypeArray(item.types)
 
-            parameterTypeHint = @typeHelper.getTypeHintForTypeSpecification(typeSpecification, enablePhp7Support)
+            parameterTypeHint = @typeHelper.getTypeHintForTypeSpecification(typeSpecification)
 
             parameterType = if parameterTypeHint? then parameterTypeHint.typeHint else null
             defaultValue  = if parameterTypeHint? and parameterTypeHint.isNullable then 'null' else null

@@ -197,14 +197,12 @@ class GetterSetterProvider extends AbstractProvider
     onConfirm: (selectedItems, metadata) ->
         itemOutputs = []
 
-        enablePhp7Support = if @getCurrentProjectPhpVersion() >= 7.0 then true else false
-
         for item in selectedItems
             if item.needsGetter
-                itemOutputs.push(@generateGetterForItem(item, enablePhp7Support))
+                itemOutputs.push(@generateGetterForItem(item))
 
             if item.needsSetter
-                itemOutputs.push(@generateSetterForItem(item, enablePhp7Support))
+                itemOutputs.push(@generateSetterForItem(item))
 
         output = itemOutputs.join("\n").trim()
 
@@ -213,21 +211,12 @@ class GetterSetterProvider extends AbstractProvider
     ###*
      * Generates a getter for the specified selected item.
      *
-     * @param {Object}  item
-     * @param {boolean} enablePhp7Support
+     * @param {Object} item
      *
      * @return {string}
     ###
-    generateGetterForItem: (item, enablePhp7Support) ->
+    generateGetterForItem: (item) ->
         typeSpecification = @typeHelper.buildTypeSpecificationFromTypeArray(item.types)
-
-        returnType = null
-
-        if enablePhp7Support
-            returnTypeHint = @typeHelper.getTypeHintForTypeSpecification(typeSpecification, enablePhp7Support)
-
-            if returnTypeHint? and not returnTypeHint.isNullable
-                returnType = returnTypeHint.typeHint
 
         statements = [
             "return $this->#{item.name};"
@@ -238,7 +227,7 @@ class GetterSetterProvider extends AbstractProvider
             .setIsStatic(false)
             .setIsAbstract(false)
             .setName(item.getterName)
-            .setReturnType(returnType)
+            .setReturnType(@typeHelper.getReturnTypeHintForTypeSpecification(typeSpecification))
             .setParameters([])
             .setStatements(statements)
             .setTabText(item.tabText)
@@ -258,23 +247,19 @@ class GetterSetterProvider extends AbstractProvider
     ###*
      * Generates a setter for the specified selected item.
      *
-     * @param {Object}  item
-     * @param {boolean} enablePhp7Support
+     * @param {Object} item
      *
      * @return {string}
     ###
-    generateSetterForItem: (item, enablePhp7Support) ->
+    generateSetterForItem: (item) ->
         typeSpecification = @typeHelper.buildTypeSpecificationFromTypeArray(item.types)
 
-        parameterTypeHint = @typeHelper.getTypeHintForTypeSpecification(typeSpecification, enablePhp7Support)
+        parameterTypeHint = @typeHelper.getTypeHintForTypeSpecification(typeSpecification)
 
         parameterType = if parameterTypeHint? then parameterTypeHint.typeHint else null
         defaultValue  = if parameterTypeHint? and parameterTypeHint.isNullable then 'null' else null
 
         returnType = null
-
-        # if enablePhp7Support
-            # returnType = 'self'
 
         statements = [
             "$this->#{item.name} = $#{item.name};"

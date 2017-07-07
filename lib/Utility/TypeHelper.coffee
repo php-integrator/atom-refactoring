@@ -2,17 +2,52 @@ module.exports =
 
 class TypeHelper
     ###*
+     * @var {Object|null} service
+    ###
+    service: null
+
+    ###*
+     * @param {Object} service
+    ###
+    setService: (@service) ->
+
+    ###*
+     * @return {Number}
+    ###
+    getCurrentProjectPhpVersion: () ->
+        projectSettings = @service.getCurrentProjectSettings()
+
+        if projectSettings?
+            return projectSettings.phpVersion
+
+        return 5.2 # Assume lowest supported version
+
+    ###*
      * @param {String|null} typeSpecification
-     * @param {boolean}     allowPhp7
      *
      * @return {Object|null}
     ###
-    getTypeHintForTypeSpecification: (typeSpecification, allowPhp7) ->
+    getReturnTypeHintForTypeSpecification: (typeSpecification) ->
+        return null if @getCurrentProjectPhpVersion() < 7.0
+
+        returnTypeHint = @getTypeHintForTypeSpecification(typeSpecification)
+
+        if not returnTypeHint? or returnTypeHint.isNullable
+            return null
+
+        return returnTypeHint.typeHint
+
+    ###*
+     * @param {String|null} typeSpecification
+     *
+     * @return {Object|null}
+    ###
+    getTypeHintForTypeSpecification: (typeSpecification) ->
         return null if not typeSpecification
 
         types = @getDocblockTypesFromDocblockTypeSpecification(typeSpecification)
 
-        return @getTypeHintForDocblockTypes(types, allowPhp7)
+        return @getTypeHintForDocblockTypes(types)
 
     ###*
      * @param {String|null} typeSpecification
@@ -29,7 +64,7 @@ class TypeHelper
      *
      * @return {Object|null}
     ###
-    getTypeHintForDocblockTypes: (types, allowPhp7) ->
+    getTypeHintForDocblockTypes: (types) ->
         isNullable = false
 
         types = types.filter (type) =>
@@ -42,7 +77,7 @@ class TypeHelper
         previousTypeHint = null
 
         for type in types
-            typeHint = @getTypeHintForDocblockType(type, allowPhp7)
+            typeHint = @getTypeHintForDocblockType(type)
 
             if previousTypeHint? and typeHint != previousTypeHint
                 # Several different type hints are necessary, we can't provide a common denominator.
@@ -59,36 +94,33 @@ class TypeHelper
 
     ###*
      * @param {String|null} type
-     * @param {boolean}     allowPhp7
      *
      * @return {String|null}
     ###
-    getTypeHintForDocblockType: (type, allowPhp7) ->
+    getTypeHintForDocblockType: (type) ->
         return null if not type?
-        return type if @isClassType(type, allowPhp7)
-        return @getScalarTypeHintForDocblockType(type, allowPhp7)
+        return type if @isClassType(type)
+        return @getScalarTypeHintForDocblockType(type)
 
     ###*
      * @param {String|null} type
-     * @param {boolean}     allowPhp7
      *
      * @return {boolean}
     ###
-    isClassType: (type, allowPhp7) ->
-        return if (@getScalarTypeHintForDocblockType(type, allowPhp7) == false) then true else false
+    isClassType: (type) ->
+        return if (@getScalarTypeHintForDocblockType(type) == false) then true else false
 
     ###*
      * @param {String|null} type
-     * @param {boolean}     allowPhp7
      *
      * @return {String|null|false} Null if the type is recognized, but there is no type hint available, false of the
      *                             type is not recognized at all, and the type hint itself if it is recognized and there
      *                             is a type hint.
     ###
-    getScalarTypeHintForDocblockType: (type, allowPhp7) ->
+    getScalarTypeHintForDocblockType: (type) ->
         return null if not type?
 
-        if allowPhp7
+        if @getCurrentProjectPhpVersion() >= 7.0
             return 'string'   if type == 'string'
             return 'int'      if type == 'int'
             return 'bool'     if type == 'bool'

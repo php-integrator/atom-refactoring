@@ -98,6 +98,7 @@ module.exports =
     setService: (service) ->
         @activateProviders(service)
         @getBuilder().setService(service)
+        @getTypeHelper().setService(service)
 
         {Disposable} = require 'atom'
 
