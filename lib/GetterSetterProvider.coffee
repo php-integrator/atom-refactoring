@@ -257,7 +257,7 @@ class GetterSetterProvider extends AbstractProvider
         parameterTypeHint = @typeHelper.getTypeHintForTypeSpecification(typeSpecification)
 
         parameterType = if parameterTypeHint? then parameterTypeHint.typeHint else null
-        defaultValue  = if parameterTypeHint? and parameterTypeHint.isNullable then 'null' else null
+        defaultValue  = if parameterTypeHint? and parameterTypeHint.shouldSetDefaultValueToNull then 'null' else null
 
         returnType = null
 

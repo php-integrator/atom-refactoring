@@ -32,7 +32,7 @@ class TypeHelper
 
         returnTypeHint = @getTypeHintForTypeSpecification(typeSpecification)
 
-        if not returnTypeHint? or returnTypeHint.isNullable
+        if not returnTypeHint? or returnTypeHint.shouldSetDefaultValueToNull
             return null
 
         return returnTypeHint.typeHint
@@ -65,11 +65,11 @@ class TypeHelper
      * @return {Object|null}
     ###
     getTypeHintForDocblockTypes: (types) ->
-        isNullable = false
+        shouldSetDefaultValueToNull = false
 
         types = types.filter (type) =>
             if type == 'null'
-                isNullable = true
+                shouldSetDefaultValueToNull = true
 
             return type != 'null'
 
@@ -88,8 +88,8 @@ class TypeHelper
         return null if not typeHint?
 
         return {
-            typeHint   : typeHint
-            isNullable : isNullable
+            typeHint                    : typeHint
+            shouldSetDefaultValueToNull : shouldSetDefaultValueToNull
         }
 
     ###*
