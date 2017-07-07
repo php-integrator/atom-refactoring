@@ -1,4 +1,4 @@
-## 1.4.0
+## 1.4.0 (base 3.0.0)
 * [Improve package activation time](https://github.com/php-integrator/atom-refactoring/issues/46)
 * Due to changes in the core, overriding or implementing methods with explicit nullability from PHP 7.1 (the question mark) should now work properly
 * [PHP 7.1's `iterable` and `void` scalar types are now supported](https://github.com/php-integrator/atom-refactoring/issues/48)
