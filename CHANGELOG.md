@@ -1,3 +1,6 @@
+## 1.4.1 (Unreleased)
+* Fix generating methods for properties without any `@var` tag not working
+
 ## 1.4.0 (base 3.0.0)
 * [Improve package activation time](https://github.com/php-integrator/atom-refactoring/issues/46)
 * [PHP 7.1's `iterable` and `void` scalar types are now supported](https://github.com/php-integrator/atom-refactoring/issues/48)

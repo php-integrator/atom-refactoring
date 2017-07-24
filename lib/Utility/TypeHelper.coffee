@@ -43,8 +43,6 @@ class TypeHelper
      * @return {Object|null}
     ###
     getTypeHintForTypeSpecification: (typeSpecification) ->
-        return null if not typeSpecification
-
         types = @getDocblockTypesFromDocblockTypeSpecification(typeSpecification)
 
         return @getTypeHintForDocblockTypes(types)
@@ -192,4 +190,6 @@ class TypeHelper
      * @return {String}
     ###
     buildTypeSpecificationFromTypes: (typeNames) ->
+        return 'mixed' if typeNames.length == 0
+
         return typeNames.join('|')
