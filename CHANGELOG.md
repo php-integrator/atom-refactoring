@@ -1,5 +1,5 @@
-## 1.4.1 (Unreleased)
-* Fix generating methods for properties without any `@var` tag not working
+## 1.4.1
+* [Fix generating methods for properties without any `@var` tag not working](https://github.com/php-integrator/atom-refactoring/issues/51)
 
 ## 1.4.0 (base 3.0.0)
 * [Improve package activation time](https://github.com/php-integrator/atom-refactoring/issues/46)
