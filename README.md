@@ -1,7 +1,7 @@
 # php-integrator/atom-refactoring
 <p align="right">
 :coffee:
-<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=YKTNLZCRHMRTJ">Send me some coffee beans</a>
+<a href="https://liberapay.com/Gert-dev/donate">Send me some coffee beans</a>
 </p>
 
 This package provides refactoring capabilities for your PHP source code using [PHP Integrator](https://github.com/php-integrator/atom-base).
